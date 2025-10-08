@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 
+import { Footer } from "@/components/footer/footer";
 import { Navbar } from "@/components/navbar/navbar";
 import "@/styles/globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
