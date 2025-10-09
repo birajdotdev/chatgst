@@ -1,8 +1,6 @@
-"use client";
+import { ArrowRightIcon } from "lucide-react";
 
-import { useCallback, useState } from "react";
-
-import { PromptInput } from "../prompt-input";
+import { AIPromptInput } from "../ai-prompt-input";
 import { Button } from "../ui/button";
 
 const sampleQuestions = [
@@ -14,93 +12,65 @@ const sampleQuestions = [
 ];
 
 export function Hero() {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleSubmit = useCallback(
-    (question?: string) => {
-      const queryText = question || inputValue;
-      if (queryText.trim()) {
-        // TODO: Implement actual search/submit logic
-        console.log("Submitting query:", queryText);
-        // This would typically trigger navigation, API call, or state update
-      }
-    },
-    [inputValue]
-  );
-
-  const handleQuestionClick = useCallback(
-    (question: string) => {
-      setInputValue(question);
-      handleSubmit(question);
-    },
-    [handleSubmit]
-  );
   return (
-    <section
-      id="home"
-      className="relative m-3 flex min-h-screen flex-col items-center justify-center overflow-hidden rounded-b-2xl bg-gradient-to-b from-background to-primary/20 py-20"
-    >
-      {/* Background curve design */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-        <CurveLineDesign />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 text-center lg:px-0">
-        <div className="flex flex-col items-center gap-12 text-center">
-          <div className="max-w-3xl">
-            <div className="relative">
-              {/* Stars decoration */}
-              <div className="absolute -top-2 -left-6 scale-110">
-                <StarsDesign />
-              </div>
-              <h1 className="text-5xl leading-tight font-semibold">
-                <span className="text-primary">AI-Powered</span> GST Appeal
-                Drafting
-              </h1>
+    <div className="relative m-3 flex min-h-screen items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
+      <CurveLineDesign className="absolute inset-x-0 inset-y-5/12 hidden w-full sm:block" />
+      <div className="relative z-10 w-full max-w-4xl text-center">
+        <h1 className="mt-6 text-2xl leading-tight font-semibold tracking-tighter sm:text-3xl md:text-4xl md:leading-[1.2] lg:text-5xl xl:text-6xl">
+          <span className="relative inline-block">
+            {/* Stars decoration - positioned relative to just the "AI-Powered" text */}
+            <div className="absolute -top-2 -left-2 origin-top-left scale-[0.4] sm:-top-3 sm:-left-3 sm:scale-[0.6] md:-top-4 md:-left-4 md:scale-[0.8] lg:-top-5 lg:-left-5 lg:scale-100">
+              <StarsDesign />
             </div>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-              Simplify GST appeals with automated data extraction, an
-              intelligent knowledge base, and multilingual support. Transform
-              complex legal documents into accurate, structured appeals in
-              minutes.
-            </p>
-          </div>
+            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              AI-Powered
+            </span>
+          </span>{" "}
+          GST Appeal Drafting
+        </h1>
+        <p className="mt-4 text-sm leading-relaxed tracking-tight text-muted-foreground sm:text-base md:mt-6 md:text-lg">
+          Simplify GST appeals with automated data extraction, an intelligent
+          knowledge base, and multilingual support. Transform complex legal
+          documents into accurate, structured appeals in minutes.
+        </p>
 
-          <PromptInput
-            className="w-full max-w-xl"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onSubmit={() => handleSubmit()}
-          />
+        <AIPromptInput className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl" />
 
-          <div className="max-w-5xl">
-            <h2 className="mb-6">
-              Here are some sample questions you can start with:
-            </h2>
-            <div className="flex flex-wrap justify-center gap-4">
-              {sampleQuestions.map((question, idx) => (
-                <Button
-                  key={`${idx}-${question}`}
-                  variant="outline"
-                  className="rounded-full border-muted-foreground/30 bg-transparent text-muted-foreground hover:border-muted-foreground/50"
-                  onClick={() => handleQuestionClick(question)}
-                  aria-label={`Ask question: ${question}`}
-                  role="button"
-                >
-                  {question}
-                </Button>
-              ))}
-            </div>
-          </div>
+        <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
+          Here are some sample questions you can start with:
+        </h2>
+        <div className="mt-3 flex flex-wrap justify-center gap-2 md:mt-4 md:gap-4">
+          {sampleQuestions.map((question, idx) => (
+            <Button
+              key={`${idx}-${question}`}
+              variant="outline"
+              size="sm"
+              className="w-full rounded-full border-muted-foreground/30 !bg-transparent text-xs text-muted-foreground hover:border-muted-foreground/50 sm:w-auto sm:text-sm"
+              aria-label={`Ask question: ${question}`}
+              role="button"
+            >
+              {question}
+            </Button>
+          ))}
         </div>
-        <div className="mt-12 flex items-center justify-center gap-4">
-          <Button size="lg">Start Appeal Drafting</Button>
-          <Button size="lg" variant="outline">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-12 md:gap-4">
+          <Button
+            size="lg"
+            className="group w-full rounded-full text-sm sm:w-auto sm:text-base"
+          >
+            Start Appeal Drafting
+            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1 sm:size-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full rounded-full text-sm sm:w-auto sm:text-base"
+          >
             GST in Your Language
           </Button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -149,7 +119,7 @@ function StarsDesign() {
   );
 }
 
-function CurveLineDesign() {
+function CurveLineDesign(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="1420"
@@ -157,6 +127,8 @@ function CurveLineDesign() {
       viewBox="0 0 1420 91"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid slice"
+      {...props}
     >
       <path
         d="M-70 28.5651C-55.2 31.3651 468 27.0043 735.5 6.56512C1003 -13.8741 1432.5 28.5651 1432.5 28.5651"
