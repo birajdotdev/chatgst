@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${outfit.variable} flex min-h-screen flex-col antialiased`}
       >
         <Navbar />
-        {children}
+        <main className="flex-grow">{children}</main>
         <Footer />
       </body>
     </html>

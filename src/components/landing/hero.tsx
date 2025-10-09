@@ -1,3 +1,7 @@
+"use client";
+
+import { useCallback, useState } from "react";
+
 import { PromptInput } from "../prompt-input";
 import { Button } from "../ui/button";
 
@@ -10,6 +14,27 @@ const sampleQuestions = [
 ];
 
 export function Hero() {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleSubmit = useCallback(
+    (question?: string) => {
+      const queryText = question || inputValue;
+      if (queryText.trim()) {
+        // TODO: Implement actual search/submit logic
+        console.log("Submitting query:", queryText);
+        // This would typically trigger navigation, API call, or state update
+      }
+    },
+    [inputValue]
+  );
+
+  const handleQuestionClick = useCallback(
+    (question: string) => {
+      setInputValue(question);
+      handleSubmit(question);
+    },
+    [handleSubmit]
+  );
   return (
     <section
       id="home"
@@ -41,7 +66,12 @@ export function Hero() {
             </p>
           </div>
 
-          <PromptInput className="w-full max-w-xl" />
+          <PromptInput
+            className="w-full max-w-xl"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onSubmit={() => handleSubmit()}
+          />
 
           <div className="max-w-5xl">
             <h2 className="mb-6">
@@ -53,6 +83,9 @@ export function Hero() {
                   key={`${idx}-${question}`}
                   variant="outline"
                   className="rounded-full border-muted-foreground/30 bg-transparent text-muted-foreground hover:border-muted-foreground/50"
+                  onClick={() => handleQuestionClick(question)}
+                  aria-label={`Ask question: ${question}`}
+                  role="button"
                 >
                   {question}
                 </Button>

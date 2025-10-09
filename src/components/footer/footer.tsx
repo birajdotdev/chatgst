@@ -90,6 +90,7 @@ export function Footer() {
                 href="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
+                aria-label="Open Facebook Profile"
               >
                 <FacebookIcon className="h-5 w-5" />
               </Link>
@@ -97,6 +98,7 @@ export function Footer() {
                 href="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
+                aria-label="Open LinkedIn Profile"
               >
                 <LinkedinIcon className="h-5 w-5" />
               </Link>
@@ -104,6 +106,7 @@ export function Footer() {
                 href="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
+                aria-label="Open X (Twitter) Profile"
               >
                 <XIcon className="h-5 w-5" />
               </Link>
