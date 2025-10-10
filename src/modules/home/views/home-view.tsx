@@ -1,6 +1,6 @@
-import { Hero } from "@/components/landing/hero";
+import { Hero } from "@/modules/home/components/hero";
 
-export default function Home() {
+export function HomeView() {
   return (
     <main className="min-h-screen flex-1">
       <Hero />

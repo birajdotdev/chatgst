@@ -1,12 +1,11 @@
 "use client";
 
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useScroll } from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
-
-import { Logo } from "./logo";
-import { NavMenu } from "./nav-menu";
-import { NavigationSheet } from "./navigation-sheet";
+import { NavMenu } from "@/modules/home/components/navbar/nav-menu";
+import { NavigationSheet } from "@/modules/home/components/navbar/navigation-sheet";
 
 export function Navbar() {
   const { isScrolled } = useScroll({ threshold: 10 });

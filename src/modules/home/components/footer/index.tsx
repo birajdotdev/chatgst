@@ -1,12 +1,11 @@
 import { Route } from "next";
 import Link from "next/link";
 
+import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
-
-import { FacebookIcon } from "../icons/facebook";
-import { LinkedinIcon } from "../icons/linkedin";
-import { XIcon } from "../icons/x";
-import { Logo } from "./logo";
+import { FacebookIcon } from "@/modules/home/components/footer/facebook";
+import { LinkedinIcon } from "@/modules/home/components/footer/linkedin";
+import { XIcon } from "@/modules/home/components/footer/x";
 
 type FooterSection = {
   title: string;
@@ -78,7 +77,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 px-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 xl:px-0">
           <div className="col-span-full sm:col-span-2 md:col-span-3 lg:col-span-2 xl:col-span-2">
             {/* Logo */}
-            <Logo />
+            <Logo variant="white" />
 
             <p className="mt-4 text-primary-foreground/80">
               AI-powered legal drafting and multilingual support to make
