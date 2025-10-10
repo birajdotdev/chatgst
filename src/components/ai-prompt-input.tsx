@@ -22,16 +22,19 @@ import { cn } from "@/lib/utils";
 const SUBMITTING_TIMEOUT = 200;
 const STREAMING_TIMEOUT = 2000;
 
-interface ExamplePromptInputProps {
+interface AIPromptInputProps {
   className?: string;
+  ref?: React.Ref<HTMLTextAreaElement>;
 }
 
-export function AIPromptInput(props: ExamplePromptInputProps) {
+export function AIPromptInput({
+  ref: textareaRef,
+  className,
+}: AIPromptInputProps) {
   const [status, setStatus] = useState<
     "submitted" | "streaming" | "ready" | "error"
   >("ready");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const attachments = usePromptInputAttachments();
 
   const stop = () => {
@@ -79,7 +82,7 @@ export function AIPromptInput(props: ExamplePromptInputProps) {
       globalDrop
       multiple
       onSubmit={handleSubmit}
-      className={cn("drop-shadow-2xl", props.className)}
+      className={cn("drop-shadow-2xl", className)}
     >
       <PromptInputBody>
         <PromptInputAttachments>
