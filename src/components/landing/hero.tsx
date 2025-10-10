@@ -1,19 +1,52 @@
+"use client";
+
 import { ArrowRightIcon } from "lucide-react";
+import { nanoid } from "nanoid";
 
-import { AIPromptInput } from "../ai-prompt-input";
-import { Button } from "../ui/button";
+import {
+  PromptInputProvider,
+  usePromptInputController,
+} from "@/components/ai-elements/prompt-input";
+import { Suggestion } from "@/components/ai-elements/suggestion";
+import { AIPromptInput } from "@/components/ai-prompt-input";
+import { Button } from "@/components/ui/button";
 
-const sampleQuestions = [
-  "How can I file a GST appeal?",
-  "What documents do I need for GST compliance?",
-  "How does AI help in drafting appeals?",
-  "What are the common GST penalty reasons?",
-  "How to calculate interest on delayed GST payments?",
+const suggestions: { key: string; value: string }[] = [
+  { key: nanoid(), value: "How can I file a GST appeal?" },
+  { key: nanoid(), value: "What documents do I need for GST compliance?" },
+  { key: nanoid(), value: "How does AI help in drafting appeals?" },
+  { key: nanoid(), value: "What are the common GST penalty reasons?" },
+  {
+    key: nanoid(),
+    value: "How to calculate interest on delayed GST payments?",
+  },
 ];
 
-export function Hero() {
+function HeroContent() {
+  const controller = usePromptInputController();
+
+  const handleSuggestionClick = (suggestion: string) => {
+    controller.textInput.setInput(suggestion);
+
+    // Focus the input after setting the text
+    // Small delay to ensure the text is set before focusing
+    setTimeout(() => {
+      // eslint-disable-next-line quotes
+      const textareas = document.querySelectorAll('textarea[name="message"]');
+      if (textareas.length > 0) {
+        const textarea = textareas[0] as HTMLTextAreaElement;
+        textarea.focus();
+        // Position cursor at the end
+        textarea.setSelectionRange(
+          textarea.value.length,
+          textarea.value.length
+        );
+      }
+    }, 100);
+  };
+
   return (
-    <div className="relative m-3 flex min-h-screen items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
+    <section className="relative m-3 flex min-h-screen items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
       <CurveLineDesign className="absolute inset-x-0 inset-y-5/12 hidden w-full sm:block" />
       <div className="relative z-10 w-full max-w-4xl text-center">
         <h1 className="mt-6 text-2xl leading-tight font-semibold tracking-tighter sm:text-3xl md:text-4xl md:leading-[1.2] lg:text-5xl xl:text-6xl">
@@ -28,7 +61,7 @@ export function Hero() {
           </span>{" "}
           GST Appeal Drafting
         </h1>
-        <p className="mt-4 text-sm leading-relaxed tracking-tight text-muted-foreground sm:text-base md:mt-6 md:text-lg">
+        <p className="mt-4 text-sm leading-relaxed tracking-tight text-foreground/80 sm:text-base md:mt-6 md:text-lg">
           Simplify GST appeals with automated data extraction, an intelligent
           knowledge base, and multilingual support. Transform complex legal
           documents into accurate, structured appeals in minutes.
@@ -39,18 +72,14 @@ export function Hero() {
         <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
           Here are some sample questions you can start with:
         </h2>
-        <div className="mt-3 flex flex-wrap justify-center gap-2 md:mt-4 md:gap-4">
-          {sampleQuestions.map((question, idx) => (
-            <Button
-              key={`${idx}-${question}`}
-              variant="outline"
-              size="sm"
-              className="w-full rounded-full border-muted-foreground/30 !bg-transparent text-xs text-muted-foreground hover:border-muted-foreground/50 sm:w-auto sm:text-sm"
-              aria-label={`Ask question: ${question}`}
-              role="button"
-            >
-              {question}
-            </Button>
+        <div className="mt-3 flex flex-col flex-wrap justify-center gap-3 sm:flex-row sm:gap-2 md:mt-4 md:gap-4">
+          {suggestions.map((suggestion) => (
+            <Suggestion
+              key={suggestion.key}
+              onClick={handleSuggestionClick}
+              suggestion={suggestion.value}
+              className="border-muted-foreground/80 !bg-transparent text-xs tracking-tight text-foreground/80 shadow-none hover:border-muted-foreground sm:text-sm"
+            />
           ))}
         </div>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-12 md:gap-4">
@@ -70,7 +99,15 @@ export function Hero() {
           </Button>
         </div>
       </div>
-    </div>
+    </section>
+  );
+}
+
+export function Hero() {
+  return (
+    <PromptInputProvider>
+      <HeroContent />
+    </PromptInputProvider>
   );
 }
 

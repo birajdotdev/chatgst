@@ -27,7 +27,6 @@ interface ExamplePromptInputProps {
 }
 
 export function AIPromptInput(props: ExamplePromptInputProps) {
-  const [text, setText] = useState<string>("");
   const [status, setStatus] = useState<
     "submitted" | "streaming" | "ready" | "error"
   >("ready");
@@ -87,9 +86,7 @@ export function AIPromptInput(props: ExamplePromptInputProps) {
           {(attachment) => <PromptInputAttachment data={attachment} />}
         </PromptInputAttachments>
         <PromptInputTextarea
-          onChange={(e) => setText(e.target.value)}
           ref={textareaRef}
-          value={text}
           placeholder="Type any queries related to GST here..."
         />
       </PromptInputBody>
