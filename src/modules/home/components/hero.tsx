@@ -34,7 +34,7 @@ function HeroContent() {
   };
 
   return (
-    <section className="relative m-3 flex min-h-screen items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
+    <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
       <CurveLineDesign className="absolute inset-x-0 inset-y-5/12 hidden w-full sm:block" />
       <div className="relative z-10 w-full max-w-4xl text-center">
         <h1 className="mt-6 text-2xl leading-tight font-semibold tracking-tighter sm:text-3xl md:text-4xl md:leading-[1.2] lg:text-5xl xl:text-6xl">

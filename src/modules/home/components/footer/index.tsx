@@ -72,9 +72,9 @@ const footerSections: FooterSection[] = [
 
 export function Footer() {
   return (
-    <footer className="m-3 rounded-3xl bg-primary">
+    <footer className="m-3 rounded-3xl bg-gradient-to-t from-primary to-primary/85 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 gap-x-8 gap-y-10 px-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 xl:px-0">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <div className="col-span-full sm:col-span-2 md:col-span-3 lg:col-span-2 xl:col-span-2">
             {/* Logo */}
             <Logo variant="white" />

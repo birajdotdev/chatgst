@@ -13,13 +13,13 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 right-0 left-0 z-50 h-16 transition-all duration-300",
+        "fixed top-0 right-0 left-0 z-50 h-16 px-4 transition-all duration-300 sm:px-6 lg:px-8",
         isScrolled
           ? "border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60"
           : "border-b-transparent bg-transparent"
       )}
     >
-      <div className="mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between">
         <Logo />
 
         {/* Desktop Menu */}
