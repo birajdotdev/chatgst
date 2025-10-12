@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useScroll } from "@/hooks/use-scroll";
@@ -38,7 +40,7 @@ export function Navbar() {
             variant="outline"
             className="hidden min-w-[120px] md:inline-flex"
           >
-            Sign In
+            <Link href="/sign-in">Sign In</Link>
           </Button>
 
           {/* Mobile Menu */}
