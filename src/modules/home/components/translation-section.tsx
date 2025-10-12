@@ -4,10 +4,10 @@ import { TranslationInterface } from "@/components/translation-interface";
 
 export function TranslationSection() {
   return (
-    <section className="relative bg-gradient-to-b from-background/50 to-background px-4 py-20 sm:px-6 lg:px-8">
+    <section className="px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-16 text-center">
+        <div className="mb-14 text-center">
           <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
             Multilingual Support
           </h2>

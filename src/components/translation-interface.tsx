@@ -47,7 +47,7 @@ export function TranslationInterface() {
       {/* Desktop */}
       <RadioGroup
         defaultValue="English"
-        className="mb-6 hidden w-fit rounded-full border border-muted bg-card px-6 py-2 md:flex"
+        className="mb-6 hidden w-fit rounded-full border border-input/40 bg-white px-6 py-2 md:flex"
       >
         {languages.map((language) => (
           <div key={language.code} className="relative">
@@ -85,7 +85,7 @@ export function TranslationInterface() {
         </SelectContent>
       </Select>
 
-      <div className="grid grid-cols-1 overflow-hidden rounded-3xl border-card bg-card drop-shadow-lg md:grid-cols-2">
+      <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-input/40 bg-white drop-shadow-lg md:grid-cols-2">
         {/* Input */}
         <InputGroup className="rounded-none border-none p-2">
           <InputGroupAddon align="block-start">

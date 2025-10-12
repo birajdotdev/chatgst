@@ -74,18 +74,11 @@ function HeroContent() {
           ))}
         </div>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-12 md:gap-4">
-          <Button
-            size="lg"
-            className="group w-full rounded-full text-sm sm:w-auto sm:text-base"
-          >
+          <Button size="lg" className="group w-full sm:w-auto">
             Start Appeal Drafting
-            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1 sm:size-5" />
+            <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
           </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full rounded-full text-sm sm:w-auto sm:text-base"
-          >
+          <Button variant="outline" size="lg" className="w-full sm:w-auto">
             GST in Your Language
           </Button>
         </div>

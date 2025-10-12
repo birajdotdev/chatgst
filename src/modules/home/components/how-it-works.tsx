@@ -16,13 +16,13 @@ function StepCard({ stepNumber, icon, title, description }: StepCardProps) {
         {stepNumber}
       </div>
       <div className="flex flex-col items-center text-center">
-        <div className="mb-4 flex h-16 scale-100 items-center justify-center sm:scale-125 lg:scale-150">
+        <div className="mb-2 flex h-16 scale-100 items-center justify-center lg:scale-125">
           {icon}
         </div>
         <h3 className="mb-3 text-xl font-medium tracking-tight text-foreground sm:text-2xl">
           {title}
         </h3>
-        <p className="max-w-sm text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
           {description}
         </p>
       </div>
@@ -71,11 +71,8 @@ export function HowItWorks() {
   ];
 
   return (
-    <section
-      id="how-it-works"
-      className="relative bg-background px-4 py-20 sm:px-6 lg:px-8"
-    >
-      <div className="mx-auto max-w-7xl">
+    <section id="how-it-works" className="relative px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
           <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
             How it Works?
@@ -99,13 +96,8 @@ export function HowItWorks() {
           ))}
         </div>
 
-        <div className="mt-16 flex justify-center">
-          <Button
-            size="lg"
-            className="rounded-lg bg-primary px-8 py-6 text-base font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Begin Appeal Draft
-          </Button>
+        <div className="mt-14 flex justify-center">
+          <Button size="lg">Begin Appeal Draft</Button>
         </div>
       </div>
     </section>

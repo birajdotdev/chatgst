@@ -771,7 +771,7 @@ export const PromptInput = ({
         onSubmit={handleSubmit}
         {...props}
       >
-        <InputGroup className="rounded-xl border-muted bg-card">
+        <InputGroup className="rounded-xl border-input/40 bg-card">
           {children}
         </InputGroup>
       </form>
