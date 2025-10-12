@@ -26,7 +26,10 @@ export function NavMenu(props: ComponentProps<typeof NavigationMenu>) {
       <NavigationMenuList className="gap-3 space-x-0 data-[orientation=vertical]:flex-col data-[orientation=vertical]:items-start data-[orientation=vertical]:justify-start">
         {navMenuItems.map((item) => (
           <NavigationMenuItem key={item.title}>
-            <NavigationMenuLink asChild>
+            <NavigationMenuLink
+              className="!bg-transparent text-base underline-offset-4 hover:!text-primary hover:underline"
+              asChild
+            >
               <Link href={item.href}>{item.title}</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>

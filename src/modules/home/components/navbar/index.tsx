@@ -26,10 +26,20 @@ export function Navbar() {
         <NavMenu className="hidden md:block" />
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="hidden sm:inline-flex">
+          <Button
+            variant="default"
+            size="lg"
+            className="hidden min-w-[120px] md:inline-flex"
+          >
+            Get Started
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="hidden min-w-[120px] md:inline-flex"
+          >
             Sign In
           </Button>
-          <Button>Get Started</Button>
 
           {/* Mobile Menu */}
           <div className="md:hidden">
