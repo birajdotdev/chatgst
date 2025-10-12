@@ -42,7 +42,7 @@ export function Navbar() {
             variant="outline"
             className="hidden min-w-[120px] md:inline-flex"
           >
-            Sign In
+            <Link href="/sign-in">Sign In</Link>
           </Button>
 
           {/* Mobile Menu */}

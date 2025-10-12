@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Menu } from "lucide-react";
 
 import { Logo } from "@/components/logo";
@@ -26,7 +28,7 @@ export function NavigationSheet() {
             Get Started
           </Button>
           <Button size="lg" variant="outline" className="inline-flex">
-            Sign In
+            <Link href="/sign-in">Sign In</Link>
           </Button>
         </SheetFooter>
       </SheetContent>
