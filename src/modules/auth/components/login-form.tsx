@@ -114,7 +114,7 @@ export function LoginForm({
             <Field>
               <Button type="submit">Login</Button>
               <Button variant="outline" asChild>
-                <Link href="#">Sign Up</Link>
+                <Link href="/sign-up">Sign Up</Link>
               </Button>
             </Field>
           </FieldGroup>
