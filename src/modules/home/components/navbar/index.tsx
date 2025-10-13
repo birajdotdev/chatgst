@@ -33,14 +33,14 @@ export function Navbar() {
             size="lg"
             className="hidden min-w-[120px] md:inline-flex"
           >
-            Get Started
+            <Link href="/sign-up">Get Started</Link>
           </Button>
           <Button
             size="lg"
             variant="outline"
             className="hidden min-w-[120px] md:inline-flex"
           >
-            <Link href="/sign-in">Sign In</Link>
+            <Link href="/sign-in">Login</Link>
           </Button>
 
           {/* Mobile Menu */}
