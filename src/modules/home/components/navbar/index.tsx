@@ -32,6 +32,7 @@ export function Navbar() {
             variant="default"
             size="lg"
             className="hidden min-w-[120px] md:inline-flex"
+            asChild
           >
             <Link href="/sign-up">Get Started</Link>
           </Button>
@@ -39,6 +40,7 @@ export function Navbar() {
             size="lg"
             variant="outline"
             className="hidden min-w-[120px] md:inline-flex"
+            asChild
           >
             <Link href="/sign-in">Login</Link>
           </Button>

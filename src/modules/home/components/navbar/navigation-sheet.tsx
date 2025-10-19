@@ -24,10 +24,10 @@ export function NavigationSheet() {
         <Logo />
         <NavMenu orientation="vertical" className="mt-6 [&>div]:h-full" />
         <SheetFooter>
-          <Button variant="default" size="lg" className="inline-flex">
-            Get Started
+          <Button variant="default" size="lg" className="inline-flex" asChild>
+            <Link href="/sign-up">Get Started</Link>
           </Button>
-          <Button size="lg" variant="outline" className="inline-flex">
+          <Button size="lg" variant="outline" className="inline-flex" asChild>
             <Link href="/sign-in">Sign In</Link>
           </Button>
         </SheetFooter>
