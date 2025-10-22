@@ -1,6 +1,6 @@
 "use client";
 
-import { FileTextIcon, GlobeIcon, InfoIcon } from "lucide-react";
+import { BrainIcon, ClipboardCheckIcon, UsersIcon } from "lucide-react";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -27,22 +27,21 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 export function Features() {
   const features = [
     {
-      icon: <FileTextIcon className="size-6" />,
-      title: "Smarter Document Management",
+      icon: <BrainIcon className="size-6" />,
+      title: "AI-Powered GST Query Solver",
       description:
-        "Automate the extraction, classification, and processing of your documents with precision. Save time, reduce errors, and make informed decisions faster.",
+        "Instant answers to all your GST-related questions using AI.",
     },
     {
-      icon: <InfoIcon className="size-6" />,
-      title: "Comprehensive Legal Insights",
-      description:
-        "Access an organized repository of legal information and resources. Stay compliant, informed, and confident with every decision.",
+      icon: <ClipboardCheckIcon className="size-6" />,
+      title: "Appeal & Notice Assistance",
+      description: "Step-by-sep help to draft replies and manage GST appeals.",
     },
     {
-      icon: <GlobeIcon className="size-6" />,
-      title: "Communication Without Barriers",
+      icon: <UsersIcon className="size-6" />,
+      title: "Expert Consultancy Connect",
       description:
-        "Interact seamlessly in multiple languages. Our platform ensures accurate understanding and processing, no matter the language you speak.",
+        "Connect with trusted GST consultants for personalized guidance.",
     },
   ];
 
