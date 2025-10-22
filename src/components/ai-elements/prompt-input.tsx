@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   type ChangeEvent,
   type ChangeEventHandler,
@@ -288,7 +287,7 @@ export function PromptInputAttachment({
       {...props}
     >
       {mediaType === "image" ? (
-        <Image
+        <img
           alt={data.filename || "attachment"}
           className="size-full rounded-md object-cover"
           height={56}
@@ -558,52 +557,36 @@ export const PromptInput = ({
     [matchesAccept, maxFiles, maxFileSize, onError]
   );
 
-  const add = useMemo(
-    () =>
-      usingProvider
-        ? (files: File[] | FileList) => controller.attachments.add(files)
-        : addLocal,
-    [usingProvider, controller, addLocal]
-  );
+  const add = usingProvider
+    ? (files: File[] | FileList) => controller.attachments.add(files)
+    : addLocal;
 
-  const remove = useMemo(
-    () =>
-      usingProvider
-        ? (id: string) => controller.attachments.remove(id)
-        : (id: string) =>
-            setItems((prev) => {
-              const found = prev.find((file) => file.id === id);
-              if (found?.url) {
-                URL.revokeObjectURL(found.url);
-              }
-              return prev.filter((file) => file.id !== id);
-            }),
-    [usingProvider, controller]
-  );
+  const remove = usingProvider
+    ? (id: string) => controller.attachments.remove(id)
+    : (id: string) =>
+        setItems((prev) => {
+          const found = prev.find((file) => file.id === id);
+          if (found?.url) {
+            URL.revokeObjectURL(found.url);
+          }
+          return prev.filter((file) => file.id !== id);
+        });
 
-  const clear = useMemo(
-    () =>
-      usingProvider
-        ? () => controller.attachments.clear()
-        : () =>
-            setItems((prev) => {
-              for (const file of prev) {
-                if (file.url) {
-                  URL.revokeObjectURL(file.url);
-                }
-              }
-              return [];
-            }),
-    [usingProvider, controller]
-  );
+  const clear = usingProvider
+    ? () => controller.attachments.clear()
+    : () =>
+        setItems((prev) => {
+          for (const file of prev) {
+            if (file.url) {
+              URL.revokeObjectURL(file.url);
+            }
+          }
+          return [];
+        });
 
-  const openFileDialog = useMemo(
-    () =>
-      usingProvider
-        ? () => controller.attachments.openFileDialog()
-        : openFileDialogLocal,
-    [usingProvider, controller, openFileDialogLocal]
-  );
+  const openFileDialog = usingProvider
+    ? () => controller.attachments.openFileDialog()
+    : openFileDialogLocal;
 
   // Let provider know about our hidden file input so external menus can call openFileDialog()
   useEffect(() => {
@@ -1047,13 +1030,13 @@ interface SpeechRecognition extends EventTarget {
   lang: string;
   start(): void;
   stop(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
   onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
     | null;
   onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
     | null;
 }
 
