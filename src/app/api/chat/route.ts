@@ -4,6 +4,8 @@ import {
   createUIMessageStreamResponse,
 } from "ai";
 
+import { env } from "@/env";
+
 export const maxDuration = 30;
 
 interface ChatGSTResponse {
@@ -18,7 +20,7 @@ interface ChatGSTResponse {
  * @returns Promise with ChatGST API response
  */
 async function queryChatGST(query: string): Promise<ChatGSTResponse> {
-  const response = await fetch("https://chatgst.in/api/general-query/", {
+  const response = await fetch(`${env.API_URL}/general-query/`, {
     method: "POST",
     headers: {
       accept: "application/json",
@@ -43,8 +45,6 @@ export async function POST(req: Request) {
     // Parse incoming request from AI SDK's DefaultChatTransport
     const { messages }: { messages: UIMessage[] } = await req.json();
 
-    console.log("📨 Received messages:", messages.length);
-
     // Extract the last user message
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();
 
@@ -68,12 +68,8 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("🔍 Query to ChatGST:", userQuery);
-
     // Call ChatGST FastAPI RAG backend
     const result = await queryChatGST(userQuery);
-
-    console.log("✅ ChatGST response received:", result.optimized_query);
 
     // Transform ChatGST response to AI SDK UIMessage stream format
     const stream = createUIMessageStream({

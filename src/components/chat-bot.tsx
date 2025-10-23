@@ -18,3 +18,18 @@ export function ChatBot({ messages, ...props }: ChatProps) {
     </div>
   );
 }
+
+function PromptInputUploadButton() {
+  const attachments = usePromptInputAttachments();
+
+  return (
+    <PromptInputButton
+      variant="outline"
+      className="rounded-full"
+      onClick={() => attachments.openFileDialog()}
+    >
+      <PlusCircle />
+      <span>Upload Document</span>
+    </PromptInputButton>
+  );
+}
