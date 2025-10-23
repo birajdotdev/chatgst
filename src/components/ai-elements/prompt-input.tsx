@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   type ChangeEvent,
   type ChangeEventHandler,
@@ -287,7 +288,7 @@ export function PromptInputAttachment({
       {...props}
     >
       {mediaType === "image" ? (
-        <img
+        <Image
           alt={data.filename || "attachment"}
           className="size-full rounded-md object-cover"
           height={56}
@@ -557,36 +558,52 @@ export const PromptInput = ({
     [matchesAccept, maxFiles, maxFileSize, onError]
   );
 
-  const add = usingProvider
-    ? (files: File[] | FileList) => controller.attachments.add(files)
-    : addLocal;
+  const add = useMemo(
+    () =>
+      usingProvider
+        ? (files: File[] | FileList) => controller.attachments.add(files)
+        : addLocal,
+    [usingProvider, controller?.attachments, addLocal]
+  );
 
-  const remove = usingProvider
-    ? (id: string) => controller.attachments.remove(id)
-    : (id: string) =>
-        setItems((prev) => {
-          const found = prev.find((file) => file.id === id);
-          if (found?.url) {
-            URL.revokeObjectURL(found.url);
-          }
-          return prev.filter((file) => file.id !== id);
-        });
+  const remove = useMemo(
+    () =>
+      usingProvider
+        ? (id: string) => controller.attachments.remove(id)
+        : (id: string) =>
+            setItems((prev) => {
+              const found = prev.find((file) => file.id === id);
+              if (found?.url) {
+                URL.revokeObjectURL(found.url);
+              }
+              return prev.filter((file) => file.id !== id);
+            }),
+    [usingProvider, controller?.attachments]
+  );
 
-  const clear = usingProvider
-    ? () => controller.attachments.clear()
-    : () =>
-        setItems((prev) => {
-          for (const file of prev) {
-            if (file.url) {
-              URL.revokeObjectURL(file.url);
-            }
-          }
-          return [];
-        });
+  const clear = useMemo(
+    () =>
+      usingProvider
+        ? () => controller.attachments.clear()
+        : () =>
+            setItems((prev) => {
+              for (const file of prev) {
+                if (file.url) {
+                  URL.revokeObjectURL(file.url);
+                }
+              }
+              return [];
+            }),
+    [usingProvider, controller?.attachments]
+  );
 
-  const openFileDialog = usingProvider
-    ? () => controller.attachments.openFileDialog()
-    : openFileDialogLocal;
+  const openFileDialog = useMemo(
+    () =>
+      usingProvider
+        ? () => controller.attachments.openFileDialog()
+        : openFileDialogLocal,
+    [usingProvider, controller?.attachments, openFileDialogLocal]
+  );
 
   // Let provider know about our hidden file input so external menus can call openFileDialog()
   useEffect(() => {
@@ -711,7 +728,8 @@ export const PromptInput = ({
 
     // Convert blob URLs to data URLs asynchronously
     Promise.all(
-      files.map(async ({ id, ...item }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      files.map(async ({ id: _id, ...item }) => {
         if (item.url && item.url.startsWith("blob:")) {
           return {
             ...item,
@@ -743,7 +761,7 @@ export const PromptInput = ({
             controller.textInput.clear();
           }
         }
-      } catch (error) {
+      } catch {
         // Don't clear on error - user may want to retry
       }
     });
@@ -768,7 +786,7 @@ export const PromptInput = ({
         onSubmit={handleSubmit}
         {...props}
       >
-        <InputGroup>{children}</InputGroup>
+        <InputGroup className="rounded-xl bg-card">{children}</InputGroup>
       </form>
     </>
   );
@@ -1029,13 +1047,13 @@ interface SpeechRecognition extends EventTarget {
   lang: string;
   start(): void;
   stop(): void;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
   onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown)
     | null;
   onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown)
     | null;
 }
 
