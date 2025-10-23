@@ -1,13 +1,17 @@
-import { FlatCompat } from "@eslint/eslintrc";
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import pluginCheckFile from "eslint-plugin-check-file";
+import pluginN from "eslint-plugin-n";
 
 const eslintConfig = [
-  ...compat.config({
-    extends: ["next/core-web-vitals", "next/typescript", "prettier"],
-    plugins: ["n", "check-file"],
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  {
+    plugins: {
+      n: pluginN,
+      "check-file": pluginCheckFile,
+    },
     rules: {
       "prefer-arrow-callback": "error",
       "prefer-template": "error",
@@ -30,7 +34,8 @@ const eslintConfig = [
         },
       ],
     },
-  }),
+  },
+  eslintConfigPrettier,
   {
     ignores: [
       "node_modules/**",
