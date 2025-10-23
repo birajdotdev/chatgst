@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 
+import { Toaster } from "sonner";
+
 import "@/styles/globals.css";
 
 const outfit = Outfit({
@@ -24,7 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} antialiased`}>{children}</body>
+      <body className={`${outfit.variable} antialiased`}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }
