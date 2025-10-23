@@ -5,6 +5,7 @@ import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { PlusCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Conversation,
@@ -22,25 +23,37 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
+  usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
+import { Response } from "@/components/ai-elements/response";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Badge } from "@/components/ui/badge";
 
-import { Shimmer } from "./ai-elements/shimmer";
-
-export default function ChatBot() {
+export function ChatBot() {
   const [input, setInput] = useState("");
-  const { messages, status, sendMessage, error } = useChat({
+  const { messages, status, sendMessage, stop } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
     }),
   });
 
   const handleSubmit = (message: PromptInputMessage) => {
+    if (status === "streaming" || status === "submitted") {
+      stop();
+      return;
+    }
+
     const hasText = Boolean(message.text);
     const hasAttachments = Boolean(message.files?.length);
 
     if (!(hasText || hasAttachments)) {
       return;
+    }
+
+    if (message.files?.length) {
+      toast.success("Files attached", {
+        description: `${message.files.length} file(s) attached to message`,
+      });
     }
 
     sendMessage({
@@ -50,63 +63,39 @@ export default function ChatBot() {
     setInput("");
   };
 
-  console.log("Messages array:", messages);
-  console.log("Status:", status);
-  console.log("Error:", error);
-
   return (
-    <div className="relative mx-auto size-full h-screen max-w-4xl p-6">
+    <div className="relative mx-auto size-full max-w-4xl">
       <div className="flex h-full flex-col">
         <Conversation className="h-full">
           <ConversationContent>
-            {messages.map((message) => {
-              console.log(
-                "Message:",
-                message.id,
-                "Role:",
-                message.role,
-                "Parts count:",
-                message.parts.length
-              );
-              return (
-                <div key={message.id}>
-                  {message.parts.map((part, i) => {
-                    console.log("Part type:", part.type, "Part:", part);
-                    switch (part.type) {
-                      case "text":
-                        return (
-                          <Fragment key={`${message.id}-${i}`}>
-                            <Message from={message.role}>
-                              <div className="flex flex-col gap-3">
-                                <Badge
-                                  className="hidden w-fit rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 text-primary uppercase group-[.is-assistant]:block"
-                                  variant="outline"
-                                >
-                                  ChatGST AI
-                                </Badge>
-                                <MessageContent className="group-[.is-assistant]:bg-transparent group-[.is-assistant]:p-0 group-[.is-user]:max-w-full group-[.is-user]:border group-[.is-user]:bg-card group-[.is-user]:text-foreground">
-                                  {message.role === "assistant" ? (
-                                    <div
-                                      className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-none"
-                                      dangerouslySetInnerHTML={{
-                                        __html: part.text,
-                                      }}
-                                    />
-                                  ) : (
-                                    part.text
-                                  )}
-                                </MessageContent>
-                              </div>
-                            </Message>
-                          </Fragment>
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
-                </div>
-              );
-            })}
+            {messages.map((message) => (
+              <div key={message.id}>
+                {message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case "text":
+                      return (
+                        <Fragment key={`${message.id}-${i}`}>
+                          <Message from={message.role}>
+                            <div className="flex flex-col gap-3">
+                              <Badge
+                                className="hidden w-fit rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 text-primary uppercase group-[.is-assistant]:block"
+                                variant="outline"
+                              >
+                                ChatGST AI
+                              </Badge>
+                              <MessageContent className="group-[.is-assistant]:bg-transparent group-[.is-assistant]:p-0 group-[.is-user]:max-w-full group-[.is-user]:border group-[.is-user]:bg-card group-[.is-user]:text-foreground">
+                                <Response>{part.text}</Response>
+                              </MessageContent>
+                            </div>
+                          </Message>
+                        </Fragment>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ))}
             {status === "submitted" && (
               <Shimmer>Generating your response...</Shimmer>
             )}
@@ -115,7 +104,7 @@ export default function ChatBot() {
 
         <PromptInput
           onSubmit={handleSubmit}
-          className="mt-4 rounded bg-card"
+          className="mt-4 rounded"
           globalDrop
           multiple
         >
@@ -132,13 +121,10 @@ export default function ChatBot() {
           </PromptInputBody>
           <PromptInputFooter>
             <PromptInputTools>
-              <PromptInputButton variant="outline" className="rounded-full">
-                <PlusCircle />
-                <span>Upload Document</span>
-              </PromptInputButton>
+              <PromptInputUploadButton />
             </PromptInputTools>
             <PromptInputSubmit
-              disabled={!input && !status}
+              disabled={(!input.trim() && !status) || status === "streaming"}
               status={status}
               className="rounded-full"
             />
@@ -146,5 +132,20 @@ export default function ChatBot() {
         </PromptInput>
       </div>
     </div>
+  );
+}
+
+function PromptInputUploadButton() {
+  const attachments = usePromptInputAttachments();
+
+  return (
+    <PromptInputButton
+      variant="outline"
+      className="rounded-full"
+      onClick={() => attachments.openFileDialog()}
+    >
+      <PlusCircle />
+      <span>Upload Document</span>
+    </PromptInputButton>
   );
 }
