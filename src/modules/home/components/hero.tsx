@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 
-import { ArrowRightIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 
 import {
@@ -11,7 +10,6 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { AIPromptInput } from "@/components/ai-prompt-input";
-import { Button } from "@/components/ui/button";
 
 const suggestions: { key: string; value: string }[] = [
   { key: nanoid(), value: "How can I file a GST appeal?" },
@@ -34,8 +32,8 @@ function HeroContent() {
   };
 
   return (
-    <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-32">
-      <CurveLineDesign className="absolute inset-x-0 inset-y-5/12 hidden w-full sm:block" />
+    <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-26">
+      <CurveLineDesign className="absolute inset-x-0 inset-y-1/2 mx-auto hidden w-full max-w-7xl sm:block" />
       <div className="relative z-10 w-full max-w-4xl text-center">
         <h1 className="mt-6 text-2xl leading-tight font-semibold tracking-tighter sm:text-3xl md:text-4xl md:leading-[1.2] lg:text-5xl xl:text-6xl">
           <span className="relative inline-block">
@@ -47,12 +45,12 @@ function HeroContent() {
               AI-Powered
             </span>
           </span>{" "}
-          GST Appeal Drafting
+          GST Genie
         </h1>
-        <p className="mt-4 text-sm leading-relaxed tracking-tight text-foreground/80 sm:text-base md:mt-6 md:text-lg">
-          Simplify GST appeals with automated data extraction, an intelligent
-          knowledge base, and multilingual support. Transform complex legal
-          documents into accurate, structured appeals in minutes.
+        <p className="mt-4 text-sm leading-relaxed tracking-tight text-pretty text-foreground/80 sm:text-base md:mt-6 md:text-lg">
+          Get clear, reliable, and quick GST solutions backed by AI, helping you
+          understand and navigate GST rules, notices, and compliance
+          effortlessly.
         </p>
 
         <AIPromptInput
@@ -69,18 +67,9 @@ function HeroContent() {
               key={suggestion.key}
               onClick={handleSuggestionClick}
               suggestion={suggestion.value}
-              className="border-muted-foreground/80 !bg-transparent text-xs tracking-tight text-foreground/80 shadow-none hover:border-muted-foreground sm:text-sm"
+              className="text-xs tracking-tight sm:text-sm"
             />
           ))}
-        </div>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:mt-12 md:gap-4">
-          <Button size="lg" className="group w-full sm:w-auto">
-            Start Appeal Drafting
-            <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-          </Button>
-          <Button variant="outline" size="lg" className="w-full sm:w-auto">
-            GST in Your Language
-          </Button>
         </div>
       </div>
     </section>
@@ -168,9 +157,9 @@ function CurveLineDesign(props: React.SVGProps<SVGSVGElement>) {
           y2="15.1647"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.0288462" stopColor="white" />
-          <stop offset="0.615385" stopColor="#D97D54" />
-          <stop offset="1" stopColor="white" />
+          <stop offset="0.0288462" stopColor="var(--background)" />
+          <stop offset="0.615385" stopColor="var(--primary)" />
+          <stop offset="1" stopColor="var(--background)" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1391_2235"
@@ -180,9 +169,9 @@ function CurveLineDesign(props: React.SVGProps<SVGSVGElement>) {
           y2="76.1647"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.0336538" stopColor="white" />
-          <stop offset="0.498934" stopColor="#D97D54" />
-          <stop offset="1" stopColor="white" />
+          <stop offset="0.0336538" stopColor="var(--background)" />
+          <stop offset="0.498934" stopColor="var(--primary)" />
+          <stop offset="1" stopColor="var(--background)" />
         </linearGradient>
       </defs>
     </svg>

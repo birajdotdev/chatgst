@@ -110,12 +110,13 @@ export function TranslationInterface() {
                   key={suggestion.id}
                   suggestion={suggestion.value}
                   size="sm"
+                  className="bg-transparent"
                 />
               ))}
             </Suggestions>
           </InputGroupAddon>
           <InputGroupAddon align="block-end">
-            <Button variant="outline" className="rounded-full">
+            <Button variant="outline" className="rounded-full bg-transparent">
               <PlusCircleIcon />
               <span>Upload Document</span>
             </Button>
