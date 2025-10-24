@@ -1,4 +1,5 @@
 import { Route } from "next";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 
 import { Logo } from "@/components/logo";
@@ -70,9 +71,12 @@ const footerSections: FooterSection[] = [
   },
 ];
 
-export function Footer() {
+export async function Footer() {
+  "use cache";
+  cacheLife("days");
+
   return (
-    <footer className="m-3 rounded-3xl bg-gradient-to-t from-primary to-primary/85 px-4 sm:px-6 lg:px-8">
+    <footer className="m-3 rounded-3xl bg-linear-to-t from-primary to-primary/85 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           <div className="col-span-full sm:col-span-2 md:col-span-3 lg:col-span-2 xl:col-span-2">
