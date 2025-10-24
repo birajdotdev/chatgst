@@ -6,7 +6,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install pnpm using corepack (available in Node 20+)
+# Install pnpm
 RUN npm install -g pnpm
 
 # Install dependencies based on the preferred package manager
@@ -17,8 +17,12 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 
-# Install pnpm using corepack
+# Install pnpm
 RUN npm install -g pnpm
+
+# Accept API_URL as build argument
+ARG API_URL
+ENV API_URL=${API_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
