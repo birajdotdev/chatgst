@@ -15,9 +15,9 @@ type NavMenuItem = {
 };
 
 const navMenuItems: NavMenuItem[] = [
-  { title: "Home", href: "#hero" },
-  { title: "About", href: "#" },
-  { title: "How it works", href: "#how-it-works" },
+  { title: "Home", href: "/" },
+  { title: "About", href: "/#about" },
+  { title: "How it works", href: "/#how-it-works" },
 ];
 
 export function NavMenu(props: ComponentProps<typeof NavigationMenu>) {

@@ -40,11 +40,25 @@ import { nanoid } from "nanoid";
 
 import { Button } from "@/components/ui/button";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
   InputGroup,
   InputGroupAddon,
@@ -84,7 +98,7 @@ export type TextInputContext = {
   clear: () => void;
 };
 
-export type PromptInputController = {
+export type PromptInputControllerProps = {
   textInput: TextInputContext;
   attachments: AttachmentsContext;
   /** INTERNAL: Allows PromptInput to register its file textInput + "open" callback */
@@ -94,13 +108,15 @@ export type PromptInputController = {
   ) => void;
 };
 
-const PromptInputContext = createContext<PromptInputController | null>(null);
+const PromptInputController = createContext<PromptInputControllerProps | null>(
+  null
+);
 const ProviderAttachmentsContext = createContext<AttachmentsContext | null>(
   null
 );
 
 export const usePromptInputController = () => {
-  const ctx = useContext(PromptInputContext);
+  const ctx = useContext(PromptInputController);
   if (!ctx) {
     throw new Error(
       "Wrap your component inside <PromptInputProvider> to use usePromptInputController()."
@@ -110,9 +126,8 @@ export const usePromptInputController = () => {
 };
 
 // Optional variants (do NOT throw). Useful for dual-mode components.
-const useOptionalPromptInputController = () => {
-  return useContext(PromptInputContext);
-};
+const useOptionalPromptInputController = () =>
+  useContext(PromptInputController);
 
 export const useProviderAttachments = () => {
   const ctx = useContext(ProviderAttachmentsContext);
@@ -124,9 +139,8 @@ export const useProviderAttachments = () => {
   return ctx;
 };
 
-const useOptionalProviderAttachments = () => {
-  return useContext(ProviderAttachmentsContext);
-};
+const useOptionalProviderAttachments = () =>
+  useContext(ProviderAttachmentsContext);
 
 export type PromptInputProviderProps = PropsWithChildren<{
   initialInput?: string;
@@ -207,7 +221,7 @@ export function PromptInputProvider({
     []
   );
 
-  const controller = useMemo<PromptInputController>(
+  const controller = useMemo<PromptInputControllerProps>(
     () => ({
       textInput: {
         value: textInput,
@@ -221,11 +235,11 @@ export function PromptInputProvider({
   );
 
   return (
-    <PromptInputContext.Provider value={controller}>
+    <PromptInputController.Provider value={controller}>
       <ProviderAttachmentsContext.Provider value={attachments}>
         {children}
       </ProviderAttachmentsContext.Provider>
-    </PromptInputContext.Provider>
+    </PromptInputController.Provider>
   );
 }
 
@@ -420,7 +434,7 @@ export type PromptInputMessage = {
 
 export type PromptInputProps = Omit<
   HTMLAttributes<HTMLFormElement>,
-  "onSubmit"
+  "onSubmit" | "onError"
 > & {
   accept?: string; // e.g., "image/*" or leave undefined for any
   multiple?: boolean;
@@ -655,15 +669,16 @@ export const PromptInput = ({
     };
   }, [add, globalDrop]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (!usingProvider) {
         for (const f of files) {
           if (f.url) URL.revokeObjectURL(f.url);
         }
       }
-    };
-  }, [usingProvider, files]);
+    },
+    [usingProvider, files]
+  );
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     if (event.currentTarget.files) {
@@ -714,7 +729,7 @@ export const PromptInput = ({
     // Convert blob URLs to data URLs asynchronously
     Promise.all(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      files.map(async ({ id, ...item }) => {
+      files.map(async ({ id: _id, ...item }) => {
         if (item.url && item.url.startsWith("blob:")) {
           return {
             ...item,
@@ -746,7 +761,7 @@ export const PromptInput = ({
             controller.textInput.clear();
           }
         }
-      } catch (error) {
+      } catch {
         // Don't clear on error - user may want to retry
       }
     });
@@ -771,9 +786,7 @@ export const PromptInput = ({
         onSubmit={handleSubmit}
         {...props}
       >
-        <InputGroup className="rounded-xl border-input/40 bg-card">
-          {children}
-        </InputGroup>
+        <InputGroup className="rounded-xl bg-card">{children}</InputGroup>
       </form>
     </>
   );
@@ -808,13 +821,31 @@ export const PromptInputTextarea = ({
 }: PromptInputTextareaProps) => {
   const controller = useOptionalPromptInputController();
   const attachments = usePromptInputAttachments();
+  const [isComposing, setIsComposing] = useState(false);
 
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key === "Enter") {
-      if (e.nativeEvent.isComposing) return;
-      if (e.shiftKey) return;
+      if (isComposing || e.nativeEvent.isComposing) {
+        return;
+      }
+      if (e.shiftKey) {
+        return;
+      }
       e.preventDefault();
       e.currentTarget.form?.requestSubmit();
+    }
+
+    // Remove last attachment when Backspace is pressed and textarea is empty
+    if (
+      e.key === "Backspace" &&
+      e.currentTarget.value === "" &&
+      attachments.files.length > 0
+    ) {
+      e.preventDefault();
+      const lastAttachment = attachments.files.at(-1);
+      if (lastAttachment) {
+        attachments.remove(lastAttachment.id);
+      }
     }
   };
 
@@ -858,6 +889,8 @@ export const PromptInputTextarea = ({
     <InputGroupTextarea
       className={cn("field-sizing-content max-h-48 min-h-16", className)}
       name="message"
+      onCompositionEnd={() => setIsComposing(false)}
+      onCompositionStart={() => setIsComposing(true)}
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       placeholder={placeholder}
@@ -867,15 +900,31 @@ export const PromptInputTextarea = ({
   );
 };
 
-export type PromptInputToolbarProps = Omit<
+export type PromptInputHeaderProps = Omit<
   ComponentProps<typeof InputGroupAddon>,
   "align"
 >;
 
-export const PromptInputToolbar = ({
+export const PromptInputHeader = ({
   className,
   ...props
-}: PromptInputToolbarProps) => (
+}: PromptInputHeaderProps) => (
+  <InputGroupAddon
+    align="block-end"
+    className={cn("order-first gap-1", className)}
+    {...props}
+  />
+);
+
+export type PromptInputFooterProps = Omit<
+  ComponentProps<typeof InputGroupAddon>,
+  "align"
+>;
+
+export const PromptInputFooter = ({
+  className,
+  ...props
+}: PromptInputFooterProps) => (
   <InputGroupAddon
     align="block-end"
     className={cn("justify-between gap-1", className)}
@@ -1059,60 +1108,69 @@ export const PromptInputSpeechButton = ({
   ...props
 }: PromptInputSpeechButtonProps) => {
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
-    null
+
+  // Check browser support once during initialization
+  const [isSpeechSupported] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
   );
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-    ) {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      const speechRecognition = new SpeechRecognition();
+    // Initialize only once using lazy pattern
+    if (recognitionRef.current === null) {
+      if (
+        typeof window !== "undefined" &&
+        ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+      ) {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const speechRecognition = new SpeechRecognition();
 
-      speechRecognition.continuous = true;
-      speechRecognition.interimResults = true;
-      speechRecognition.lang = "en-US";
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = "en-US";
 
-      speechRecognition.onstart = () => {
-        setIsListening(true);
-      };
+        speechRecognition.onstart = () => {
+          setIsListening(true);
+        };
 
-      speechRecognition.onend = () => {
-        setIsListening(false);
-      };
+        speechRecognition.onend = () => {
+          setIsListening(false);
+        };
 
-      speechRecognition.onresult = (event) => {
-        let finalTranscript = "";
+        speechRecognition.onresult = (event) => {
+          let finalTranscript = "";
 
-        for (let i = 0; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+          const results = Array.from(event.results);
+
+          for (const result of results) {
+            if (result.isFinal) {
+              finalTranscript += result[0].transcript;
+            }
           }
-        }
 
-        if (finalTranscript && textareaRef?.current) {
-          const textarea = textareaRef.current;
-          const currentValue = textarea.value;
-          const newValue =
-            currentValue + (currentValue ? " " : "") + finalTranscript;
+          if (finalTranscript && textareaRef?.current) {
+            const textarea = textareaRef.current;
+            const currentValue = textarea.value;
+            const newValue =
+              currentValue + (currentValue ? " " : "") + finalTranscript;
 
-          textarea.value = newValue;
-          textarea.dispatchEvent(new Event("input", { bubbles: true }));
-          onTranscriptionChange?.(newValue);
-        }
-      };
+            textarea.value = newValue;
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            onTranscriptionChange?.(newValue);
+          }
+        };
 
-      speechRecognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-        setIsListening(false);
-      };
+        speechRecognition.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+          setIsListening(false);
+        };
 
-      recognitionRef.current = speechRecognition;
-      setRecognition(speechRecognition);
+        recognitionRef.current = speechRecognition;
+      }
     }
 
     return () => {
@@ -1123,14 +1181,18 @@ export const PromptInputSpeechButton = ({
   }, [textareaRef, onTranscriptionChange]);
 
   const toggleListening = useCallback(() => {
-    if (!recognition) return;
+    if (!recognitionRef.current) {
+      return;
+    }
 
     if (isListening) {
-      recognition.stop();
+      recognitionRef.current.stop();
+      setIsListening(false);
     } else {
-      recognition.start();
+      recognitionRef.current.start();
+      setIsListening(true);
     }
-  }, [recognition, isListening]);
+  }, [isListening]);
 
   return (
     <PromptInputButton
@@ -1139,7 +1201,7 @@ export const PromptInputSpeechButton = ({
         isListening && "animate-pulse bg-accent text-accent-foreground",
         className
       )}
-      disabled={!recognition}
+      disabled={!isSpeechSupported}
       onClick={toggleListening}
       {...props}
     >
@@ -1202,4 +1264,149 @@ export const PromptInputModelSelectValue = ({
   ...props
 }: PromptInputModelSelectValueProps) => (
   <SelectValue className={cn(className)} {...props} />
+);
+
+export type PromptInputHoverCardProps = ComponentProps<typeof HoverCard>;
+
+export const PromptInputHoverCard = ({
+  openDelay = 0,
+  closeDelay = 0,
+  ...props
+}: PromptInputHoverCardProps) => (
+  <HoverCard closeDelay={closeDelay} openDelay={openDelay} {...props} />
+);
+
+export type PromptInputHoverCardTriggerProps = ComponentProps<
+  typeof HoverCardTrigger
+>;
+
+export const PromptInputHoverCardTrigger = (
+  props: PromptInputHoverCardTriggerProps
+) => <HoverCardTrigger {...props} />;
+
+export type PromptInputHoverCardContentProps = ComponentProps<
+  typeof HoverCardContent
+>;
+
+export const PromptInputHoverCardContent = ({
+  align = "start",
+  ...props
+}: PromptInputHoverCardContentProps) => (
+  <HoverCardContent align={align} {...props} />
+);
+
+export type PromptInputTabsListProps = HTMLAttributes<HTMLDivElement>;
+
+export const PromptInputTabsList = ({
+  className,
+  ...props
+}: PromptInputTabsListProps) => <div className={cn(className)} {...props} />;
+
+export type PromptInputTabProps = HTMLAttributes<HTMLDivElement>;
+
+export const PromptInputTab = ({
+  className,
+  ...props
+}: PromptInputTabProps) => <div className={cn(className)} {...props} />;
+
+export type PromptInputTabLabelProps = HTMLAttributes<HTMLHeadingElement>;
+
+export const PromptInputTabLabel = ({
+  className,
+  ...props
+}: PromptInputTabLabelProps) => (
+  <h3
+    className={cn(
+      "mb-2 px-3 text-xs font-medium text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+);
+
+export type PromptInputTabBodyProps = HTMLAttributes<HTMLDivElement>;
+
+export const PromptInputTabBody = ({
+  className,
+  ...props
+}: PromptInputTabBodyProps) => (
+  <div className={cn("space-y-1", className)} {...props} />
+);
+
+export type PromptInputTabItemProps = HTMLAttributes<HTMLDivElement>;
+
+export const PromptInputTabItem = ({
+  className,
+  ...props
+}: PromptInputTabItemProps) => (
+  <div
+    className={cn(
+      "flex items-center gap-2 px-3 py-2 text-xs hover:bg-accent",
+      className
+    )}
+    {...props}
+  />
+);
+
+export type PromptInputCommandProps = ComponentProps<typeof Command>;
+
+export const PromptInputCommand = ({
+  className,
+  ...props
+}: PromptInputCommandProps) => <Command className={cn(className)} {...props} />;
+
+export type PromptInputCommandInputProps = ComponentProps<typeof CommandInput>;
+
+export const PromptInputCommandInput = ({
+  className,
+  ...props
+}: PromptInputCommandInputProps) => (
+  <CommandInput className={cn(className)} {...props} />
+);
+
+export type PromptInputCommandListProps = ComponentProps<typeof CommandList>;
+
+export const PromptInputCommandList = ({
+  className,
+  ...props
+}: PromptInputCommandListProps) => (
+  <CommandList className={cn(className)} {...props} />
+);
+
+export type PromptInputCommandEmptyProps = ComponentProps<typeof CommandEmpty>;
+
+export const PromptInputCommandEmpty = ({
+  className,
+  ...props
+}: PromptInputCommandEmptyProps) => (
+  <CommandEmpty className={cn(className)} {...props} />
+);
+
+export type PromptInputCommandGroupProps = ComponentProps<typeof CommandGroup>;
+
+export const PromptInputCommandGroup = ({
+  className,
+  ...props
+}: PromptInputCommandGroupProps) => (
+  <CommandGroup className={cn(className)} {...props} />
+);
+
+export type PromptInputCommandItemProps = ComponentProps<typeof CommandItem>;
+
+export const PromptInputCommandItem = ({
+  className,
+  ...props
+}: PromptInputCommandItemProps) => (
+  <CommandItem className={cn(className)} {...props} />
+);
+
+export type PromptInputCommandSeparatorProps = ComponentProps<
+  typeof CommandSeparator
+>;
+
+export const PromptInputCommandSeparator = ({
+  className,
+  ...props
+}: PromptInputCommandSeparatorProps) => (
+  <CommandSeparator className={cn(className)} {...props} />
 );

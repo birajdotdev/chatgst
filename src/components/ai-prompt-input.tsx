@@ -10,10 +10,10 @@ import {
   PromptInputAttachments,
   PromptInputBody,
   PromptInputButton,
+  PromptInputFooter,
   type PromptInputMessage,
   PromptInputSubmit,
   PromptInputTextarea,
-  PromptInputToolbar,
   PromptInputTools,
   usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
@@ -93,7 +93,7 @@ export function AIPromptInput({
           placeholder="Type any queries related to GST here..."
         />
       </PromptInputBody>
-      <PromptInputToolbar>
+      <PromptInputFooter>
         <PromptInputTools>
           <PromptInputButton
             variant="outline"
@@ -105,7 +105,7 @@ export function AIPromptInput({
           </PromptInputButton>
         </PromptInputTools>
         <PromptInputSubmit status={status} className="rounded-full" />
-      </PromptInputToolbar>
+      </PromptInputFooter>
     </PromptInput>
   );
 }
