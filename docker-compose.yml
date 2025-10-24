@@ -3,11 +3,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - API_URL=${API_URL}
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - API_URL=${API_URL}
     restart: unless-stopped
-    # Uncomment to add environment variables from .env file
-    # env_file:
-    #   - .env.production
+    env_file:
+      - .env
