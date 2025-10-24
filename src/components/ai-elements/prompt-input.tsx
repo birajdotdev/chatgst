@@ -563,7 +563,7 @@ export const PromptInput = ({
       usingProvider
         ? (files: File[] | FileList) => controller.attachments.add(files)
         : addLocal,
-    [usingProvider, controller?.attachments, addLocal]
+    [usingProvider, controller, addLocal]
   );
 
   const remove = useMemo(
@@ -578,7 +578,7 @@ export const PromptInput = ({
               }
               return prev.filter((file) => file.id !== id);
             }),
-    [usingProvider, controller?.attachments]
+    [usingProvider, controller]
   );
 
   const clear = useMemo(
@@ -594,7 +594,7 @@ export const PromptInput = ({
               }
               return [];
             }),
-    [usingProvider, controller?.attachments]
+    [usingProvider, controller]
   );
 
   const openFileDialog = useMemo(
@@ -602,7 +602,7 @@ export const PromptInput = ({
       usingProvider
         ? () => controller.attachments.openFileDialog()
         : openFileDialogLocal,
-    [usingProvider, controller?.attachments, openFileDialogLocal]
+    [usingProvider, controller, openFileDialogLocal]
   );
 
   // Let provider know about our hidden file input so external menus can call openFileDialog()
@@ -1108,62 +1108,69 @@ export const PromptInputSpeechButton = ({
   ...props
 }: PromptInputSpeechButtonProps) => {
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
-    null
+
+  // Check browser support once during initialization
+  const [isSpeechSupported] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
   );
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-    ) {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      const speechRecognition = new SpeechRecognition();
+    // Initialize only once using lazy pattern
+    if (recognitionRef.current === null) {
+      if (
+        typeof window !== "undefined" &&
+        ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+      ) {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const speechRecognition = new SpeechRecognition();
 
-      speechRecognition.continuous = true;
-      speechRecognition.interimResults = true;
-      speechRecognition.lang = "en-US";
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = "en-US";
 
-      speechRecognition.onstart = () => {
-        setIsListening(true);
-      };
+        speechRecognition.onstart = () => {
+          setIsListening(true);
+        };
 
-      speechRecognition.onend = () => {
-        setIsListening(false);
-      };
+        speechRecognition.onend = () => {
+          setIsListening(false);
+        };
 
-      speechRecognition.onresult = (event) => {
-        let finalTranscript = "";
+        speechRecognition.onresult = (event) => {
+          let finalTranscript = "";
 
-        const results = Array.from(event.results);
+          const results = Array.from(event.results);
 
-        for (const result of results) {
-          if (result.isFinal) {
-            finalTranscript += result[0].transcript;
+          for (const result of results) {
+            if (result.isFinal) {
+              finalTranscript += result[0].transcript;
+            }
           }
-        }
 
-        if (finalTranscript && textareaRef?.current) {
-          const textarea = textareaRef.current;
-          const currentValue = textarea.value;
-          const newValue =
-            currentValue + (currentValue ? " " : "") + finalTranscript;
+          if (finalTranscript && textareaRef?.current) {
+            const textarea = textareaRef.current;
+            const currentValue = textarea.value;
+            const newValue =
+              currentValue + (currentValue ? " " : "") + finalTranscript;
 
-          textarea.value = newValue;
-          textarea.dispatchEvent(new Event("input", { bubbles: true }));
-          onTranscriptionChange?.(newValue);
-        }
-      };
+            textarea.value = newValue;
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            onTranscriptionChange?.(newValue);
+          }
+        };
 
-      speechRecognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-        setIsListening(false);
-      };
+        speechRecognition.onerror = (event) => {
+          console.error("Speech recognition error:", event.error);
+          setIsListening(false);
+        };
 
-      recognitionRef.current = speechRecognition;
-      setRecognition(speechRecognition);
+        recognitionRef.current = speechRecognition;
+      }
     }
 
     return () => {
@@ -1174,16 +1181,18 @@ export const PromptInputSpeechButton = ({
   }, [textareaRef, onTranscriptionChange]);
 
   const toggleListening = useCallback(() => {
-    if (!recognition) {
+    if (!recognitionRef.current) {
       return;
     }
 
     if (isListening) {
-      recognition.stop();
+      recognitionRef.current.stop();
+      setIsListening(false);
     } else {
-      recognition.start();
+      recognitionRef.current.start();
+      setIsListening(true);
     }
-  }, [recognition, isListening]);
+  }, [isListening]);
 
   return (
     <PromptInputButton
@@ -1192,7 +1201,7 @@ export const PromptInputSpeechButton = ({
         isListening && "animate-pulse bg-accent text-accent-foreground",
         className
       )}
-      disabled={!recognition}
+      disabled={!isSpeechSupported}
       onClick={toggleListening}
       {...props}
     >
