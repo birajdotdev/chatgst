@@ -563,7 +563,7 @@ export const PromptInput = ({
       usingProvider
         ? (files: File[] | FileList) => controller.attachments.add(files)
         : addLocal,
-    [usingProvider, controller?.attachments, addLocal]
+    [usingProvider, controller, addLocal]
   );
 
   const remove = useMemo(
@@ -578,7 +578,7 @@ export const PromptInput = ({
               }
               return prev.filter((file) => file.id !== id);
             }),
-    [usingProvider, controller?.attachments]
+    [usingProvider, controller]
   );
 
   const clear = useMemo(
@@ -594,7 +594,7 @@ export const PromptInput = ({
               }
               return [];
             }),
-    [usingProvider, controller?.attachments]
+    [usingProvider, controller]
   );
 
   const openFileDialog = useMemo(
@@ -602,7 +602,7 @@ export const PromptInput = ({
       usingProvider
         ? () => controller.attachments.openFileDialog()
         : openFileDialogLocal,
-    [usingProvider, controller?.attachments, openFileDialogLocal]
+    [usingProvider, controller, openFileDialogLocal]
   );
 
   // Let provider know about our hidden file input so external menus can call openFileDialog()
