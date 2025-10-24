@@ -33,7 +33,7 @@ export function ChatBot() {
   const [input, setInput] = useState("");
   const { messages, status, sendMessage, stop } = useChat({
     transport: new DefaultChatTransport({
-      api: "/api/chat",
+      api: "/chat/api",
     }),
   });
 
@@ -116,7 +116,6 @@ export function ChatBot() {
               onChange={(e) => setInput(e.target.value)}
               value={input}
               placeholder="Type any queries related to GST here"
-              className="!rounded-2xl"
             />
           </PromptInputBody>
           <PromptInputFooter>
