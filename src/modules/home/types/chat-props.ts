@@ -6,6 +6,6 @@ export interface ChatProps {
   messages: UIMessage<unknown, UIDataTypes, UITools>[];
   status?: ChatStatus;
   value?: string;
-  setValue?: (value: string) => void;
+  onChange?: (value: string) => void;
   onSubmit: PromptInputProps["onSubmit"];
 }

@@ -23,7 +23,7 @@ export function Hero(props: Omit<ChatProps, "messages">) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSuggestionClick = (suggestion: string) => {
-    props.setValue?.(suggestion);
+    props.onChange?.(suggestion);
     inputRef.current?.focus();
   };
 
@@ -50,6 +50,7 @@ export function Hero(props: Omit<ChatProps, "messages">) {
         </p>
 
         <AIPromptInput
+          ref={inputRef}
           className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
           {...props}
         />
