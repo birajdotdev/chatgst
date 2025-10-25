@@ -21,10 +21,10 @@ import {
 import { cn } from "@/lib/utils";
 
 interface AIPromptInputProps {
-  ref: React.Ref<HTMLTextAreaElement>;
+  ref?: React.Ref<HTMLTextAreaElement>;
   className?: string;
   value?: string;
-  onChange?: (value: string) => void;
+  setValue?: (value: string) => void;
   status?: ChatStatus;
   onSubmit: PromptInputProps["onSubmit"];
   placeholder?: string;
@@ -35,7 +35,7 @@ export function AIPromptInput({
   ref,
   className,
   value,
-  onChange,
+  setValue,
   onSubmit,
   status,
   placeholder = "Type any queries related to GST here",
@@ -54,7 +54,7 @@ export function AIPromptInput({
         </PromptInputAttachments>
         <PromptInputTextarea
           ref={ref}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={(e) => setValue?.(e.target.value)}
           value={value}
           placeholder={placeholder}
         />

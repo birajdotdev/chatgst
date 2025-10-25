@@ -4,12 +4,9 @@ import { useRef } from "react";
 
 import { nanoid } from "nanoid";
 
-import {
-  PromptInputProvider,
-  usePromptInputController,
-} from "@/components/ai-elements/prompt-input";
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { AIPromptInput } from "@/components/ai-prompt-input";
+import { ChatProps } from "@/modules/home/types/chat-props";
 
 const suggestions: { key: string; value: string }[] = [
   { key: nanoid(), value: "How can I file a GST appeal?" },
@@ -22,12 +19,11 @@ const suggestions: { key: string; value: string }[] = [
   },
 ];
 
-function HeroContent() {
-  const controller = usePromptInputController();
+export function Hero(props: Omit<ChatProps, "messages">) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSuggestionClick = (suggestion: string) => {
-    controller.textInput.setInput(suggestion);
+    props.setValue?.(suggestion);
     inputRef.current?.focus();
   };
 
@@ -54,9 +50,8 @@ function HeroContent() {
         </p>
 
         <AIPromptInput
-          ref={inputRef}
           className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
-          onSubmit={() => {}}
+          {...props}
         />
 
         <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
@@ -74,14 +69,6 @@ function HeroContent() {
         </div>
       </div>
     </section>
-  );
-}
-
-export function Hero() {
-  return (
-    <PromptInputProvider>
-      <HeroContent />
-    </PromptInputProvider>
   );
 }
 
