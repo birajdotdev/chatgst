@@ -4,12 +4,9 @@ import { useRef } from "react";
 
 import { nanoid } from "nanoid";
 
-import {
-  PromptInputProvider,
-  usePromptInputController,
-} from "@/components/ai-elements/prompt-input";
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { AIPromptInput } from "@/components/ai-prompt-input";
+import { ChatProps } from "@/modules/home/types/chat-props";
 
 const suggestions: { key: string; value: string }[] = [
   { key: nanoid(), value: "How can I file a GST appeal?" },
@@ -22,17 +19,16 @@ const suggestions: { key: string; value: string }[] = [
   },
 ];
 
-function HeroContent() {
-  const controller = usePromptInputController();
+export function Hero(props: Omit<ChatProps, "messages">) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSuggestionClick = (suggestion: string) => {
-    controller.textInput.setInput(suggestion);
+    props.onChange?.(suggestion);
     inputRef.current?.focus();
   };
 
   return (
-    <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-26">
+    <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-linear-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-26">
       <CurveLineDesign className="absolute inset-x-0 inset-y-1/2 mx-auto hidden w-full max-w-7xl sm:block" />
       <div className="relative z-10 w-full max-w-4xl text-center">
         <h1 className="mt-6 text-2xl leading-tight font-semibold tracking-tighter sm:text-3xl md:text-4xl md:leading-[1.2] lg:text-5xl xl:text-6xl">
@@ -41,7 +37,7 @@ function HeroContent() {
             <div className="absolute -top-2 -left-2 origin-top-left scale-[0.4] sm:-top-3 sm:-left-3 sm:scale-[0.6] md:-top-4 md:-left-4 md:scale-[0.8] lg:-top-5 lg:-left-5 lg:scale-100">
               <StarsDesign />
             </div>
-            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               AI-Powered
             </span>
           </span>{" "}
@@ -56,6 +52,7 @@ function HeroContent() {
         <AIPromptInput
           ref={inputRef}
           className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
+          {...props}
         />
 
         <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
@@ -73,14 +70,6 @@ function HeroContent() {
         </div>
       </div>
     </section>
-  );
-}
-
-export function Hero() {
-  return (
-    <PromptInputProvider>
-      <HeroContent />
-    </PromptInputProvider>
   );
 }
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Activity } from "react";
 
-import { PlusCircleIcon } from "lucide-react";
+import { ChatStatus } from "ai";
+import { PlusCircle } from "lucide-react";
 
 import {
   PromptInput,
@@ -11,7 +12,7 @@ import {
   PromptInputBody,
   PromptInputButton,
   PromptInputFooter,
-  type PromptInputMessage,
+  PromptInputProps,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
@@ -19,93 +20,72 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
 
-const SUBMITTING_TIMEOUT = 200;
-const STREAMING_TIMEOUT = 2000;
-
 interface AIPromptInputProps {
-  className?: string;
   ref?: React.Ref<HTMLTextAreaElement>;
+  className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  status?: ChatStatus;
+  onSubmit: PromptInputProps["onSubmit"];
+  placeholder?: string;
+  showUploadButton?: boolean;
 }
 
 export function AIPromptInput({
-  ref: textareaRef,
+  ref,
   className,
+  value,
+  onChange,
+  onSubmit,
+  status,
+  placeholder = "Type any queries related to GST here",
+  showUploadButton = false,
 }: AIPromptInputProps) {
-  const [status, setStatus] = useState<
-    "submitted" | "streaming" | "ready" | "error"
-  >("ready");
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const attachments = usePromptInputAttachments();
-
-  const stop = () => {
-    console.log("Stopping request...");
-
-    // Clear any pending timeouts
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    setStatus("ready");
-  };
-
-  const handleSubmit = (message: PromptInputMessage) => {
-    // If currently streaming or submitted, stop instead of submitting
-    if (status === "streaming" || status === "submitted") {
-      stop();
-      return;
-    }
-
-    const hasText = Boolean(message.text);
-    const hasAttachments = Boolean(message.files?.length);
-
-    if (!(hasText || hasAttachments)) {
-      return;
-    }
-
-    setStatus("submitted");
-
-    console.log("Submitting message:", message);
-
-    setTimeout(() => {
-      setStatus("streaming");
-    }, SUBMITTING_TIMEOUT);
-
-    timeoutRef.current = setTimeout(() => {
-      setStatus("ready");
-      timeoutRef.current = null;
-    }, STREAMING_TIMEOUT);
-  };
-
   return (
     <PromptInput
+      className={cn("drop-shadow-xl", className)}
+      onSubmit={onSubmit}
       globalDrop
       multiple
-      onSubmit={handleSubmit}
-      className={cn("drop-shadow-2xl", className)}
     >
       <PromptInputBody>
         <PromptInputAttachments>
           {(attachment) => <PromptInputAttachment data={attachment} />}
         </PromptInputAttachments>
         <PromptInputTextarea
-          ref={textareaRef}
-          placeholder="Type any queries related to GST here..."
+          ref={ref}
+          onChange={(e) => onChange?.(e.target.value)}
+          value={value}
+          placeholder={placeholder}
         />
       </PromptInputBody>
       <PromptInputFooter>
         <PromptInputTools>
-          <PromptInputButton
-            variant="outline"
-            className="rounded-full"
-            onClick={() => attachments.openFileDialog()}
-          >
-            <PlusCircleIcon />
-            <span>Upload Documents</span>
-          </PromptInputButton>
+          <Activity mode={showUploadButton ? "visible" : "hidden"}>
+            <AIPromptInputUploadButton />
+          </Activity>
         </PromptInputTools>
-        <PromptInputSubmit status={status} className="rounded-full" />
+        <PromptInputSubmit
+          disabled={!value?.trim() || status === "streaming"}
+          status={status}
+          className="rounded-full"
+        />
       </PromptInputFooter>
     </PromptInput>
+  );
+}
+
+function AIPromptInputUploadButton() {
+  const attachments = usePromptInputAttachments();
+
+  return (
+    <PromptInputButton
+      variant="outline"
+      className="rounded-full"
+      onClick={() => attachments.openFileDialog()}
+    >
+      <PlusCircle />
+      <span>Upload Document</span>
+    </PromptInputButton>
   );
 }
