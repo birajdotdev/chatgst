@@ -53,7 +53,7 @@ export function HomeView() {
       <Activity mode={hasChatStarted ? "hidden" : "visible"}>
         <LandingView
           value={input}
-          setValue={setInput}
+          onChange={setInput}
           onSubmit={handleSubmit}
           status={status}
         />
@@ -61,7 +61,7 @@ export function HomeView() {
       <Activity mode={hasChatStarted ? "visible" : "hidden"}>
         <ChatView
           value={input}
-          setValue={setInput}
+          onChange={setInput}
           messages={messages}
           onSubmit={handleSubmit}
           status={status}

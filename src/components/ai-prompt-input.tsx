@@ -24,7 +24,7 @@ interface AIPromptInputProps {
   ref?: React.Ref<HTMLTextAreaElement>;
   className?: string;
   value?: string;
-  setValue?: (value: string) => void;
+  onChange?: (value: string) => void;
   status?: ChatStatus;
   onSubmit: PromptInputProps["onSubmit"];
   placeholder?: string;
@@ -35,7 +35,7 @@ export function AIPromptInput({
   ref,
   className,
   value,
-  setValue,
+  onChange,
   onSubmit,
   status,
   placeholder = "Type any queries related to GST here",
@@ -54,7 +54,7 @@ export function AIPromptInput({
         </PromptInputAttachments>
         <PromptInputTextarea
           ref={ref}
-          onChange={(e) => setValue?.(e.target.value)}
+          onChange={(e) => onChange?.(e.target.value)}
           value={value}
           placeholder={placeholder}
         />
