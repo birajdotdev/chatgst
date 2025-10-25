@@ -1,9 +1,9 @@
 import { Route } from "next";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
+import { Copyright } from "@/modules/home/components/footer/copyright";
 import { FacebookIcon } from "@/modules/home/components/footer/facebook";
 import { LinkedinIcon } from "@/modules/home/components/footer/linkedin";
 import { XIcon } from "@/modules/home/components/footer/x";
@@ -71,10 +71,7 @@ const footerSections: FooterSection[] = [
   },
 ];
 
-export async function Footer() {
-  "use cache";
-  cacheLife("days");
-
+export function Footer() {
   return (
     <footer className="m-3 rounded-3xl bg-linear-to-t from-primary to-primary/85 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -138,7 +135,7 @@ export async function Footer() {
         <div className="flex items-center justify-center px-6 py-8 xl:px-0">
           {/* Copyright */}
           <span className="text-primary-foreground/80">
-            &copy; {new Date().getFullYear()}{" "}
+            <Copyright />
             <Link
               href="/"
               className="transition-colors hover:text-primary-foreground"
