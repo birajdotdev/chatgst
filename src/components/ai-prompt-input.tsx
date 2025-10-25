@@ -37,7 +37,7 @@ export function AIPromptInput({
   value,
   onChange,
   onSubmit,
-  status = "ready",
+  status,
   placeholder = "Type any queries related to GST here",
   showUploadButton = false,
 }: AIPromptInputProps) {
@@ -66,7 +66,7 @@ export function AIPromptInput({
           </Activity>
         </PromptInputTools>
         <PromptInputSubmit
-          disabled={(!value?.trim() && !status) || status === "streaming"}
+          disabled={!value?.trim() || status === "streaming"}
           status={status}
           className="rounded-full"
         />
