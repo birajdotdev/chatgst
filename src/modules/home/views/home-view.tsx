@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, useState } from "react";
+import { Activity, startTransition, useState } from "react";
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -45,7 +45,7 @@ export function HomeView() {
       files: message.files,
     });
     setInput("");
-    setHasChatStarted(true);
+    startTransition(() => setHasChatStarted(true));
   };
 
   return (
