@@ -66,7 +66,7 @@ export function AIPromptInput({
           </Activity>
         </PromptInputTools>
         <PromptInputSubmit
-          disabled={!value?.trim() || status === "streaming"}
+          disabled={status === "submitted"}
           status={status}
           className="rounded-full"
         />

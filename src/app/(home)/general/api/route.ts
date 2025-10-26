@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         const htmlResponse = result.response;
 
         // Split into chunks for smooth streaming effect
-        const chunkSize = 50;
+        const chunkSize = 20;
         for (let i = 0; i < htmlResponse.length; i += chunkSize) {
           const chunk = htmlResponse.slice(i, i + chunkSize);
           writer.write({
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
             delta: chunk,
           });
           // Small delay for smooth streaming UX
-          await new Promise((resolve) => setTimeout(resolve, 20));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
         // End the text message
