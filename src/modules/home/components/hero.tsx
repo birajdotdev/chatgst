@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { ViewTransition, useRef } from "react";
 
 import { nanoid } from "nanoid";
 
@@ -49,11 +49,13 @@ export function Hero(props: Omit<ChatProps, "messages">) {
           effortlessly.
         </p>
 
-        <AIPromptInput
-          ref={inputRef}
-          className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
-          {...props}
-        />
+        <ViewTransition name="general-chat">
+          <AIPromptInput
+            ref={inputRef}
+            className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
+            {...props}
+          />
+        </ViewTransition>
 
         <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
           Here are some sample questions you can start with:

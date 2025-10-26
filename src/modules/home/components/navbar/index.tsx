@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useScroll } from "@/hooks/use-scroll";
@@ -20,7 +22,9 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
 
         {/* Desktop Menu */}
         <NavMenu className="hidden md:block" />
