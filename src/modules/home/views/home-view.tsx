@@ -26,7 +26,7 @@ export function HomeView() {
   const [input, setInput] = useState("");
   const [openAlert, setOpenAlert] = useState<boolean>(false);
 
-  const { messages, status, sendMessage, stop } = useChat({
+  const { messages, status, sendMessage, stop, regenerate } = useChat({
     id: "chat-gst-general",
     transport: new DefaultChatTransport({
       api: "/general/api",
@@ -34,6 +34,14 @@ export function HomeView() {
     onError: (error) => {
       if (error.message.includes("QUOTA_EXCEEDED")) {
         setOpenAlert(true);
+      } else {
+        toast.error("Failed to send chat", {
+          description: error.message || "An unknown error occurred.",
+          action: {
+            label: "Retry",
+            onClick: () => regenerate(),
+          },
+        });
       }
     },
   });
