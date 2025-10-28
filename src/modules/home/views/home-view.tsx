@@ -4,21 +4,38 @@ import { Activity, startTransition, useState } from "react";
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { CircleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ChatView } from "@/modules/home/views/chat-view";
 import { LandingView } from "@/modules/home/views/landing-view";
 
 export function HomeView() {
   const [hasChatStarted, setHasChatStarted] = useState<boolean>(false);
   const [input, setInput] = useState("");
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
 
   const { messages, status, sendMessage, stop } = useChat({
     id: "chat-gst-general",
     transport: new DefaultChatTransport({
       api: "/general/api",
     }),
+    onError: (error) => {
+      if (error.message.includes("QUOTA_EXCEEDED")) {
+        setOpenAlert(true);
+      }
+    },
   });
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -49,7 +66,7 @@ export function HomeView() {
   };
 
   return (
-    <>
+    <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
       <Activity mode={hasChatStarted ? "hidden" : "visible"}>
         <LandingView
           value={input}
@@ -58,6 +75,7 @@ export function HomeView() {
           status={status}
         />
       </Activity>
+
       <Activity mode={hasChatStarted ? "visible" : "hidden"}>
         <ChatView
           value={input}
@@ -67,6 +85,33 @@ export function HomeView() {
           status={status}
         />
       </Activity>
-    </>
+
+      <AlertDialogContent className="gap-6 rounded-xl!">
+        <div className="flex h-fit! justify-center">
+          <div className="rounded-full bg-primary/5 p-2 pb-0.5">
+            <div className="inline-block rounded-full bg-primary/10 p-3">
+              <CircleAlert className="text-primary" />
+            </div>
+          </div>
+        </div>
+        <AlertDialogHeader className="gap-3 text-center!">
+          <AlertDialogTitle className="text-xl">
+            Limit reached! Please login to chat more
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            You&apos;ve used your 3 free chats. Please log in to continue
+            chatting without interruptions.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="justify-center! gap-3">
+          <AlertDialogCancel className="min-w-[145px]">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction className="min-w-[145px]">
+            Log In to continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

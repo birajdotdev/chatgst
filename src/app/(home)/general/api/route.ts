@@ -10,42 +10,13 @@ export const maxDuration = 30;
 
 interface ChatGSTResponse {
   query: string;
-  optimized_query: string;
   response: string;
+  time_taken: number;
 }
 
-/**
- * Query the ChatGST FastAPI RAG backend
- * @param query - User's question about GST
- * @returns Promise with ChatGST API response
- */
-async function queryChatGST(query: string): Promise<ChatGSTResponse> {
-  const response = await fetch(`${env.API_URL}/general-query/`, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({ query }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`ChatGST API error: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
-/**
- * Next.js API Route - Industry Standard Wrapper Pattern
- * Acts as an adapter between AI SDK's DefaultChatTransport and ChatGST FastAPI backend
- */
 export async function POST(req: Request) {
   try {
-    // Parse incoming request from AI SDK's DefaultChatTransport
     const { messages }: { messages: UIMessage[] } = await req.json();
-
-    // Extract the last user message
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();
 
     if (!lastUserMessage) {
@@ -55,7 +26,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // Extract text from message parts (AI SDK format)
     const userQuery = lastUserMessage.parts
       .filter((part) => part.type === "text")
       .map((part) => (part as { type: "text"; text: string }).text)
@@ -68,49 +38,81 @@ export async function POST(req: Request) {
       });
     }
 
-    // Call ChatGST FastAPI RAG backend
-    const result = await queryChatGST(userQuery);
+    const clientCookies = req.headers.get("cookie");
 
-    // Transform ChatGST response to AI SDK UIMessage stream format
+    const backendResponse = await fetch(`${env.API_URL}/general-query/`, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...(clientCookies && { cookie: clientCookies }),
+      },
+      credentials: "include",
+      body: new URLSearchParams({ query: userQuery }),
+    });
+
+    if (!backendResponse.ok) {
+      const errorData = await backendResponse.json().catch(() => null);
+      const isQuotaError =
+        backendResponse.status === 403 &&
+        errorData?.detail?.includes("free quota");
+
+      if (isQuotaError) {
+        return new Response(
+          JSON.stringify({
+            error: "QUOTA_EXCEEDED",
+            message: errorData.detail,
+            requiresAuth: true,
+          }),
+          {
+            status: 403,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      throw new Error(`ChatGST API error: ${backendResponse.statusText}`);
+    }
+
+    const result: ChatGSTResponse = await backendResponse.json();
+    const setCookieHeader = backendResponse.headers.get("set-cookie");
+
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
-        // Start the text message
         writer.write({
           type: "text-start",
           id: "response-text",
         });
-
-        // Write the HTML response as text chunks
-        const htmlResponse = result.response;
-
-        // Split into chunks for smooth streaming effect
+        const response = result.response;
         const chunkSize = 20;
-        for (let i = 0; i < htmlResponse.length; i += chunkSize) {
-          const chunk = htmlResponse.slice(i, i + chunkSize);
+
+        for (let i = 0; i < response.length; i += chunkSize) {
+          const chunk = response.slice(i, i + chunkSize);
           writer.write({
             type: "text-delta",
             id: "response-text",
             delta: chunk,
           });
-          // Small delay for smooth streaming UX
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
-        // End the text message
         writer.write({
           type: "text-end",
           id: "response-text",
         });
-
-        // Finish the message
         writer.write({
           type: "finish",
         });
       },
     });
 
-    // Return response using createUIMessageStreamResponse
-    return createUIMessageStreamResponse({ stream });
+    const streamResponse = createUIMessageStreamResponse({ stream });
+
+    if (setCookieHeader) {
+      streamResponse.headers.set("Set-Cookie", setCookieHeader);
+    }
+
+    return streamResponse;
   } catch (error) {
     console.error("❌ Error in chat API:", error);
 
