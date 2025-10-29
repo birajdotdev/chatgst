@@ -6,24 +6,13 @@ import {
 
 import { env } from "@/env";
 
-export const maxDuration = 30;
-
-interface ChatGSTResponse {
-  query: string;
-  response: string;
-  time_taken: number;
-}
-
 export async function POST(req: Request) {
   try {
     const { messages }: { messages: UIMessage[] } = await req.json();
     const lastUserMessage = messages.filter((m) => m.role === "user").pop();
 
     if (!lastUserMessage) {
-      return new Response(JSON.stringify({ error: "No user message found" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json({ error: "No user message found" }, { status: 400 });
     }
 
     const userQuery = lastUserMessage.parts
@@ -32,49 +21,60 @@ export async function POST(req: Request) {
       .join(" ");
 
     if (!userQuery.trim()) {
-      return new Response(JSON.stringify({ error: "Empty message content" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json({ error: "Empty message content" }, { status: 400 });
     }
 
     const clientCookies = req.headers.get("cookie");
 
+    const formData = new FormData();
+    formData.append("query", userQuery);
+
     const backendResponse = await fetch(`${env.API_URL}/general-query/`, {
       method: "POST",
       headers: {
-        accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
         ...(clientCookies && { cookie: clientCookies }),
       },
       credentials: "include",
-      body: new URLSearchParams({ query: userQuery }),
+      body: formData,
     });
 
+    // Handle errors from backend
     if (!backendResponse.ok) {
-      const errorData = await backendResponse.json().catch(() => null);
+      const errorText = await backendResponse.text();
+      let errorData = null;
+
+      // Try to parse as JSON
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        // Not JSON, use text directly
+      }
+
       const isQuotaError =
         backendResponse.status === 403 &&
-        errorData?.detail?.includes("free quota");
+        (errorData?.detail?.includes("free quota") ||
+          errorText.includes("free quota"));
 
       if (isQuotaError) {
-        return new Response(
-          JSON.stringify({
-            error: "QUOTA_EXCEEDED",
-            message: errorData.detail,
-            requiresAuth: true,
-          }),
+        return Response.json(
           {
-            status: 403,
-            headers: { "Content-Type": "application/json" },
-          }
+            error:
+              "QUOTA_EXCEEDED: You have reached your free quota. Please login or signup to continue.",
+          },
+          { status: 403 }
         );
       }
+
+      // Log other errors for debugging
+      console.error("Backend error:", {
+        status: backendResponse.status,
+        statusText: backendResponse.statusText,
+        body: errorText,
+      });
 
       throw new Error(`ChatGST API error: ${backendResponse.statusText}`);
     }
 
-    const result: ChatGSTResponse = await backendResponse.json();
     const setCookieHeader = backendResponse.headers.get("set-cookie");
 
     const stream = createUIMessageStream({
@@ -83,23 +83,39 @@ export async function POST(req: Request) {
           type: "text-start",
           id: "response-text",
         });
-        const response = result.response;
-        const chunkSize = 20;
 
-        for (let i = 0; i < response.length; i += chunkSize) {
-          const chunk = response.slice(i, i + chunkSize);
-          writer.write({
-            type: "text-delta",
-            id: "response-text",
-            delta: chunk,
-          });
-          await new Promise((resolve) => setTimeout(resolve, 100));
+        const reader = backendResponse.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) {
+          throw new Error("No response body from backend");
+        }
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+              break;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+
+            writer.write({
+              type: "text-delta",
+              id: "response-text",
+              delta: chunk,
+            });
+          }
+        } finally {
+          reader.releaseLock();
         }
 
         writer.write({
           type: "text-end",
           id: "response-text",
         });
+
         writer.write({
           type: "finish",
         });
@@ -114,14 +130,20 @@ export async function POST(req: Request) {
 
     return streamResponse;
   } catch (error) {
-    console.error("❌ Error in chat API:", error);
+    console.error("❌ Error in chat API:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
 
-    return new Response(
-      JSON.stringify({
-        error: "Failed to process chat request",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to process chat request",
+      },
+      { status: 500 }
     );
   }
 }
