@@ -36,8 +36,6 @@ export function HomeView() {
       // Parse structured error from the response
       const errorData = parseClientError(error);
 
-      console.error("Chat error:", errorData);
-
       // Handle quota exceeded error with alert dialog
       if (errorData.code === ErrorCodes.QUOTA_EXCEEDED) {
         setOpenAlert(true);

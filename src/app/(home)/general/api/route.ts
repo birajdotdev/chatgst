@@ -111,6 +111,17 @@ export async function POST(req: Request) {
               type: "error",
               errorText: JSON.stringify(error),
             });
+
+            // Close the text stream and finish properly
+            writer.write({
+              type: "text-end",
+              id: "response-text",
+            });
+
+            writer.write({
+              type: "finish",
+            });
+
             return;
           }
 
@@ -157,6 +168,11 @@ export async function POST(req: Request) {
           writer.write({
             type: "error",
             errorText: JSON.stringify(sanitizedError),
+          });
+
+          // Properly terminate the stream
+          writer.write({
+            type: "finish",
           });
         }
       },
