@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ChatView } from "@/modules/home/views/chat-view";
 import { LandingView } from "@/modules/home/views/landing-view";
+import { ErrorCodes, parseClientError } from "@/types/errors";
 
 export function HomeView() {
   const [hasChatStarted, setHasChatStarted] = useState<boolean>(false);
@@ -32,17 +33,35 @@ export function HomeView() {
       api: "/general/api",
     }),
     onError: (error) => {
-      if (error.message.includes("QUOTA_EXCEEDED")) {
+      // Parse structured error from the response
+      const errorData = parseClientError(error);
+
+      // Handle quota exceeded error with alert dialog
+      if (errorData.code === ErrorCodes.QUOTA_EXCEEDED) {
         setOpenAlert(true);
-      } else {
-        toast.error("Failed to send chat", {
-          description: error.message || "An unknown error occurred.",
-          action: {
-            label: "Retry",
-            onClick: () => regenerate(),
-          },
-        });
+        return;
       }
+
+      // Handle validation errors
+      if (
+        errorData.code === ErrorCodes.NO_USER_MESSAGE ||
+        errorData.code === ErrorCodes.EMPTY_MESSAGE ||
+        errorData.code === ErrorCodes.VALIDATION_ERROR
+      ) {
+        toast.error("Invalid message", {
+          description: errorData.message,
+        });
+        return;
+      }
+
+      // Handle all other errors with retry option
+      toast.error("Failed to send chat", {
+        description: errorData.message || "An unknown error occurred.",
+        action: {
+          label: "Retry",
+          onClick: () => regenerate(),
+        },
+      });
     },
   });
 
