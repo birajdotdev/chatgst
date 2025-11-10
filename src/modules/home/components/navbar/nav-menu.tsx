@@ -27,7 +27,7 @@ export function NavMenu(props: ComponentProps<typeof NavigationMenu>) {
         {navMenuItems.map((item) => (
           <NavigationMenuItem key={item.title}>
             <NavigationMenuLink
-              className="!bg-transparent text-base underline-offset-4 hover:!text-primary hover:underline"
+              className="bg-transparent! text-base underline-offset-4 hover:text-primary! hover:underline"
               asChild
             >
               <Link href={item.href}>{item.title}</Link>

@@ -34,8 +34,9 @@ export function Navbar() {
             variant="default"
             size="lg"
             className="hidden min-w-[120px] md:inline-flex"
+            asChild
           >
-            Get Started
+            <Link href="/register">Get Started</Link>
           </Button>
           <Button
             size="lg"

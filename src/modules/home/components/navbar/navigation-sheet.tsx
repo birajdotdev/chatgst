@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Menu } from "lucide-react";
 
 import { Logo } from "@/components/logo";
@@ -23,7 +25,7 @@ export function NavigationSheet() {
         <NavMenu orientation="vertical" className="mt-6 [&>div]:h-full" />
         <SheetFooter>
           <Button variant="default" size="lg" className="inline-flex">
-            Get Started
+            <Link href="/register">Get Started</Link>
           </Button>
           <Button size="lg" variant="outline" className="inline-flex">
             Sign In
