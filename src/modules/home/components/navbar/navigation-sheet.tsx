@@ -27,8 +27,8 @@ export function NavigationSheet() {
           <Button variant="default" size="lg" className="inline-flex">
             <Link href="/register">Get Started</Link>
           </Button>
-          <Button size="lg" variant="outline" className="inline-flex">
-            Sign In
+          <Button size="lg" variant="outline" className="inline-flex" asChild>
+            <Link href="/login">Sign In</Link>
           </Button>
         </SheetFooter>
       </SheetContent>

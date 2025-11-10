@@ -25,7 +25,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
-import { loginSchema } from "@/modules/auth/validations/auth-schema";
+import { loginSchema } from "@/modules/auth/validations/login-schema";
 
 const listItems = [
   "Simplify legal work with the power of AI.",
@@ -118,7 +118,7 @@ export function LoginForm({
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    placeholder="Password"
+                    placeholder="Enter your password"
                     required
                   />
                   {fieldState.invalid && (
@@ -138,7 +138,7 @@ export function LoginForm({
             <Field>
               <Button type="submit">Login</Button>
               <Button variant="outline" asChild>
-                <Link href="/sign-up">Sign Up</Link>
+                <Link href="/register">Sign Up</Link>
               </Button>
             </Field>
           </FieldGroup>

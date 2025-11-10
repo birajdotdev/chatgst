@@ -42,8 +42,9 @@ export function Navbar() {
             size="lg"
             variant="outline"
             className="hidden min-w-[120px] md:inline-flex"
+            asChild
           >
-            Sign In
+            <Link href="/login">Sign In</Link>
           </Button>
 
           {/* Mobile Menu */}
