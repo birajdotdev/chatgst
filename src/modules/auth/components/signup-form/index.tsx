@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import {
   FormHeader,
@@ -43,6 +46,7 @@ const steps: Array<{ step: number; title: string }> = [
 ];
 
 export function SignupForm() {
+  const router = useRouter();
   const form = useForm<SignupFormInput>({
     resolver: zodResolver(signupFormSchema),
     mode: "onChange",
@@ -64,11 +68,14 @@ export function SignupForm() {
 
   const formAction = useAction(signupAction, {
     onSuccess: () => {
-      // TODO: show success message
+      toast.success("Signup successful! Please log in.");
       form.reset();
+      router.push("/login");
     },
-    onError: () => {
-      // TODO: show error message
+    onError: ({ error }) => {
+      toast.error(
+        error.serverError || "Something went wrong. Please try again."
+      );
     },
   });
 
