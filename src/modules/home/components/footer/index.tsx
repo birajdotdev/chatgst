@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
-import { Copyright } from "@/modules/home/components/footer/copyright";
 import { FacebookIcon } from "@/modules/home/components/footer/facebook";
 import { LinkedinIcon } from "@/modules/home/components/footer/linkedin";
 import { XIcon } from "@/modules/home/components/footer/x";
@@ -135,14 +134,7 @@ export function Footer() {
         <div className="flex items-center justify-center px-6 py-8 xl:px-0">
           {/* Copyright */}
           <span className="text-primary-foreground/80">
-            <Copyright />
-            <Link
-              href="/"
-              className="transition-colors hover:text-primary-foreground"
-            >
-              ChatGST.in
-            </Link>
-            . All rights reserved.
+            &copy; {new Date().getFullYear()} ChatGST.in. All rights reserved.
           </span>
         </div>
       </div>
