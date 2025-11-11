@@ -26,17 +26,25 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
               <div className="grid grid-cols-3">
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">Full Name</h2>
-                  <p className="text-sm">{`${formValues.first_name} ${formValues.middle_name} ${formValues.last_name}`}</p>
+                  <p className="text-sm">
+                    {[
+                      formValues.first_name,
+                      formValues.middle_name,
+                      formValues.last_name,
+                    ]
+                      .filter(Boolean)
+                      .join(" ") || "N/A"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">Email</h2>
-                  <p className="text-sm">{formValues.email}</p>
+                  <p className="text-sm">{formValues.email || "N/A"}</p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">
                     Phone Number
                   </h2>
-                  <p className="text-sm">{formValues.phone_number}</p>
+                  <p className="text-sm">{formValues.phone_number || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -45,20 +53,20 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
               <div className="grid grid-cols-3 gap-y-3.5">
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">GSTIN</h2>
-                  <p className="text-sm">{formValues.gstin}</p>
+                  <p className="text-sm">{formValues.gstin || "N/A"}</p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">
                     Business/Trade Name
                   </h2>
-                  <p className="text-sm">{formValues.business_name}</p>
+                  <p className="text-sm">{formValues.business_name || "N/A"}</p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">
                     Constitution of Business
                   </h2>
                   <p className="text-sm capitalize">
-                    {formValues.constitution_of_business}
+                    {formValues.constitution_of_business || "N/A"}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -66,7 +74,7 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
                     State / Jurisdiction
                   </h2>
                   <p className="text-sm capitalize">
-                    {formValues.state_or_jurisdiction}
+                    {formValues.state_or_jurisdiction || "N/A"}
                   </p>
                 </div>
               </div>
@@ -76,13 +84,17 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
               <div className="grid grid-cols-3 gap-y-3.5">
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">User Type</h2>
-                  <p className="text-sm capitalize">{formValues.user_type}</p>
+                  <p className="text-sm capitalize">
+                    {formValues.user_type || "N/A"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">
                     Firm Name / Organization
                   </h2>
-                  <p className="text-sm">{formValues.organization_name}</p>
+                  <p className="text-sm">
+                    {formValues.organization_name || "N/A"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-xs text-muted-foreground">
@@ -126,7 +138,7 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
           </FieldGroup>
         </ScrollArea>
       </div>
-      <FieldGroup className="block space-y-2 border-t px-12 py-3!">
+      <FieldGroup className="-mb-6 block space-y-2 border-t px-12 py-3!">
         <FieldLabel className="text-xs text-muted-foreground">
           Terms & Conditions
         </FieldLabel>
@@ -140,7 +152,7 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
                   id={field.name}
                   name={field.name}
                   aria-invalid={fieldState.invalid}
-                  checked={field.value ?? false}
+                  checked={field.value}
                   onCheckedChange={field.onChange}
                 />
                 <FieldLabel htmlFor={field.name}>
@@ -158,7 +170,7 @@ export function PreviewStepFields({ control }: PreviewStepFieldsProps) {
                   id={field.name}
                   name={field.name}
                   aria-invalid={fieldState.invalid}
-                  checked={field.value ?? false}
+                  checked={field.value}
                   onCheckedChange={field.onChange}
                 />
                 <FieldLabel htmlFor={field.name}>

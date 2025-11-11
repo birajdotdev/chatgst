@@ -48,7 +48,6 @@ export function SignupForm() {
     mode: "onChange",
     defaultValues: {
       first_name: "",
-      middle_name: "",
       last_name: "",
       email: "",
       password: "",
@@ -83,6 +82,7 @@ export function SignupForm() {
     {
       fields: [
         "first_name",
+        "middle_name",
         "last_name",
         "email",
         "phone_number",
@@ -128,8 +128,8 @@ export function SignupForm() {
           return isValid;
         }}
       >
-        <Card className="min-h-[620px] gap-0 p-0 pt-7">
-          <CardHeader className="mb-6 px-12">
+        <Card className="min-h-[620px] p-0 pt-7">
+          <CardHeader className="px-12">
             <FormHeader steps={steps} />
           </CardHeader>
           <CardContent className="flex-1 p-0">

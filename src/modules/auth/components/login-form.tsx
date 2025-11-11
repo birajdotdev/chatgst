@@ -5,9 +5,8 @@ import Link from "next/link";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, User } from "lucide-react";
-import { nanoid } from "nanoid";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { Logo } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
@@ -66,8 +65,8 @@ export function LoginForm({
               Empowering Lawyers with the Speed of AI
             </h1>
             <ul className="space-y-3">
-              {listItems.map((item) => (
-                <li key={nanoid()} className="flex items-center gap-2 text-sm">
+              {listItems.map((item, index) => (
+                <li key={index} className="flex items-center gap-2 text-sm">
                   <Check className="size-4" />
                   <span>{item}</span>
                 </li>
