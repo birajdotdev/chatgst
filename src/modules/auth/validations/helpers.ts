@@ -2,17 +2,19 @@ import { z } from "zod";
 
 /**
  * Helper to create required string fields with consistent error message
- * @param message - Custom error message (defaults to "This field is required")
  * @returns Zod string schema with min(1), trim, and custom message
  */
-export const requiredString = (message = "This field is required") =>
-  z.string().min(1, { message }).trim();
+export const requiredString = () =>
+  z
+    .string()
+    .check(z.minLength(1, { error: "This field is required" }))
+    .check(z.trim());
 
 /**
  * Helper to create optional string fields
  * @returns Zod string schema that's optional with trim
  */
-export const optionalString = () => z.string().trim().optional();
+export const optionalString = () => z.string().check(z.trim()).optional();
 
 /**
  * Helper to create optional boolean fields
@@ -24,7 +26,13 @@ export const optionalBoolean = () => z.boolean().optional();
  * Helper for email validation
  * @returns Zod email schema with lowercase and trim
  */
-export const emailField = () => z.email().toLowerCase().trim();
+export const emailField = () =>
+  z
+    .string()
+    .check(z.minLength(1, { error: "This field is required" }))
+    .check(z.email())
+    .check(z.toLowerCase())
+    .check(z.trim());
 
 /**
  * Helper for password validation (8-100 characters, must contain uppercase and lowercase)
@@ -33,12 +41,33 @@ export const emailField = () => z.email().toLowerCase().trim();
 export const passwordField = () =>
   z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .max(100, { message: "Password must be at most 100 characters long" })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[a-z]/, {
-      message: "Password must contain at least one lowercase letter",
-    })
-    .trim();
+    .check(z.minLength(1, { error: "This field is required" }))
+    .check(
+      z.minLength(8, { error: "Password must be at least 8 characters long" })
+    )
+    .check(
+      z.maxLength(100, {
+        error: "Password must be at most 100 characters long",
+      })
+    )
+    .check(
+      z.regex(/[A-Z]/, {
+        error: "Password must contain at least one uppercase letter",
+      })
+    )
+    .check(
+      z.regex(/[a-z]/, {
+        error: "Password must contain at least one lowercase letter",
+      })
+    )
+    .check(z.trim());
+
+/**
+ * Helper for select fields using enums
+ * @param values - Array of valid string values
+ * @returns Zod enum schema with provided values and custom error message
+ */
+export const selectField = <T extends string>(values: readonly T[]) =>
+  z.enum(values as [T, ...T[]], {
+    error: "Please select a valid option",
+  });
