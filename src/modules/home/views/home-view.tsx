@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, startTransition, useState } from "react";
+import { startTransition, useState } from "react";
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -95,16 +95,7 @@ export function HomeView() {
 
   return (
     <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
-      <Activity mode={hasChatStarted ? "hidden" : "visible"}>
-        <LandingView
-          value={input}
-          onChange={setInput}
-          onSubmit={handleSubmit}
-          status={status}
-        />
-      </Activity>
-
-      <Activity mode={hasChatStarted ? "visible" : "hidden"}>
+      {hasChatStarted ? (
         <ChatView
           value={input}
           onChange={setInput}
@@ -112,7 +103,14 @@ export function HomeView() {
           onSubmit={handleSubmit}
           status={status}
         />
-      </Activity>
+      ) : (
+        <LandingView
+          value={input}
+          onChange={setInput}
+          onSubmit={handleSubmit}
+          status={status}
+        />
+      )}
 
       <AlertDialogContent className="gap-6 rounded-xl!">
         <div className="flex h-fit! justify-center">
