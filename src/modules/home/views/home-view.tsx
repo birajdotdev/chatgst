@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Activity, startTransition, useState } from "react";
 
 import { useChat } from "@ai-sdk/react";
@@ -134,8 +135,8 @@ export function HomeView() {
           <AlertDialogCancel className="min-w-[145px]">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction className="min-w-[145px]">
-            Log In to continue
+          <AlertDialogAction className="min-w-[145px]" asChild>
+            <Link href="/login">Log In to continue</Link>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
