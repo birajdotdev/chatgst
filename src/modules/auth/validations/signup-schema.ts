@@ -17,7 +17,7 @@ import {
 // Used by React Hook Form for UI validation (no transformation)
 // ============================================================================
 
-export const signupFormSchema = z
+export const signupSchema = z
   .object({
     first_name: requiredString(),
     middle_name: optionalString(),
@@ -41,6 +41,7 @@ export const signupFormSchema = z
     alternate_email_or_phone: optionalString(),
     terms_and_privacy_policy: optionalBoolean(),
     receive_updates_or_newsletter: optionalBoolean(),
+    ip_address_device_info: optionalString(),
   })
   .refine((data) => data.password === data.confirm_password, {
     message: "Passwords don't match",
@@ -59,7 +60,7 @@ export const signupFormSchema = z
 // Each step validates only its relevant fields
 // ============================================================================
 
-export const personalStepSchema = signupFormSchema
+export const personalStepSchema = signupSchema
   .pick({
     first_name: true,
     middle_name: true,
@@ -81,46 +82,24 @@ export const personalStepSchema = signupFormSchema
     },
   });
 
-export const gstStepSchema = signupFormSchema.pick({
+export const gstStepSchema = signupSchema.pick({
   gstin: true,
   business_name: true,
   constitution_of_business: true,
   state_or_jurisdiction: true,
 });
 
-export const professionalStepSchema = signupFormSchema.pick({
+export const professionalStepSchema = signupSchema.pick({
   user_type: true,
   organization_name: true,
   designation: true,
   professional_registration_number: true,
 });
 
-export const contactStepSchema = signupFormSchema.pick({
+export const contactStepSchema = signupSchema.pick({
   address: true,
   pincode: true,
   alternate_email_or_phone: true,
-});
-
-// ============================================================================
-// ACTION SCHEMA - Used by server action with transformation
-// Transforms form data into API payload format (first_name + last_name → full_name)
-// Removes confirm_password as it's only needed for UI validation
-// ============================================================================
-
-export const signupActionSchema = signupFormSchema.transform((data) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { first_name, middle_name, last_name, confirm_password, ...rest } =
-    data;
-
-  // Combine name fields into full_name for API
-  const full_name = [first_name, middle_name, last_name]
-    .filter(Boolean)
-    .join(" ");
-
-  return {
-    ...rest,
-    full_name,
-  };
 });
 
 // ============================================================================
@@ -128,12 +107,8 @@ export const signupActionSchema = signupFormSchema.transform((data) => {
 // ============================================================================
 
 // Form types (what React Hook Form uses)
-export type SignupFormInput = z.infer<typeof signupFormSchema>;
-export type PersonalStepInput = z.infer<typeof personalStepSchema>;
-export type GstStepInput = z.infer<typeof gstStepSchema>;
-export type ProfessionalStepInput = z.infer<typeof professionalStepSchema>;
-export type ContactStepInput = z.infer<typeof contactStepSchema>;
-
-// Action types (what the server action receives)
-export type SignupActionInput = z.input<typeof signupActionSchema>; // Before transform (= SignupFormInput)
-export type SignupActionOutput = z.output<typeof signupActionSchema>; // After transform (has full_name)
+export type SignupSchema = z.infer<typeof signupSchema>;
+export type PersonalStepSchema = z.infer<typeof personalStepSchema>;
+export type GstStepSchema = z.infer<typeof gstStepSchema>;
+export type ProfessionalStepSchema = z.infer<typeof professionalStepSchema>;
+export type ContactStepSchema = z.infer<typeof contactStepSchema>;

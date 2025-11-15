@@ -71,3 +71,13 @@ export const selectField = <T extends string>(values: readonly T[]) =>
   z.enum(values as [T, ...T[]], {
     error: "Please select a valid option",
   });
+
+/**
+ * Helper for OTP validation (exactly 6 digits, numeric only)
+ * @returns Zod string schema for OTP validation
+ */
+export const otpField = () =>
+  z
+    .string()
+    .check(z.length(6, "OTP must be exactly 6 digits"))
+    .check(z.regex(/^\d+$/, "OTP must contain only numbers"));

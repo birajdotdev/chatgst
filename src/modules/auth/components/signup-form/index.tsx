@@ -1,11 +1,11 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -33,8 +33,8 @@ import { PersonalStepFields } from "@/modules/auth/components/signup-form/person
 import { PreviewStepFields } from "@/modules/auth/components/signup-form/preview-step-fields";
 import { ProfessionalStepFields } from "@/modules/auth/components/signup-form/professional-step-fields";
 import {
-  type SignupFormInput,
-  signupFormSchema,
+  SignupSchema,
+  signupSchema,
 } from "@/modules/auth/validations/signup-schema";
 
 const steps: Array<{ step: number; title: string }> = [
@@ -47,45 +47,44 @@ const steps: Array<{ step: number; title: string }> = [
 
 export function SignupForm() {
   const router = useRouter();
-  const form = useForm<SignupFormInput>({
-    resolver: zodResolver(signupFormSchema),
-    mode: "onChange",
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      password: "",
-      confirm_password: "",
-      phone_number: "",
-      gstin: "",
-      business_name: "",
-      constitution_of_business: undefined,
-      state_or_jurisdiction: "",
-      user_type: undefined,
-      organization_name: "",
+
+  const {
+    form,
+    handleSubmitWithAction,
+    action: { isExecuting },
+    resetFormAndAction,
+  } = useHookFormAction(signupAction, zodResolver(signupSchema), {
+    formProps: {
+      mode: "onChange",
+      defaultValues: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        confirm_password: "",
+        phone_number: "",
+        gstin: "",
+        business_name: "",
+        constitution_of_business: undefined,
+        state_or_jurisdiction: "",
+        user_type: undefined,
+        organization_name: "",
+      },
+    },
+    actionProps: {
+      onSuccess: ({ data }) => {
+        const searchParams = new URLSearchParams({ email: data.email });
+        router.push(`/register/verify?${searchParams.toString()}` as Route);
+        toast.success(data.message || "Verification code sent!");
+        resetFormAndAction();
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError);
+      },
     },
   });
 
-  const formAction = useAction(signupAction, {
-    onSuccess: () => {
-      toast.success("Signup successful! Please log in.");
-      form.reset();
-      router.push("/login");
-    },
-    onError: ({ error }) => {
-      toast.error(
-        error.serverError || "Something went wrong. Please try again."
-      );
-    },
-  });
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    formAction.execute(data);
-  });
-
-  const { isExecuting } = formAction;
-
-  const stepsFields: Stepfields<keyof SignupFormInput>[] = [
+  const stepsFields: Stepfields<keyof SignupSchema>[] = [
     {
       fields: [
         "first_name",
@@ -127,7 +126,7 @@ export function SignupForm() {
   ];
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmitWithAction}>
       <MultiStepFormProvider
         stepsFields={stepsFields}
         onStepValidation={async (step) => {

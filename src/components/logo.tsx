@@ -15,6 +15,7 @@ export function Logo({ variant = "default", ...props }: LogoProps) {
       viewBox={isIcon ? "0 0 27 24" : "0 0 113 24"}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={cn("size-auto", props.className)}
       {...props}
     >
       {!isIcon && (
