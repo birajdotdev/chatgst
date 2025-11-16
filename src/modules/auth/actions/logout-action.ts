@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { zfd } from "zod-form-data";
 
@@ -18,8 +19,5 @@ export const logoutAction = actionClient
     cookieStore.delete("access_token");
     cookieStore.delete("refresh_token");
 
-    return {
-      success: true,
-      message: "Logged out successfully",
-    };
+    redirect("/");
   });

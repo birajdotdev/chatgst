@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // Routes that require authentication
 const protectedRoutes = ["/chat"];
 
-// Routes that should redirect to /general if already authenticated
+// Routes that should redirect to /chat if already authenticated
 const authRoutes = ["/login", "/register"];
 
 export async function proxy(request: NextRequest) {

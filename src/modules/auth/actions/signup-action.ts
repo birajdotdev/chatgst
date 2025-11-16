@@ -26,7 +26,10 @@ export const signupAction = actionClient
     const otpResult = await sendOtpAction({ email: parsedInput.email });
 
     if (!otpResult?.data?.success) {
-      throw new Error(otpResult.serverError);
+      throw new Error(
+        otpResult?.serverError ||
+          "Failed to send verification code. Please try again."
+      );
     }
 
     const cookieStore = await cookies();

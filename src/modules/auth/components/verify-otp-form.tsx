@@ -51,7 +51,7 @@ export default function VerifyOtpForm() {
     },
     actionProps: {
       onSuccess: () => {
-        toast.success("Account created successfully!");
+        toast.success("Email verified successfully!");
         router.push("/login");
         resetFormAndAction();
       },
@@ -75,7 +75,7 @@ export default function VerifyOtpForm() {
     }
   );
 
-  const handelResend = () => {
+  const handleResend = () => {
     if (!email) {
       toast.error("Email not found. Please try registering again.");
       return;
@@ -133,7 +133,7 @@ export default function VerifyOtpForm() {
               type="button"
               variant="link"
               className="ml-1 p-0"
-              onClick={handelResend}
+              onClick={handleResend}
               disabled={isLoading}
             >
               Resend

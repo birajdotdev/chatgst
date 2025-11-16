@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
@@ -10,11 +8,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { logoutAction } from "@/modules/auth/actions/logout-action";
 
 export default function Page() {
-  const router = useRouter();
   const { execute, isExecuting, reset } = useAction(logoutAction, {
-    onSuccess: ({ data }) => {
-      toast.success(data.message);
-      router.push("/");
+    onSuccess: () => {
       reset();
     },
     onError: () => {
