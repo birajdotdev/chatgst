@@ -1,16 +1,20 @@
 import { z } from "zod";
 
-import { emailField, passwordField } from "@/modules/auth/validations/helpers";
+import { requiredString } from "@/modules/auth/validations/helpers";
 
 /**
  * Login schema for user authentication
  */
 export const loginSchema = z.object({
-  email: emailField(),
-  password: passwordField(),
+  email: requiredString(),
+  password: requiredString(),
+});
+
+export const refreshTokenSchema = z.object({
+  refresh_token: requiredString(),
 });
 
 /**
  * TypeScript type for login form data
  */
-export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginSchema = z.infer<typeof loginSchema>;

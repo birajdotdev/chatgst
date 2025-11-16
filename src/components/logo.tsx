@@ -16,6 +16,7 @@ export function Logo({ variant = "default", ...props }: LogoProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
+      className={cn("size-auto", props.className)}
     >
       {!isIcon && (
         <>

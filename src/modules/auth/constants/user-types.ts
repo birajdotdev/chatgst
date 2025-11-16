@@ -1,7 +1,7 @@
 import { createSelectOptions } from "@/modules/auth/constants/helpers";
 
 const userTypeConfig = createSelectOptions([
-  { value: "taxpayer", label: "Taxpayer" },
+  { value: "tax_payer", label: "Taxpayer" },
   { value: "consultant", label: "Consultant" },
   { value: "ca", label: "CA" },
   { value: "advocate", label: "Advocate" },
