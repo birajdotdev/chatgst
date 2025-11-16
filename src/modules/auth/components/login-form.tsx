@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
 import { Check, User } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { Controller } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Logo } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
@@ -23,7 +25,9 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { loginAction } from "@/modules/auth/actions/login-action";
 import { loginSchema } from "@/modules/auth/validations/login-schema";
 
 const listItems = [
@@ -36,17 +40,31 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<typeof Card>) {
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
+  const router = useRouter();
+
+  const {
+    form,
+    action: { isExecuting },
+    handleSubmitWithAction,
+    resetFormAndAction,
+  } = useHookFormAction(loginAction, zodResolver(loginSchema), {
+    formProps: {
+      defaultValues: {
+        email: "",
+        password: "",
+      },
+    },
+    actionProps: {
+      onSuccess: ({ data }) => {
+        toast.success(data.message);
+        resetFormAndAction();
+        router.push("/chat");
+      },
+      onError: ({ error }) => {
+        toast.error(error.serverError);
+      },
     },
   });
-
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    console.log("Form submitted with data:", data);
-  };
 
   return (
     <Card className={cn("overflow-hidden p-0", className)} {...props}>
@@ -75,7 +93,7 @@ export function LoginForm({
           </div>
         </div>
 
-        <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="p-6 md:p-8" onSubmit={handleSubmitWithAction}>
           <FieldGroup className="m-0 gap-0 md:mt-10 md:mb-20">
             <div className="mb-6 flex flex-col">
               <Logo variant="icon" className="mb-5 size-10" />
@@ -135,7 +153,9 @@ export function LoginForm({
               </Link>
             </div>
             <Field>
-              <Button type="submit">Login</Button>
+              <Button type="submit" disabled={isExecuting}>
+                {isExecuting ? <Spinner /> : "Login"}
+              </Button>
               <Button variant="outline" asChild>
                 <Link href="/register">Sign Up</Link>
               </Button>
