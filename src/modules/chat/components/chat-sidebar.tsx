@@ -21,7 +21,7 @@ export function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SearchForm />
         <SidebarButtons />
       </SidebarHeader>
-      <SidebarContent className="gap-4">
+      <SidebarContent className="gap-4 pb-6">
         {SIDEBAR_MENU_ITEMS.map((menuItem) => (
           <SidebarGroup key={menuItem.title} className="p-0 px-3">
             <SidebarGroupLabel>{menuItem.title}</SidebarGroupLabel>
