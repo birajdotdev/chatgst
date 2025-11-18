@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ChatView } from "@/modules/home/views/chat-view";
+import { GeneralChatView } from "@/modules/home/views/general-chat-view";
 import { LandingView } from "@/modules/home/views/landing-view";
 import { ErrorCodes, parseClientError } from "@/types/errors";
 
@@ -96,7 +96,7 @@ export function HomeView() {
   return (
     <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
       {hasChatStarted ? (
-        <ChatView
+        <GeneralChatView
           value={input}
           onChange={setInput}
           messages={messages}
