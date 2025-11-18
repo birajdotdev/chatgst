@@ -1,8 +1,8 @@
 "use client";
 
+import { Navbar } from "@/components/navbar";
 import { useScroll } from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
-import { Navbar } from "@/modules/home/components/navbar";
 
 export default function HomeLayout({
   children,
