@@ -2,22 +2,9 @@
 
 import { ViewTransition, useRef } from "react";
 
-import { nanoid } from "nanoid";
-
-import { Suggestion } from "@/components/ai-elements/suggestion";
 import { AIPromptInput } from "@/components/ai-prompt-input";
+import { ChatSuggestions } from "@/modules/chat/components/chat-suggestions";
 import { ChatProps } from "@/modules/home/types/chat-props";
-
-const suggestions: { key: string; value: string }[] = [
-  { key: nanoid(), value: "How can I file a GST appeal?" },
-  { key: nanoid(), value: "What documents do I need for GST compliance?" },
-  { key: nanoid(), value: "How does AI help in drafting appeals?" },
-  { key: nanoid(), value: "What are the common GST penalty reasons?" },
-  {
-    key: nanoid(),
-    value: "How to calculate interest on delayed GST payments?",
-  },
-];
 
 export function Hero(props: Omit<ChatProps, "messages">) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -57,19 +44,7 @@ export function Hero(props: Omit<ChatProps, "messages">) {
           />
         </ViewTransition>
 
-        <h2 className="mb-3 text-base font-medium sm:text-lg md:mb-0">
-          Here are some sample questions you can start with:
-        </h2>
-        <div className="mt-3 flex flex-col flex-wrap justify-center gap-3 sm:flex-row sm:gap-2 md:mt-4 md:gap-4">
-          {suggestions.map((suggestion) => (
-            <Suggestion
-              key={suggestion.key}
-              onClick={handleSuggestionClick}
-              suggestion={suggestion.value}
-              className="text-xs tracking-tight sm:text-sm"
-            />
-          ))}
-        </div>
+        <ChatSuggestions onClick={handleSuggestionClick} />
       </div>
     </section>
   );

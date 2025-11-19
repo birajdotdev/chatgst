@@ -5,7 +5,9 @@ export function ChatLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <ChatSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <section className="flex-1 p-6">{children}</section>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

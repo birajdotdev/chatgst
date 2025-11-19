@@ -1,3 +1,8 @@
+"use client";
+
+import { useChat } from "@ai-sdk/react";
+
+import { ChatBot } from "@/components/chat-bot";
 import { Navbar } from "@/components/navbar";
 import { UserProfile } from "@/lib/auth";
 import { ChatLayout } from "@/modules/chat/layouts/chat-layout";
@@ -8,6 +13,7 @@ interface ChatViewProps {
 }
 
 export function ChatView({ isAuthenticated, user }: ChatViewProps) {
+  const { messages } = useChat();
   return (
     <div className="flex h-screen flex-col">
       <Navbar
@@ -17,9 +23,12 @@ export function ChatView({ isAuthenticated, user }: ChatViewProps) {
       />
       <div className="flex flex-1 pt-16">
         <ChatLayout>
-          <section className="flex flex-1 flex-col items-center justify-center gap-3">
-            <h1 className="text-3xl font-semibold">Logged in Successfully!</h1>
-          </section>
+          <ChatBot
+            messages={messages}
+            onSubmit={() => {}}
+            className="max-w-5xl"
+            aiPromptInputClassName="max-w-3xl"
+          />
         </ChatLayout>
       </div>
     </div>
