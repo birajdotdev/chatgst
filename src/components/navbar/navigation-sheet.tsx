@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import { Logo } from "@/components/logo";
+import { NavMenu } from "@/components/navbar/nav-menu";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -10,7 +11,6 @@ import {
   SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { NavMenu } from "@/modules/home/components/navbar/nav-menu";
 
 export function NavigationSheet() {
   return (
