@@ -58,7 +58,7 @@ export function LoginForm({
       onSuccess: ({ data }) => {
         toast.success(data.message);
         resetFormAndAction();
-        router.push("/");
+        router.push("/chat");
       },
       onError: ({ error }) => {
         toast.error(error.serverError);
