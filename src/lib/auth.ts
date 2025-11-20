@@ -61,3 +61,10 @@ export interface UserProfile {
   pincode?: string;
   alternate_email_or_phone?: string;
 }
+
+export const auth = cache(async () => {
+  return {
+    isAuthenticated: await isAuthenticated(),
+    user: await getUserProfile(),
+  };
+});
