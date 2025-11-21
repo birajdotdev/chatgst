@@ -43,7 +43,7 @@ export function AIPromptInput({
 }: AIPromptInputProps) {
   return (
     <PromptInput
-      className={cn("drop-shadow-xl", className)}
+      className={cn("rounded-xl bg-background drop-shadow-xl", className)}
       onSubmit={onSubmit}
       globalDrop
       multiple

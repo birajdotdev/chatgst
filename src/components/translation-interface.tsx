@@ -47,7 +47,7 @@ export function TranslationInterface() {
       {/* Desktop */}
       <RadioGroup
         defaultValue="English"
-        className="mb-6 hidden w-fit rounded-full border border-input/40 bg-white px-6 py-2 md:flex"
+        className="mb-6 hidden w-fit rounded-full border border-input bg-card! px-6 py-2 md:flex"
       >
         {languages.map((language) => (
           <div key={language.code} className="relative">
@@ -59,7 +59,7 @@ export function TranslationInterface() {
             <Label
               className={cn(
                 buttonVariants({ variant: "ghost" }),
-                "rounded-full transition-colors peer-data-[state=checked]:!text-primary"
+                "rounded-full transition-colors peer-data-[state=checked]:text-primary!"
               )}
               htmlFor={language.code}
             >
@@ -85,9 +85,9 @@ export function TranslationInterface() {
         </SelectContent>
       </Select>
 
-      <div className="grid grid-cols-1 overflow-hidden rounded-3xl border border-input/40 bg-white drop-shadow-lg md:grid-cols-2">
+      <div className="grid grid-cols-1 drop-shadow-lg md:grid-cols-2">
         {/* Input */}
-        <InputGroup className="rounded-none border-none p-2">
+        <InputGroup className="rounded-none rounded-l-3xl bg-card p-2">
           <InputGroupAddon align="block-start">
             <InputGroupText className="rounded-sm bg-muted px-3 py-2 text-xs font-semibold tracking-tight text-muted-foreground uppercase">
               Input Text Here
@@ -95,7 +95,7 @@ export function TranslationInterface() {
           </InputGroupAddon>
           <InputGroupTextarea
             placeholder="Upload or paste a document, and instantly translate it into your preferred language."
-            className="min-h-[300px] !text-lg"
+            className="min-h-[300px] text-lg!"
           />
           <InputGroupAddon
             align="block-end"
@@ -127,7 +127,7 @@ export function TranslationInterface() {
         </InputGroup>
 
         {/* Output */}
-        <InputGroup className="rounded-none border-none p-2">
+        <InputGroup className="rounded-none rounded-r-3xl bg-card p-2">
           <InputGroupAddon align="block-start">
             <InputGroupText className="rounded-sm bg-muted px-3 py-2 text-xs font-semibold tracking-tight text-muted-foreground uppercase">
               Translation output
@@ -135,7 +135,7 @@ export function TranslationInterface() {
           </InputGroupAddon>
           <InputGroupTextarea
             placeholder="Your translated text will be displayed here !"
-            className="min-h-[400px] !text-lg"
+            className="min-h-[400px] text-lg!"
           />
           <InputGroupAddon
             align="block-end"
