@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 
-import { Toaster } from "sonner";
-
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 
 const outfit = Outfit({
