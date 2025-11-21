@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 
 import { Toaster } from "sonner";
 
+import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 
 const outfit = Outfit({
@@ -25,10 +26,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.variable} antialiased`}>
-        {children}
-        <Toaster richColors />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

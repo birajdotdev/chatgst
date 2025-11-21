@@ -12,14 +12,14 @@ interface StepCardProps {
 function StepCard({ stepNumber, icon, title, description }: StepCardProps) {
   return (
     <div className="group relative">
-      <div className="text-5xl font-semibold tracking-tight text-primary/60 sm:text-6xl">
+      <div className="text-5xl font-semibold tracking-tight text-primary/60 sm:text-6xl dark:text-primary/80">
         {stepNumber}
       </div>
       <div className="flex flex-col items-center text-center">
         <div className="mb-2 flex h-16 scale-100 items-center justify-center lg:scale-125">
           {icon}
         </div>
-        <h3 className="mb-3 text-xl font-medium tracking-tight text-foreground sm:text-2xl">
+        <h3 className="mb-3 text-xl font-medium tracking-tight text-foreground sm:text-2xl dark:text-primary-foreground">
           {title}
         </h3>
         <p className="max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -74,7 +74,7 @@ export function HowItWorks() {
     <section id="how-it-works" className="relative px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
-          <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
+          <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl dark:text-primary-foreground">
             How it Works?
           </h2>
           <p className="mx-auto max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -188,21 +188,21 @@ function AIHighlightsSVG(props: React.SVGProps<SVGSVGElement>) {
     >
       <path
         d="M23.375 18.2308V14.4615C23.375 13.1763 22.8416 11.9436 21.8922 11.0348C20.9428 10.126 19.6552 9.61539 18.3125 9.61539H16.0625C15.6149 9.61539 15.1857 9.44519 14.8693 9.14225C14.5528 8.83931 14.375 8.42843 14.375 8V5.84615C14.375 4.56087 13.8416 3.32824 12.8922 2.41941C11.9428 1.51058 10.6552 1 9.3125 1H6.5M6.5 19.3077H12.125H17.75M6.5 23.6154H12.125M9.875 1H2.5625C1.631 1 0.875 1.72369 0.875 2.61538V27.3846C0.875 28.2763 1.631 29 2.5625 29H21.6875C22.619 29 23.375 28.2763 23.375 27.3846V13.9231C23.375 10.4957 21.9527 7.20863 19.4209 4.78508C16.8892 2.36153 13.4554 1 9.875 1Z"
-        stroke="#344054"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="stroke-foreground"
       />
       <path
         d="M90.625 15H113.125M90.625 23.6154H101.875"
-        stroke="#344054"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="stroke-foreground"
       />
       <path
         d="M40.3624 11.8373C39.937 12.1894 39.8775 12.8197 40.2296 13.2452C40.5817 13.6707 41.2121 13.7302 41.6376 13.378L41 12.6076L40.3624 11.8373ZM74.7577 12.5739C75.2913 12.4316 75.6085 11.8836 75.4662 11.35L73.1473 2.65387C73.005 2.12023 72.457 1.803 71.9234 1.9453C71.3897 2.0876 71.0725 2.63556 71.2148 3.1692L73.2761 10.8991L65.5462 12.9604C65.0126 13.1027 64.6953 13.6506 64.8377 14.1843C64.98 14.7179 65.5279 15.0352 66.0615 14.8928L74.7577 12.5739ZM41 12.6076L41.6376 13.378C46.2276 9.57941 59.2423 3.92977 73.999 12.4731L74.5 11.6076L75.001 10.7422C59.3577 1.68553 45.4391 7.63589 40.3624 11.8373L41 12.6076Z"
-        fill="#D97D54"
+        className="fill-primary"
       />
     </svg>
   );
@@ -224,7 +224,7 @@ function SelectIssuesSVG(props: React.SVGProps<SVGSVGElement>) {
         width="63"
         height="27.6154"
         rx="13.8077"
-        fill="#C9E0F6"
+        className="fill-blue-400/60"
       />
       <rect
         x="0.5"
@@ -232,7 +232,7 @@ function SelectIssuesSVG(props: React.SVGProps<SVGSVGElement>) {
         width="63"
         height="27.6154"
         rx="13.8077"
-        stroke="#008CFF"
+        className="stroke-blue-500"
       />
       <path
         d="M20.75 10H43.25M20.75 18.6154H32"
@@ -257,10 +257,10 @@ function FindReferencesSVG(props: React.SVGProps<SVGSVGElement>) {
     >
       <path
         d="M23 18.92V15C23 13.6633 22.4785 12.3814 21.5502 11.4362C20.6219 10.491 19.3628 9.96 18.05 9.96H15.85C15.4124 9.96 14.9927 9.783 14.6833 9.46794C14.3738 9.15288 14.2 8.72556 14.2 8.28V6.04C14.2 4.70331 13.6785 3.42137 12.7502 2.47618C11.8219 1.531 10.5628 1 9.25 1H6.5M14.1721 21.1316L16.4 23.4M14.1721 21.1316C14.5296 20.7676 14.8135 20.3357 15.0069 19.8601C15.2004 19.3845 15.3 18.8748 15.3 18.36C15.3 17.3204 14.8944 16.3233 14.1724 15.5881C13.4503 14.853 12.4711 14.44 11.45 14.44C10.4289 14.44 9.44965 14.853 8.72764 15.5881C8.00562 16.3233 7.6 17.3204 7.6 18.36C7.6 18.8748 7.69958 19.3845 7.89306 19.8601C8.08654 20.3357 8.37013 20.7679 8.72764 21.1319C9.08514 21.4959 9.50957 21.7846 9.97667 21.9816C10.4438 22.1786 10.9444 22.28 11.45 22.28C11.9556 22.28 12.4562 22.1786 12.9233 21.9816C13.3904 21.7846 13.8146 21.4956 14.1721 21.1316ZM9.8 1H2.65C1.7392 1 1 1.75264 1 2.68V27.32C1 28.2474 1.7392 29 2.65 29H21.35C22.2608 29 23 28.2474 23 27.32V14.44C23 10.8755 21.6093 7.45697 19.1338 4.93648C16.6583 2.416 13.3009 1 9.8 1Z"
-        stroke="black"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="stroke-foreground"
       />
     </svg>
   );

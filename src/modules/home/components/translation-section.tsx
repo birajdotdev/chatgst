@@ -8,7 +8,7 @@ export function TranslationSection() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-14 text-center">
-          <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl">
+          <h2 className="mb-6 text-4xl font-semibold tracking-tighter text-foreground sm:text-5xl dark:text-primary-foreground">
             Multilingual Support
           </h2>
           <p className="mx-auto max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">

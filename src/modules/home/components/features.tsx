@@ -10,14 +10,14 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="group relative rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xs transition-all duration-300 hover:bg-white/15 hover:shadow-lg">
-      <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-white/95 to-white/45 text-primary">
+    <div className="group relative rounded-2xl border border-primary-foreground/20 bg-primary-foreground/10 p-6 backdrop-blur-xs transition-all duration-300 hover:bg-primary-foreground/15 hover:shadow-lg">
+      <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-b from-primary-foreground/95 to-primary-foreground/45 text-primary">
         {icon}
       </div>
-      <h3 className="mb-4 text-xl font-medium tracking-tight text-white">
+      <h3 className="mb-4 text-xl font-medium tracking-tight text-primary-foreground">
         {title}
       </h3>
-      <p className="text-base leading-snug tracking-tighter text-pretty text-white/90">
+      <p className="text-base leading-snug tracking-tighter text-pretty text-accent dark:text-accent-foreground">
         {description}
       </p>
     </div>
@@ -50,10 +50,10 @@ export function Features() {
       <CircleDesign className="absolute top-0 right-0 origin-top-right scale-50 sm:scale-75 md:scale-90 lg:scale-100" />
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mb-14">
-          <h2 className="mb-4 text-3xl leading-tight font-semibold tracking-tighter text-white sm:text-4xl md:text-5xl">
+          <h2 className="mb-4 text-3xl leading-tight font-semibold tracking-tighter text-primary-foreground sm:text-4xl md:text-5xl">
             Draft Smarter, File Faster with AI
           </h2>
-          <p className="max-w-3xl text-lg leading-tight text-white/90">
+          <p className="max-w-3xl text-lg leading-tight text-accent dark:text-accent-foreground">
             Automate your GST appeal drafting with intelligent document
             processing, a curated legal knowledge base, and multilingual
             support. Save time, reduce errors, and focus on what matters your
@@ -87,9 +87,27 @@ function CircleDesign(props: React.SVGProps<SVGSVGElement>) {
       {...props}
     >
       <g filter="url(#filter0_d_1479_78)">
-        <circle opacity="0.4" cx="460" cy="-29" r="350" fill="#F6E0D1" />
-        <circle opacity="0.4" cx="460.5" cy="-29.5" r="267.5" fill="#FAEDE5" />
-        <circle opacity="0.4" cx="460.5" cy="-29.5" r="176.5" fill="#FDF7F3" />
+        <circle
+          opacity="0.4"
+          cx="460"
+          cy="-29"
+          r="350"
+          className="fill-primary-foreground/80"
+        />
+        <circle
+          opacity="0.4"
+          cx="460.5"
+          cy="-29.5"
+          r="267.5"
+          className="fill-primary-foreground/90"
+        />
+        <circle
+          opacity="0.4"
+          cx="460.5"
+          cy="-29.5"
+          r="176.5"
+          className="fill-primary-foreground"
+        />
       </g>
       <defs>
         <filter
