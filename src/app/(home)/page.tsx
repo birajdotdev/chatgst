@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
-import { HomeView } from "@/modules/home/views/home-view";
+import { LandingView } from "@/modules/home/views/landing-view";
 
 export default async function Page() {
   const { isAuthenticated } = await auth();
@@ -10,5 +10,5 @@ export default async function Page() {
     redirect("/chat");
   }
 
-  return <HomeView />;
+  return <LandingView />;
 }
