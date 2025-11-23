@@ -22,7 +22,7 @@ export function LandingChat() {
     inputRef.current?.focus();
   };
 
-  const handelSubmit = () => {
+  const handleSubmit = () => {
     if (!input.trim()) return;
 
     sendMessage({ text: input });
@@ -35,7 +35,7 @@ export function LandingChat() {
         <AIPromptInput
           ref={inputRef}
           className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
-          onSubmit={handelSubmit}
+          onSubmit={handleSubmit}
           value={input}
           onChange={setInput}
         />
