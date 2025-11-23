@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function ChatLimitAlertDialog(
+export function ChatLimitAlertDialog(
   props: React.ComponentProps<typeof AlertDialog>
 ) {
   return (

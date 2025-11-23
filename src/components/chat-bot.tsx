@@ -3,8 +3,8 @@
 import { Route } from "next";
 import { ViewTransition, useState } from "react";
 
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { Chat, useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, UIDataTypes, UIMessage, UITools } from "ai";
 import { toast } from "sonner";
 
 import { AIConversation } from "@/components/ai-conversation";
@@ -19,6 +19,7 @@ interface ChatBotProps {
   viewTransitionName?: string;
   chatId?: string;
   chatApiPath?: Route;
+  chat?: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
 }
 
 export function ChatBot({
@@ -27,13 +28,18 @@ export function ChatBot({
   viewTransitionName,
   chatId,
   chatApiPath,
+  chat: sharedChat,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
   const { messages, regenerate, status, stop, sendMessage } = useChat({
+    chat: sharedChat,
     id: chatId,
-    transport: new DefaultChatTransport({
-      api: chatApiPath,
-    }),
+    transport:
+      chatId && chatApiPath
+        ? new DefaultChatTransport({
+            api: chatApiPath,
+          })
+        : undefined,
     onError: (error) => {
       const errorData = parseClientError(error);
 
