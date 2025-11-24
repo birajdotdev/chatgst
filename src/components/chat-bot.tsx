@@ -1,63 +1,33 @@
 "use client";
 
-import { Route } from "next";
 import { ViewTransition, useState } from "react";
 
 import { Chat, useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, UIDataTypes, UIMessage, UITools } from "ai";
+import { UIDataTypes, UIMessage, UITools } from "ai";
 import { toast } from "sonner";
 
 import { AIConversation } from "@/components/ai-conversation";
 import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { AIPromptInput } from "@/components/ai-prompt-input";
 import { cn } from "@/lib/utils";
-import { parseClientError } from "@/types/errors";
+
 
 interface ChatBotProps {
   aiPromptInputClassName?: string;
   className?: string;
   viewTransitionName?: string;
-  chatId?: string;
-  chatApiPath?: Route;
-  chat?: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
+  chat: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
 }
 
 export function ChatBot({
   aiPromptInputClassName,
   className,
   viewTransitionName,
-  chatId,
-  chatApiPath,
   chat: sharedChat,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
-  const { messages, regenerate, status, stop, sendMessage } = useChat({
+  const { messages, status, stop, sendMessage } = useChat({
     chat: sharedChat,
-    id: chatId,
-    transport:
-      chatId && chatApiPath
-        ? new DefaultChatTransport({
-            api: chatApiPath,
-          })
-        : undefined,
-    onError: (error) => {
-      const errorData = parseClientError(error);
-
-      switch (errorData.code) {
-        case "QUOTA_EXCEEDED":
-          break;
-
-        default:
-          toast.error("Failed to send chat", {
-            description: errorData.message || "An unknown error occurred.",
-            action: {
-              label: "Retry",
-              onClick: () => regenerate(),
-            },
-          });
-          break;
-      }
-    },
   });
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -97,6 +67,7 @@ export function ChatBot({
             value={input}
             onChange={setInput}
             onSubmit={handleSubmit}
+            status={status}
           />
         </ViewTransition>
       </div>
