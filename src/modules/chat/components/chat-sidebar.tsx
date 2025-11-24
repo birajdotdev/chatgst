@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 
+import { ErrorBoundary } from "react-error-boundary";
+
 import {
   Sidebar,
   SidebarContent,
@@ -7,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   NavChats,
+  NavChatsError,
   NavChatsSkeleton,
 } from "@/modules/chat/components/nav-chats";
 import { SearchForm } from "@/modules/chat/components/search-form";
@@ -20,9 +23,11 @@ export function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarButtons />
       </SidebarHeader>
       <SidebarContent className="gap-4 pb-6">
-        <Suspense fallback={<NavChatsSkeleton />}>
-          <NavChats />
-        </Suspense>
+        <ErrorBoundary fallback={<NavChatsError />}>
+          <Suspense fallback={<NavChatsSkeleton />}>
+            <NavChats />
+          </Suspense>
+        </ErrorBoundary>
       </SidebarContent>
     </Sidebar>
   );

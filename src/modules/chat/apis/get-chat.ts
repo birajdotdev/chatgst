@@ -32,14 +32,18 @@ export async function getChat(chatId: string) {
     });
 
     if (!res.ok) {
-      console.log(await res.json());
-      throw new Error("Failed to fetch chat");
+      const errorData = await res.json();
+      console.error("API Error:", errorData);
+      throw new Error(errorData.detail || "Failed to fetch chat");
     }
 
     const data: APIResponse = await res.json();
     return data.data;
   } catch (error) {
-    console.error("Error fetching chat:", error);
+    if (error instanceof Error) {
+      throw error;
+    }
+
     throw new Error("Unexpected error occurred while fetching chat");
   }
 }

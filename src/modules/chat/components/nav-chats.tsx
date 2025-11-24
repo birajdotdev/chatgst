@@ -45,29 +45,35 @@ export async function NavChats() {
   );
   return (
     <>
-      {sidebarItems.map((chat) => (
-        <SidebarGroup key={chat.date} className="p-0 px-3">
-          <SidebarGroupLabel>{chat.date}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {chat.chats.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton asChild>
-                    <div className="flex w-full">
-                      <Link
-                        href={`/chat/${item.id}`}
-                        className="block max-w-xs flex-1 truncate"
-                      >
-                        {item.title}
-                      </Link>
-                    </div>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+      {sidebarItems.length === 0 ? (
+        <SidebarGroup className="p-0 px-3 text-center text-sm text-muted-foreground">
+          <SidebarMenuItem>There is no recent chat!</SidebarMenuItem>
         </SidebarGroup>
-      ))}
+      ) : (
+        sidebarItems.map((chat) => (
+          <SidebarGroup key={chat.date} className="p-0 px-3">
+            <SidebarGroupLabel>{chat.date}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {chat.chats.map((item) => (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton asChild>
+                      <div className="flex w-full">
+                        <Link
+                          href={`/chat/${item.id}`}
+                          className="block max-w-xs flex-1 truncate"
+                        >
+                          {item.title}
+                        </Link>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))
+      )}
     </>
   );
 }
@@ -89,5 +95,13 @@ export function NavChatsSkeleton() {
         </SidebarGroup>
       ))}
     </>
+  );
+}
+
+export function NavChatsError() {
+  return (
+    <SidebarGroup className="p-0 px-3 text-center text-sm text-destructive">
+      <SidebarMenuItem>Error loading chats.</SidebarMenuItem>
+    </SidebarGroup>
   );
 }
