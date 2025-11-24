@@ -1,6 +1,6 @@
 "use client";
 
-import { ViewTransition, useState } from "react";
+import { ViewTransition, useRef, useState } from "react";
 
 import { Chat, useChat } from "@ai-sdk/react";
 import { UIDataTypes, UIMessage, UITools } from "ai";
@@ -10,7 +10,6 @@ import { AIConversation } from "@/components/ai-conversation";
 import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { AIPromptInput } from "@/components/ai-prompt-input";
 import { cn } from "@/lib/utils";
-
 
 interface ChatBotProps {
   aiPromptInputClassName?: string;
@@ -26,9 +25,16 @@ export function ChatBot({
   chat: sharedChat,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const { messages, status, stop, sendMessage } = useChat({
     chat: sharedChat,
   });
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+    inputRef.current?.focus();
+  };
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (status === "streaming" || status === "submitted") {
@@ -60,9 +66,14 @@ export function ChatBot({
   return (
     <div className={cn("relative mx-auto size-full max-w-4xl", className)}>
       <div className="flex h-full flex-col">
-        <AIConversation messages={messages} status={status} />
+        <AIConversation
+          messages={messages}
+          status={status}
+          onSuggestionClick={handleSuggestionClick}
+        />
         <ViewTransition name={viewTransitionName}>
           <AIPromptInput
+            ref={inputRef}
             className={cn("mx-auto mt-4", aiPromptInputClassName)}
             value={input}
             onChange={setInput}
