@@ -1,19 +1,6 @@
-"use client";
+import { LandingChat } from "@/modules/home/components/landing-chat";
 
-import { ViewTransition, useRef } from "react";
-
-import { AIPromptInput } from "@/components/ai-prompt-input";
-import { ChatSuggestions } from "@/modules/chat/components/chat-suggestions";
-import { ChatProps } from "@/modules/home/types/chat-props";
-
-export function Hero(props: Omit<ChatProps, "messages">) {
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleSuggestionClick = (suggestion: string) => {
-    props.onChange?.(suggestion);
-    inputRef.current?.focus();
-  };
-
+export function Hero() {
   return (
     <section className="relative m-3 flex items-center justify-center overflow-hidden rounded-xl bg-linear-to-b from-background to-primary/20 px-6 py-16 md:rounded-2xl md:px-6 md:py-26">
       <CurveLineDesign className="absolute inset-x-0 inset-y-1/2 mx-auto hidden w-full max-w-7xl sm:block" />
@@ -36,15 +23,7 @@ export function Hero(props: Omit<ChatProps, "messages">) {
           effortlessly.
         </p>
 
-        <ViewTransition name="general-chat">
-          <AIPromptInput
-            ref={inputRef}
-            className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
-            {...props}
-          />
-        </ViewTransition>
-
-        <ChatSuggestions onClick={handleSuggestionClick} />
+        <LandingChat />
       </div>
     </section>
   );

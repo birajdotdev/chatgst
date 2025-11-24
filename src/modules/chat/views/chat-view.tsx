@@ -1,17 +1,17 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
-
 import { ChatBot } from "@/components/chat-bot";
+import { useDefaultChat } from "@/modules/chat/components/default-chat-context";
 
 export function ChatView() {
-  const { messages } = useChat();
+  const { chat } = useDefaultChat();
   return (
-    <ChatBot
-      messages={messages}
-      onSubmit={() => {}}
-      className="max-w-5xl"
-      aiPromptInputClassName="max-w-3xl"
-    />
+    <section className="h-full flex-1 overflow-hidden">
+      <ChatBot
+        chat={chat}
+        className="max-w-5xl"
+        aiPromptInputClassName="max-w-3xl"
+      />
+    </section>
   );
 }

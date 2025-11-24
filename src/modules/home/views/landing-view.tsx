@@ -4,12 +4,11 @@ import { Footer } from "@/modules/home/components/footer";
 import { Hero } from "@/modules/home/components/hero";
 import { HowItWorks } from "@/modules/home/components/how-it-works";
 import { TranslationSection } from "@/modules/home/components/translation-section";
-import { ChatProps } from "@/modules/home/types/chat-props";
 
-export function LandingView(props: Omit<ChatProps, "messages">) {
+export function LandingView() {
   return (
     <main className="mx-auto flex min-h-screen flex-col gap-32">
-      <Hero {...props} />
+      <Hero />
       <Features />
       <HowItWorks />
       <TranslationSection />

@@ -37,6 +37,7 @@
     "radix-ui": "latest",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.66.1",
     "react-phone-number-input": "^3.4.13",
     "server-only": "^0.0.1",

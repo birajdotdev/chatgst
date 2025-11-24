@@ -19,19 +19,21 @@ interface AIConversationProps {
   messages: UIMessage<unknown, UIDataTypes, UITools>[];
   status?: ChatStatus;
   loadingText?: string;
+  onSuggestionClick?: (suggestion: string) => void;
 }
 
 export function AIConversation({
   messages,
   status,
   loadingText = "Generating your response...",
+  onSuggestionClick,
 }: AIConversationProps) {
   return (
     <Conversation className="h-full">
       <ConversationContent className="h-full">
         {messages.length === 0 ? (
           <ConversationEmptyState className="flex size-full items-center justify-center">
-            <ChatSuggestions />
+            <ChatSuggestions onClick={onSuggestionClick} />
           </ConversationEmptyState>
         ) : (
           messages.map((message) => (
