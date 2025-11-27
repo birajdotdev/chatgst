@@ -32,7 +32,7 @@ export function AIConversation({
     <Conversation className="h-full">
       <ConversationContent className="h-full">
         {messages.length === 0 ? (
-          <ConversationEmptyState className="flex size-full items-center justify-center">
+          <ConversationEmptyState className="flex size-full items-center justify-center p-0">
             <ChatSuggestions onClick={onSuggestionClick} />
           </ConversationEmptyState>
         ) : (
