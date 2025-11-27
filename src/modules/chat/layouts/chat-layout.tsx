@@ -6,7 +6,9 @@ export function ChatLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <ChatSidebar />
       <SidebarInset>
-        <section className="flex-1 overflow-hidden p-6">{children}</section>
+        <main className="max-h-[calc(100vh-4rem)] flex-1 overflow-hidden p-6">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
