@@ -14,35 +14,42 @@ import { getChats } from "@/modules/chat/apis/get-chats";
 export async function NavChats() {
   const chats = await getChats();
 
-  const sidebarItems = chats.reduce(
-    (acc, chat) => {
-      const chatDate = new Date(chat.created_at);
-      const today = new Date();
+  const sidebarItems = chats
+    .reduce(
+      (acc, chat) => {
+        const chatDate = new Date(chat.created_at);
+        const today = new Date();
 
-      const isToday = chatDate.toDateString() === today.toDateString();
-      const date = isToday
-        ? "Today"
-        : chatDate.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+        const isToday = chatDate.toDateString() === today.toDateString();
+        const date = isToday
+          ? "Today"
+          : chatDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+
+        const existing = acc.find((group) => group.date === date);
+
+        if (existing) {
+          existing.chats.push({ id: chat.id, title: chat.title });
+        } else {
+          acc.push({
+            date,
+            chats: [{ id: chat.id, title: chat.title }],
           });
+        }
 
-      const existing = acc.find((group) => group.date === date);
+        return acc;
+      },
+      [] as { date: string; chats: { id: string; title: string }[] }[]
+    )
+    .sort((a, b) => {
+      if (a.date === "Today") return -1;
+      if (b.date === "Today") return 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 
-      if (existing) {
-        existing.chats.push({ id: chat.id, title: chat.title });
-      } else {
-        acc.push({
-          date,
-          chats: [{ id: chat.id, title: chat.title }],
-        });
-      }
-
-      return acc;
-    },
-    [] as { date: string; chats: { id: string; title: string }[] }[]
-  );
   return (
     <>
       {sidebarItems.length === 0 ? (
