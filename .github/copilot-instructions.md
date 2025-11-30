@@ -84,6 +84,7 @@ Each module follows this internal structure:
 "use server";
 
 import { actionClient } from "@/lib/safe-action";
+
 import { mySchema } from "../validations/my-schema";
 
 export const myAction = actionClient
@@ -111,13 +112,16 @@ export const myAction = actionClient
 **Usage in Components** (via `@next-safe-action/adapter-react-hook-form`):
 
 ```typescript
-const { form, action: { isExecuting }, handleSubmitWithAction } =
-  useHookFormAction(myAction, zodResolver(mySchema), {
-    actionProps: {
-      onSuccess: ({ data }) => toast.success(data.message),
-      onError: ({ error }) => toast.error(error.serverError),
-    },
-  });
+const {
+  form,
+  action: { isExecuting },
+  handleSubmitWithAction,
+} = useHookFormAction(myAction, zodResolver(mySchema), {
+  actionProps: {
+    onSuccess: ({ data }) => toast.success(data.message),
+    onError: ({ error }) => toast.error(error.serverError),
+  },
+});
 ```
 
 ### Form Validation
