@@ -24,9 +24,9 @@ const navMenuItems: NavMenuItem[] = [
 ];
 
 const navMenuAuthenticatedItems: NavMenuItem[] = [
-  { title: "Home", href: "/" },
+  { title: "Home", href: "/chat" },
   { title: "About", href: "/#about" },
-  { title: "Appeal Draft", href: "/appeal-draft" as Route },
+  { title: "Appeal Draft", href: "/appeal-draft" },
   { title: "Language Assistance", href: "/language-assistance" as Route },
 ];
 
