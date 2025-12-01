@@ -10,7 +10,7 @@ import { AppealDraftStepper } from "@/modules/appeal-draft/components/appeal-dra
 import BasicDetailsStep from "@/modules/appeal-draft/components/basic-details-step";
 import { UploadDocumentStep } from "@/modules/appeal-draft/components/upload-document-step";
 
-export function AppealDraftForm() {
+export function AppealDraftClient() {
   const [step, setStep] = useQueryState("step", parseAsInteger.withDefault(1));
 
   const handleBack = () => {
@@ -23,7 +23,7 @@ export function AppealDraftForm() {
   };
 
   return (
-    <form className="flex size-full flex-col items-center gap-6">
+    <div className="flex size-full flex-col items-center gap-6">
       <AppealDraftStepper
         className="w-full md:max-w-2/3"
         stepperProps={{
@@ -34,7 +34,7 @@ export function AppealDraftForm() {
       <Card className="size-full max-h-fit gap-0 overflow-hidden rounded-3xl bg-muted p-0">
         <CardContent className="size-full px-4 py-6">
           <Activity mode={step === 1 ? "visible" : "hidden"}>
-            <UploadDocumentStep />
+            <UploadDocumentStep onSuccess={() => setStep(2)} />
           </Activity>
           <Activity mode={step === 2 ? "visible" : "hidden"}>
             <BasicDetailsStep />
@@ -64,6 +64,6 @@ export function AppealDraftForm() {
           </Button>
         </CardFooter>
       </Card>
-    </form>
+    </div>
   );
 }

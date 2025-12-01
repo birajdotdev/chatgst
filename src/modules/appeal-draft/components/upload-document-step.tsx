@@ -6,14 +6,29 @@ import {
   UploadIcon,
   XCircleIcon,
 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
+import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
 
-export function UploadDocumentStep() {
+interface UploadDocumentStepProps {
+  onSuccess?: (id: string) => void;
+}
+
+export function UploadDocumentStep({ onSuccess }: UploadDocumentStepProps) {
   const maxSize = 10 * 1024 * 1024; // 10MB default
   const maxFiles = 1;
   const accept = ["application/pdf", "application/msword"];
+
+  const { execute, isExecuting } = useAction(extractEntitiesAction, {
+    onSuccess: ({ data }) => {
+      console.log("Extracted entities:", data);
+      onSuccess?.(data.documentId);
+    },
+    onError: ({ error }) => toast.error(error.serverError),
+  });
 
   const [
     { files, isDragging, errors },
@@ -33,7 +48,7 @@ export function UploadDocumentStep() {
   });
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <form action={execute} className="flex flex-col items-center gap-8">
       <p className="w-full max-w-lg text-center text-sm leading-loose">
         Upload your GST Show Cause Notice or Order. Our AI will extract all
         relevant information to begin drafting your appeal.
@@ -81,11 +96,13 @@ export function UploadDocumentStep() {
                   </div>
 
                   <Button
+                    type="button"
                     aria-label="Remove file"
                     className="size-8 rounded-full text-muted-foreground/80 hover:bg-transparent hover:text-foreground"
                     onClick={() => removeFile(file.id)}
                     size="icon"
                     variant="ghost"
+                    disabled={isExecuting}
                   >
                     <XCircleIcon aria-hidden="true" className="size-6" />
                   </Button>
@@ -93,7 +110,7 @@ export function UploadDocumentStep() {
               ))}
             </div>
             <div className="mx-auto flex max-w-fit flex-col gap-3">
-              <Button type="button">
+              <Button type="submit" disabled={isExecuting}>
                 <UploadIcon aria-hidden="true" className="-ms-1" />
                 Upload file & Process
               </Button>
@@ -101,6 +118,7 @@ export function UploadDocumentStep() {
                 type="button"
                 className="text-primary!"
                 variant="ghost"
+                disabled={isExecuting}
                 onClick={openFileDialog}
               >
                 Choose Different File
@@ -138,6 +156,6 @@ export function UploadDocumentStep() {
           <span>{errors[0]}</span>
         </div>
       )}
-    </div>
+    </form>
   );
 }

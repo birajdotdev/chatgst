@@ -4,32 +4,22 @@ import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
 import { actionClient } from "@/lib/safe-action";
-
-export interface APIResponse {
-  message: string;
-  data: Data;
-}
-
-export interface Data {
-  file_name: string;
-  time_taken: string;
-  ocr_type: string;
-  page_texts: string[];
-}
+import { ExtractEntitiesApiResponse } from "@/modules/appeal-draft/types";
 
 const inputSchema = zfd.formData({
   pdf_file: zfd.file(),
 });
 
-export const uploadDocumentAction = actionClient
+export const extractEntitiesAction = actionClient
   .inputSchema(inputSchema)
-  .action(async ({ parsedInput }) => {
+  .action(async ({ parsedInput, ctx }) => {
     try {
-      const res = await fetch(`${env.API_URL}/documents/ocr/`, {
+      const res = await fetch(`${env.API_URL}/documents/`, {
         method: "POST",
         headers: {
           accept: "application/json",
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${ctx.accessToken}`,
         },
         body: parsedInput.pdf_file,
       });
@@ -41,9 +31,13 @@ export const uploadDocumentAction = actionClient
         );
       }
 
-      const data: APIResponse = await res.json();
+      const data: ExtractEntitiesApiResponse = await res.json();
 
-      return data;
+      return {
+        success: true,
+        message: data.message,
+        documentId: data.data.id,
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
