@@ -3,6 +3,7 @@
 import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
+import { verifySession } from "@/lib/auth";
 import { actionClient } from "@/lib/safe-action";
 import { ExtractEntitiesApiResponse } from "@/modules/appeal-draft/types";
 
@@ -12,14 +13,19 @@ const inputSchema = zfd.formData({
 
 export const extractEntitiesAction = actionClient
   .inputSchema(inputSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput }) => {
+    const session = await verifySession();
+    if (!session?.accessToken) {
+      throw new Error("Unauthorized");
+    }
+
     try {
       const res = await fetch(`${env.API_URL}/documents/`, {
         method: "POST",
         headers: {
           accept: "application/json",
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${ctx.accessToken}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: parsedInput.pdf_file,
       });
