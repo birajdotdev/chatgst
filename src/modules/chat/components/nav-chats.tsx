@@ -23,7 +23,13 @@ export function NavChats({
   const chats = use(chatsPromise);
   const pathname = usePathname();
 
-  const sidebarItems = chats
+  // Sort chats by date descending
+  const sortedChats = [...chats].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
+  const sidebarItems = sortedChats
     .reduce(
       (acc, chat) => {
         const chatDate = new Date(chat.created_at);

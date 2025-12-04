@@ -259,8 +259,8 @@ export async function POST(req: Request) {
 
               let chunk = decoder.decode(value, { stream: true });
 
-              // Extract chat ID from first chunk if not provided
-              if (isFirstChunk && !chatId) {
+              // Extract chat ID from first chunk
+              if (isFirstChunk) {
                 isFirstChunk = false;
                 // Response format: "chatId response text"
                 const spaceIndex = chunk.indexOf(" ");
@@ -269,6 +269,7 @@ export async function POST(req: Request) {
                   chunk = chunk.substring(spaceIndex + 1); // Remove chatId from text
 
                   // Emit chat ID as custom metadata
+                  // We emit it even if we already have it, just to be consistent
                   writer.write({
                     type: "data-chatId",
                     data: extractedChatId,
