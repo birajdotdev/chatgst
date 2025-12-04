@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
 import { getChat } from "@/modules/chat/apis/get-chat";
+import { DefaultChatProvider } from "@/modules/chat/components/default-chat-context";
+import { ChatView } from "@/modules/chat/views/chat-view";
 
 export default async function Page(props: PageProps<"/chat/[id]">) {
   const { id } = await props.params;
@@ -9,5 +11,10 @@ export default async function Page(props: PageProps<"/chat/[id]">) {
   if (!chat) {
     notFound();
   }
-  return <pre>{JSON.stringify(chat, null, 2)}</pre>;
+
+  return (
+    <DefaultChatProvider chatId={id}>
+      <ChatView />
+    </DefaultChatProvider>
+  );
 }
