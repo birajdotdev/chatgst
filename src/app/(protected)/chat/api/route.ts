@@ -13,6 +13,97 @@ import {
   sanitizeError,
 } from "@/types/errors";
 
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const chatId = url.searchParams.get("chatId");
+
+    if (!chatId) {
+      const error: StructuredError = {
+        code: ErrorCodes.BACKEND_ERROR,
+        message: "Chat ID is required",
+        status: 400,
+      };
+      return Response.json(error, { status: 400 });
+    }
+
+    const clientCookies = req.headers.get("cookie");
+
+    // Parse access_token from cookies
+    const cookies = clientCookies?.split(";").reduce(
+      (acc, cookie) => {
+        const [name, value] = cookie.trim().split("=");
+        acc[name] = value;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    const accessToken = cookies?.["access_token"];
+
+    if (!accessToken) {
+      const error: StructuredError = {
+        code: ErrorCodes.BACKEND_ERROR,
+        message: "Unauthorized",
+        status: 401,
+      };
+      return Response.json(error, { status: 401 });
+    }
+
+    const backendResponse = await fetch(`${env.API_URL}/chats/${chatId}/`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!backendResponse.ok) {
+      const errorText = await backendResponse.text();
+      let errorData: BackendErrorResponse | null = null;
+
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        // Not JSON, use text directly
+      }
+
+      const structuredError = parseBackendError(
+        backendResponse,
+        errorData,
+        errorText
+      );
+
+      console.error("Backend error:", {
+        status: backendResponse.status,
+        statusText: backendResponse.statusText,
+        body: errorText,
+        structuredError,
+      });
+
+      return Response.json(structuredError, {
+        status: structuredError.status || 500,
+      });
+    }
+
+    const chatHistory = await backendResponse.json();
+    return Response.json(chatHistory);
+  } catch (error) {
+    const sanitizedError = sanitizeError(error);
+
+    console.error("❌ Error fetching chat history:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      sanitizedError,
+    });
+
+    return Response.json(sanitizedError, {
+      status: sanitizedError.status || 500,
+    });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { messages }: { messages: UIMessage[] } = await req.json();
@@ -64,9 +155,18 @@ export async function POST(req: Request) {
       return Response.json(error, { status: 401 });
     }
 
+    // Get chatId from query params if continuing existing chat
+    const url = new URL(req.url);
+    const chatId = url.searchParams.get("chatId");
+
     const body = new URLSearchParams({ query: userQuery }).toString();
 
-    const backendResponse = await fetch(`${env.API_URL}/chats/`, {
+    // Build API URL with chat_id if provided
+    const apiUrl = chatId
+      ? `${env.API_URL}/chats/?chat_id=${chatId}`
+      : `${env.API_URL}/chats/`;
+
+    const backendResponse = await fetch(apiUrl, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -147,6 +247,9 @@ export async function POST(req: Request) {
           }
 
           try {
+            let isFirstChunk = true;
+            let extractedChatId: string | null = null;
+
             while (true) {
               const { done, value } = await reader.read();
 
@@ -154,7 +257,25 @@ export async function POST(req: Request) {
                 break;
               }
 
-              const chunk = decoder.decode(value, { stream: true });
+              let chunk = decoder.decode(value, { stream: true });
+
+              // Extract chat ID from first chunk
+              if (isFirstChunk) {
+                isFirstChunk = false;
+                // Response format: "chatId response text"
+                const spaceIndex = chunk.indexOf(" ");
+                if (spaceIndex > 0) {
+                  extractedChatId = chunk.substring(0, spaceIndex);
+                  chunk = chunk.substring(spaceIndex + 1); // Remove chatId from text
+
+                  // Emit chat ID as custom metadata
+                  // We emit it even if we already have it, just to be consistent
+                  writer.write({
+                    type: "data-chatId",
+                    data: extractedChatId,
+                  } as any);
+                }
+              }
 
               writer.write({
                 type: "text-delta",

@@ -16,6 +16,7 @@ interface ChatBotProps {
   className?: string;
   viewTransitionName?: string;
   chat: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
+  onChatIdReceived?: (chatId: string) => void;
 }
 
 export function ChatBot({
@@ -23,6 +24,7 @@ export function ChatBot({
   className,
   viewTransitionName,
   chat: sharedChat,
+  onChatIdReceived,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
