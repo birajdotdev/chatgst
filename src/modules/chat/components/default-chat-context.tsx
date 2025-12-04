@@ -51,6 +51,10 @@ export function DefaultChatProvider({
       }),
       onError: (error) => {
         const errorData = parseClientError(error);
+        if (errorData.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
         toast.error("Failed to send message", {
           description: errorData.message || "An unknown error occurred.",
         });
@@ -77,6 +81,10 @@ export function DefaultChatProvider({
         const response = await fetch(`/chat/api?chatId=${chatId}`);
 
         if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
           const error = await response.json();
           toast.error("Failed to load chat history", {
             description: error.message || "Could not load previous messages.",
