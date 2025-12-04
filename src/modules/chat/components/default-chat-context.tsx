@@ -107,9 +107,7 @@ export function DefaultChatProvider({
         // @ts-ignore - messages is a writable property
         chat.messages = messages;
 
-        toast.success("Chat history loaded", {
-          // description: `Loaded previous messages.`,
-        });
+        // Don't show toast - loading state is sufficient feedback
       } catch (error) {
         console.error("Error loading chat history:", error);
         toast.error("Failed to load chat history", {

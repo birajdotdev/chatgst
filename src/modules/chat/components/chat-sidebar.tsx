@@ -7,6 +7,7 @@ import {
   SidebarContent,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { getChats } from "@/modules/chat/apis/get-chats";
 import {
   NavChats,
   NavChatsError,
@@ -15,7 +16,9 @@ import {
 import { SearchForm } from "@/modules/chat/components/search-form";
 import SidebarButtons from "@/modules/chat/components/sidebar-buttons";
 
-export function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
+export async function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const chatsPromise = getChats();
+
   return (
     <Sidebar {...props}>
       <SidebarHeader className="mb-4.5 gap-4.5 p-0 px-3 pt-6">
@@ -25,7 +28,7 @@ export function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="gap-4 pb-6">
         <ErrorBoundary fallback={<NavChatsError />}>
           <Suspense fallback={<NavChatsSkeleton />}>
-            <NavChats />
+            <NavChats chatsPromise={chatsPromise} />
           </Suspense>
         </ErrorBoundary>
       </SidebarContent>

@@ -247,6 +247,9 @@ export async function POST(req: Request) {
           }
 
           try {
+            let isFirstChunk = true;
+            let extractedChatId: string | null = null;
+
             while (true) {
               const { done, value } = await reader.read();
 
@@ -254,7 +257,24 @@ export async function POST(req: Request) {
                 break;
               }
 
-              const chunk = decoder.decode(value, { stream: true });
+              let chunk = decoder.decode(value, { stream: true });
+
+              // Extract chat ID from first chunk if not provided
+              if (isFirstChunk && !chatId) {
+                isFirstChunk = false;
+                // Response format: "chatId response text"
+                const spaceIndex = chunk.indexOf(" ");
+                if (spaceIndex > 0) {
+                  extractedChatId = chunk.substring(0, spaceIndex);
+                  chunk = chunk.substring(spaceIndex + 1); // Remove chatId from text
+
+                  // Emit chat ID as custom metadata
+                  writer.write({
+                    type: "data-chatId",
+                    data: extractedChatId,
+                  } as any);
+                }
+              }
 
               writer.write({
                 type: "text-delta",

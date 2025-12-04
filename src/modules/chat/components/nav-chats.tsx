@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { use } from "react";
 
 import {
   SidebarGroup,
@@ -11,8 +15,13 @@ import {
 } from "@/components/ui/sidebar";
 import { getChats } from "@/modules/chat/apis/get-chats";
 
-export async function NavChats() {
-  const chats = await getChats();
+export function NavChats({
+  chatsPromise,
+}: {
+  chatsPromise: Promise<Awaited<ReturnType<typeof getChats>>>;
+}) {
+  const chats = use(chatsPromise);
+  const pathname = usePathname();
 
   const sidebarItems = chats
     .reduce(
@@ -62,20 +71,21 @@ export async function NavChats() {
             <SidebarGroupLabel>{chat.date}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {chat.chats.map((item) => (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton asChild>
-                      <div className="flex w-full">
+                {chat.chats.map((item) => {
+                  const isActive = pathname === `/chat/${item.id}`;
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild isActive={isActive}>
                         <Link
                           href={`/chat/${item.id}`}
-                          className="block max-w-xs flex-1 truncate"
+                          className="block w-full"
                         >
-                          {item.title}
+                          <span className="block truncate">{item.title}</span>
                         </Link>
-                      </div>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
