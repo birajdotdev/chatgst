@@ -157,7 +157,20 @@ export async function POST(req: Request) {
 
     // Get chatId from query params if continuing existing chat
     const url = new URL(req.url);
-    const chatId = url.searchParams.get("chatId");
+    let chatId = url.searchParams.get("chatId");
+
+    // Fallback: Try to get chatId from Referer if not in query params
+    if (!chatId) {
+      const referer = req.headers.get("referer");
+      if (referer) {
+        // Extract ID from .../chat/[id]
+        // Matches UUID pattern or general ID pattern
+        const match = referer.match(/\/chat\/([a-zA-Z0-9-]+)/);
+        if (match && match[1]) {
+          chatId = match[1];
+        }
+      }
+    }
 
     const body = new URLSearchParams({ query: userQuery }).toString();
 
@@ -210,15 +223,11 @@ export async function POST(req: Request) {
     }
 
     const setCookieHeader = backendResponse.headers.get("set-cookie");
+    let extractedChatId: string | null = null;
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
         try {
-          writer.write({
-            type: "text-start",
-            id: "response-text",
-          });
-
           const reader = backendResponse.body?.getReader();
           const decoder = new TextDecoder();
 
@@ -232,13 +241,6 @@ export async function POST(req: Request) {
               type: "error",
               errorText: JSON.stringify(error),
             });
-
-            // Close the text stream and finish properly
-            writer.write({
-              type: "text-end",
-              id: "response-text",
-            });
-
             writer.write({
               type: "finish",
             });
@@ -248,7 +250,7 @@ export async function POST(req: Request) {
 
           try {
             let isFirstChunk = true;
-            let extractedChatId: string | null = null;
+            let hasStartedText = false;
 
             while (true) {
               const { done, value } = await reader.read();
@@ -268,19 +270,39 @@ export async function POST(req: Request) {
                   extractedChatId = chunk.substring(0, spaceIndex);
                   chunk = chunk.substring(spaceIndex + 1); // Remove chatId from text
 
-                  // Emit chat ID as custom metadata
-                  // We emit it even if we already have it, just to be consistent
-                  writer.write({
-                    type: "data-chatId",
-                    data: extractedChatId,
-                  } as any);
+                  // Send chat ID as data message through the stream
+                  // This is only sent for new chats (when no chatId was provided in request)
+                  if (!chatId && extractedChatId) {
+                    writer.write({
+                      type: "data-chat-id",
+                      data: { chatId: extractedChatId },
+                    });
+                  }
                 }
               }
 
+              if (chunk.length > 0) {
+                if (!hasStartedText) {
+                  writer.write({
+                    type: "text-start",
+                    id: "response-text",
+                  });
+                  hasStartedText = true;
+                }
+
+                writer.write({
+                  type: "text-delta",
+                  id: "response-text",
+                  delta: chunk,
+                });
+              }
+            }
+
+            // Ensure text-start is sent even if response was empty (but we have ID extracted)
+            if (!hasStartedText) {
               writer.write({
-                type: "text-delta",
+                type: "text-start",
                 id: "response-text",
-                delta: chunk,
               });
             }
           } finally {
@@ -325,6 +347,18 @@ export async function POST(req: Request) {
     // Forward Set-Cookie headers from backend to client
     if (setCookieHeader) {
       streamResponse.headers.set("Set-Cookie", setCookieHeader);
+    }
+
+    // Add chatId to response headers for client-side redirect
+    if (extractedChatId) {
+      streamResponse.headers.set("X-Chat-ID", extractedChatId);
+
+      // Also set a temporary cookie that the client can read
+      // This allows the frontend to poll for the chat ID after submission
+      streamResponse.headers.append(
+        "Set-Cookie",
+        `latest_chat_id=${extractedChatId}; Path=/; Max-Age=10; HttpOnly; SameSite=Lax`
+      );
     }
 
     return streamResponse;

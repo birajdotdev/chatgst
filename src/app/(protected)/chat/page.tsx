@@ -1,5 +1,7 @@
-import { ChatView } from "@/modules/chat/views/chat-view";
+"use client";
+
+import { NewChatStarter } from "@/modules/chat/components/new-chat-starter";
 
 export default function Page() {
-  return <ChatView />;
+  return <NewChatStarter />;
 }
