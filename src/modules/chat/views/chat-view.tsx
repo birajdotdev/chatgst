@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useDefaultChat } from "@/modules/chat/components/default-chat-context";
 
 export function ChatView() {
-  const { chat, isLoading, error } = useDefaultChat();
+  const { chat, isLoading, error, initialMessages } = useDefaultChat();
 
   if (isLoading) {
     return (
@@ -35,7 +35,7 @@ export function ChatView() {
 
   return (
     <section className="h-full flex-1 overflow-hidden">
-      <ChatBot chat={chat} />
+      <ChatBot chat={chat} initialMessages={initialMessages} />
     </section>
   );
 }

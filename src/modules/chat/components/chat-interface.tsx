@@ -45,7 +45,7 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
   }
 
   const chat = chatInstanceRef.current;
-  const { messages, sendMessage } = useChat({ chat });
+  const { messages, sendMessage, status } = useChat({ chat });
 
   // Send the initial message when component mounts
   useEffect(() => {
@@ -64,33 +64,62 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Monitor for chat ID in the response and redirect
-  useEffect(() => {
-    if (hasRedirectedRef.current) return;
+  const receivedChatIdRef = useRef<string | null>(null);
 
-    // Look for chat ID in the messages (sent by backend in stream)
+  // Monitor for chat ID in the response
+  useEffect(() => {
+    if (receivedChatIdRef.current) return;
+
+    // Look for chat ID in the messages
     for (const message of messages) {
       if (message.role === "assistant" && message.parts) {
         for (const part of message.parts) {
-          // Check if this part contains the chat ID
           if (part.type === "data-chat-id" && "data" in part) {
             const data = part.data as { chatId?: string };
             if (data.chatId) {
-              console.log(
-                "[ChatInterface] Found chat ID, redirecting:",
-                data.chatId
-              );
-              hasRedirectedRef.current = true;
+              console.log("[ChatInterface] Found chat ID:", data.chatId);
+              receivedChatIdRef.current = data.chatId;
 
-              // Redirect to the real chat ID
-              router.replace(`/chat/${data.chatId}`);
+              // Update URL shallowly immediately for UX
+              window.history.replaceState(null, "", `/chat/${data.chatId}`);
               return;
             }
           }
         }
       }
     }
-  }, [messages, router]);
+  }, [messages]);
+
+  // Wait for stream to finish before redirecting
+  // This ensures backend has saved the full history
+  useEffect(() => {
+    if (
+      receivedChatIdRef.current &&
+      !hasRedirectedRef.current &&
+      status === "ready"
+    ) {
+      // Only redirect if we have messages (sanity check)
+      if (messages.length > 0) {
+        hasRedirectedRef.current = true;
+        const chatId = receivedChatIdRef.current;
+
+        console.log("[ChatInterface] Stream finished, redirecting to:", chatId);
+
+        // Save messages to session storage for immediate rendering on new page
+        try {
+          sessionStorage.setItem(
+            `transfer_messages_${chatId}`,
+            JSON.stringify(messages)
+          );
+        } catch (e) {
+          console.error("Failed to save transfer messages", e);
+        }
+
+        // Perform full redirect to switch to DefaultChatProvider
+        window.location.href = `/chat/${chatId}`;
+      }
+    }
+  }, [status, messages]);
 
   return <ChatBot chat={chat} />;
 }

@@ -22,6 +22,7 @@ interface ChatContextValue {
   chatId: string | null;
   isLoading: boolean;
   error: string | null;
+  initialMessages?: UIMessage[];
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
@@ -48,6 +49,7 @@ export function DefaultChatProvider({
 
   const [isLoading, setIsLoading] = useState(!!chatId);
   const [error, setError] = useState<string | null>(null);
+  const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
   const hasLoadedHistory = useRef(false);
   const chatInstanceRef = useRef<Chat<UIMessage> | null>(null);
   const justCreatedChatIdRef = useRef<string | null>(null);
@@ -123,6 +125,25 @@ export function DefaultChatProvider({
 
       hasLoadedHistory.current = true;
 
+      // Check for transferred messages from redirect
+      // This ensures immediate rendering of the just-sent message
+      const transferKey = `transfer_messages_${chatId}`;
+      const transferMessages = sessionStorage.getItem(transferKey);
+
+      if (transferMessages) {
+        try {
+          const messages = JSON.parse(transferMessages);
+          // @ts-ignore - messages is a writable property on the Chat instance
+          chat.messages = messages;
+          setInitialMessages(messages);
+          sessionStorage.removeItem(transferKey);
+          setIsLoading(false);
+          return; // Skip fetching from API
+        } catch (e) {
+          console.error("Failed to parse transfer messages", e);
+        }
+      }
+
       // Only show loading if we don't have messages (e.g. fresh load)
       // If we preserved messages from previous instance, skip loading state
       if (chat.messages.length === 0) {
@@ -196,6 +217,7 @@ export function DefaultChatProvider({
         chatId: currentChatId || chatId || null,
         isLoading,
         error,
+        initialMessages,
       }}
     >
       {children}

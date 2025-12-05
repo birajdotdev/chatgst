@@ -16,6 +16,7 @@ interface ChatBotProps {
   className?: string;
   viewTransitionName?: string;
   chat: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
+  initialMessages?: UIMessage[];
 }
 
 export function ChatBot({
@@ -23,14 +24,26 @@ export function ChatBot({
   className,
   viewTransitionName,
   chat: sharedChat,
+  initialMessages,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasSentPendingMessageRef = useRef(false);
 
-  const { messages, status, stop, sendMessage } = useChat({
+  const { messages, status, stop, sendMessage, setMessages } = useChat({
     chat: sharedChat,
   });
+
+  // Initialize messages if provided (e.g. from transfer)
+  useEffect(() => {
+    if (
+      initialMessages &&
+      initialMessages.length > 0 &&
+      messages.length === 0
+    ) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages, messages.length, setMessages]);
 
   // Check for pending message from /chat redirect and send it
   useEffect(() => {

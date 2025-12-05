@@ -51,7 +51,7 @@ export function NewChatStarter({ className }: { className?: string }) {
             value={input}
             onChange={setInput}
             onSubmit={handleSubmit}
-            status="idle"
+            status="ready"
           />
         </div>
       </div>
