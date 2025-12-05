@@ -1,6 +1,6 @@
 "use client";
 
-import { ViewTransition, useRef, useState } from "react";
+import { ViewTransition, useEffect, useRef, useState } from "react";
 
 import { Chat, useChat } from "@ai-sdk/react";
 import { UIDataTypes, UIMessage, UITools } from "ai";
@@ -16,7 +16,6 @@ interface ChatBotProps {
   className?: string;
   viewTransitionName?: string;
   chat: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
-  onChatIdReceived?: (chatId: string) => void;
 }
 
 export function ChatBot({
@@ -24,14 +23,50 @@ export function ChatBot({
   className,
   viewTransitionName,
   chat: sharedChat,
-  onChatIdReceived,
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const hasSentPendingMessageRef = useRef(false);
 
   const { messages, status, stop, sendMessage } = useChat({
     chat: sharedChat,
   });
+
+  // Check for pending message from /chat redirect and send it
+  useEffect(() => {
+    if (hasSentPendingMessageRef.current) return;
+
+    const pendingMessage = sessionStorage.getItem("pendingChatMessage");
+    const pendingChatId = sessionStorage.getItem("pendingChatId");
+
+    if (pendingMessage && pendingChatId) {
+      try {
+        const message: PromptInputMessage = JSON.parse(pendingMessage);
+
+        // Clear from session storage
+        sessionStorage.removeItem("pendingChatMessage");
+        sessionStorage.removeItem("pendingChatId");
+
+        hasSentPendingMessageRef.current = true;
+
+        // Send the message
+        if (message.files?.length) {
+          toast.success("Files attached", {
+            description: `${message.files.length} file(s) attached to message`,
+          });
+        }
+
+        sendMessage({
+          text: message.text || "Sent with attachments",
+          files: message.files,
+        });
+      } catch (error) {
+        console.error("Error sending pending message:", error);
+        sessionStorage.removeItem("pendingChatMessage");
+        sessionStorage.removeItem("pendingChatId");
+      }
+    }
+  }, [sendMessage]);
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);

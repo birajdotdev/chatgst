@@ -1,26 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
+import Link from "next/link";
+
+import { AlertCircleIcon } from "lucide-react";
 
 import { ChatBot } from "@/components/chat-bot";
+import { Button } from "@/components/ui/button";
 import { useDefaultChat } from "@/modules/chat/components/default-chat-context";
 
 export function ChatView() {
-  const { chat, isLoading, chatId } = useDefaultChat();
-  const router = useRouter();
-  const redirectedRef = useRef(false);
-
-  const handleChatIdReceived = useCallback(
-    (newChatId: string) => {
-      // Only redirect if we're not already on a chat page and haven't redirected yet
-      if (!chatId && !redirectedRef.current) {
-        redirectedRef.current = true;
-        router.push(`/chat/${newChatId}`);
-      }
-    },
-    [chatId, router]
-  );
+  const { chat, isLoading, error } = useDefaultChat();
 
   if (isLoading) {
     return (
@@ -30,9 +19,23 @@ export function ChatView() {
     );
   }
 
+  if (error) {
+    return (
+      <section className="flex h-full flex-1 flex-col items-center justify-center gap-4 overflow-hidden">
+        <div className="flex flex-col items-center gap-2">
+          <AlertCircleIcon className="h-10 w-10 text-muted-foreground" />
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+        <Button asChild>
+          <Link href="/chat">Start a New Chat</Link>
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section className="h-full flex-1 overflow-hidden">
-      <ChatBot chat={chat} onChatIdReceived={handleChatIdReceived} />
+      <ChatBot chat={chat} />
     </section>
   );
 }
