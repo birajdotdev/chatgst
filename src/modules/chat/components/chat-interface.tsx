@@ -116,7 +116,8 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
         }
 
         // Perform full redirect to switch to DefaultChatProvider
-        window.location.href = `/chat/${chatId}`;
+        // We use router.replace for a seamless transition now that we wait for the stream
+        router.replace(`/chat/${chatId}`);
       }
     }
   }, [status, messages]);
