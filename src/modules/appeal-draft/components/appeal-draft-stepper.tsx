@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Stepper,
   StepperDescription,
@@ -45,17 +43,17 @@ const steps = [
 ];
 
 interface AppealDraftStepperProps {
+  step: number;
   className?: string;
-  stepperProps?: React.ComponentProps<typeof Stepper>;
 }
 
 export function AppealDraftStepper({
+  step,
   className,
-  stepperProps,
 }: AppealDraftStepperProps) {
   return (
     <div className={cn("space-y-8 text-center", className)}>
-      <Stepper defaultValue={1} {...stepperProps}>
+      <Stepper defaultValue={1} value={step}>
         {steps.map(({ step, title, description }) => (
           <StepperItem
             className="relative flex-1 flex-col!"

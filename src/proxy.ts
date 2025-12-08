@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/env";
 
 // Routes that require authentication
-const protectedRoutes = ["/chat"];
+const protectedRoutes = ["/chat", "/appeal-draft"];
 
 // Routes that should redirect to /chat if already authenticated
 const authRoutes = ["/login", "/register"];
@@ -16,8 +16,8 @@ function isTokenExpired(token: string): boolean {
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        .map((c) => {
+          return `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`;
         })
         .join("")
     );
@@ -73,7 +73,7 @@ export async function proxy(request: NextRequest) {
         // Update response cookies for browser
         response.cookies.set("access_token", newAccessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: env.NODE_ENV === "production",
           sameSite: "lax",
           maxAge: 60 * 60 * 24, // 24 hours
           path: "/",

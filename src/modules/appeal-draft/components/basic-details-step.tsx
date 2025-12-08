@@ -1,19 +1,27 @@
-import { SquarePenIcon } from "lucide-react";
+import { AiProcessingSummaryBanner } from "@/modules/appeal-draft/components/ai-processing-summary-banner";
+import { EditModeButton } from "@/modules/appeal-draft/components/edit-mode-button";
+import { ExtractedDetails } from "@/modules/appeal-draft/components/extracted-details";
+import { ExtractedDetailsForm } from "@/modules/appeal-draft/components/extracted-details-form";
+import type { DocumentData } from "@/modules/appeal-draft/types";
 
-import { Button } from "@/components/ui/button";
-
-import { AiProcessingSummaryBanner } from "./ai-processing-summary-banner";
-import { ExtractedDetails } from "./extracted-details";
-
-export default function BasicDetailsStep() {
+export default function BasicDetailsStep({
+  documentId,
+  mode,
+  document,
+}: {
+  documentId: string;
+  mode: string | null;
+  document: DocumentData;
+}) {
   return (
     <div className="flex size-full max-h-fit flex-col items-end gap-4.5">
       <AiProcessingSummaryBanner />
-      <Button variant="outline">
-        <SquarePenIcon />
-        Edit Details
-      </Button>
-      <ExtractedDetails />
+      <EditModeButton mode={mode || undefined} />
+      {mode === "edit" ? (
+        <ExtractedDetailsForm document={document} documentId={documentId} />
+      ) : (
+        <ExtractedDetails document={document} />
+      )}
     </div>
   );
 }
