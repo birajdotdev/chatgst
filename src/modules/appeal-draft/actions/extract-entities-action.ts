@@ -20,14 +20,16 @@ export const extractEntitiesAction = actionClient
     }
 
     try {
+      const formData = new FormData();
+      formData.append("pdf_file", parsedInput.pdf_file);
+
       const res = await fetch(`${env.API_URL}/documents/`, {
         method: "POST",
         headers: {
           accept: "application/json",
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${session.accessToken}`,
         },
-        body: parsedInput.pdf_file,
+        body: formData,
       });
 
       if (!res.ok) {

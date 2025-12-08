@@ -1,1 +1,1 @@
-export * from "@/modules/appeal-draft/data/get-document";
+// This file is currently empty but kept for future data utilities

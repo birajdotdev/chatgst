@@ -10,24 +10,24 @@ import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
 
-interface UploadDocumentStepProps {
-  onSuccess?: (id: string) => void;
-}
-
-export function UploadDocumentStep({ onSuccess }: UploadDocumentStepProps) {
+export function UploadDocumentStep() {
   const maxSize = 10 * 1024 * 1024; // 10MB default
   const maxFiles = 1;
   const accept = ["application/pdf", "application/msword"];
 
   const { execute, isExecuting } = useAction(extractEntitiesAction, {
     onSuccess: ({ data }) => {
-      console.log("Extracted entities:", data);
-      onSuccess?.(data.documentId);
+      // Redirect to step 2 with documentId
+      window.location.href = `/appeal-draft?step=2&documentId=${data.documentId}`;
     },
-    onError: ({ error }) => toast.error(error.serverError),
+    onError: ({ error }) => {
+      console.error(error);
+      toast.error(error.serverError);
+    },
   });
 
   const [
@@ -47,8 +47,27 @@ export function UploadDocumentStep({ onSuccess }: UploadDocumentStepProps) {
     accept: accept.join(","),
   });
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (files.length === 0) {
+      toast.error("Please select a file");
+      return;
+    }
+
+    // Create FormData and add the file
+    const formData = new FormData();
+    const file = files[0].file;
+    if (file instanceof File) {
+      formData.append("pdf_file", file);
+    }
+
+    // Execute the action with FormData
+    execute(formData);
+  };
+
   return (
-    <form action={execute} className="flex flex-col items-center gap-8">
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-8">
       <p className="w-full max-w-lg text-center text-sm leading-loose">
         Upload your GST Show Cause Notice or Order. Our AI will extract all
         relevant information to begin drafting your appeal.
@@ -111,8 +130,14 @@ export function UploadDocumentStep({ onSuccess }: UploadDocumentStepProps) {
             </div>
             <div className="mx-auto flex max-w-fit flex-col gap-3">
               <Button type="submit" disabled={isExecuting}>
-                <UploadIcon aria-hidden="true" className="-ms-1" />
-                Upload file & Process
+                {isExecuting ? (
+                  <Spinner />
+                ) : (
+                  <>
+                    <UploadIcon aria-hidden="true" className="-ms-1" />
+                    Upload file & Process
+                  </>
+                )}
               </Button>
               <Button
                 type="button"

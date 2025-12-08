@@ -1,15 +1,23 @@
-export function ExtractedDetails() {
+"use client";
+
+import { DocumentData } from "@/modules/appeal-draft/types";
+
+interface ExtractedDetailsProps {
+  document: DocumentData;
+}
+
+export function ExtractedDetails({ document }: ExtractedDetailsProps) {
   const extractedDetails = [
     {
       title: "Assessee Details",
       fields: [
         {
           name: "Name",
-          value: "ABC Trading Company Private Limited",
+          value: document.assessee_details.assessee_name,
         },
         {
           name: "Address",
-          value: "123, Industrial Area, Phase-II, Bangalore - 560058",
+          value: document.assessee_details.assessee_address,
         },
       ],
     },
@@ -18,11 +26,11 @@ export function ExtractedDetails() {
       fields: [
         {
           name: "Officer",
-          value: "Assistant Commissioner, GST Division-3",
+          value: document.jurisdiction_details.jurisdiction_officer,
         },
         {
           name: "Jurisdiction Office",
-          value: "GST Bhawan, Bangalore South, Karnataka",
+          value: document.jurisdiction_details.jurisdiction_office,
         },
       ],
     },
@@ -31,11 +39,11 @@ export function ExtractedDetails() {
       fields: [
         {
           name: "Order Number",
-          value: "GST/AC/BLR-S/2024/ORD/125",
+          value: document.order_details[0].order_number,
         },
         {
           name: "Order Date",
-          value: "2024-03-15",
+          value: document.order_details[0].order_date,
         },
       ],
     },
@@ -44,11 +52,11 @@ export function ExtractedDetails() {
       fields: [
         {
           name: "Tax Period",
-          value: "April 2023 to September 2023",
+          value: document.order_details[0].tax_period,
         },
         {
           name: "Demand Amount",
-          value: "₹2,45,680",
+          value: document.order_details[0].demand_amount,
         },
       ],
     },
