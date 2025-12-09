@@ -1,5 +1,7 @@
 "use server";
 
+import { redirect } from "next/navigation";
+
 import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
@@ -41,11 +43,8 @@ export const extractEntitiesAction = actionClient
 
       const data: ExtractEntitiesApiResponse = await res.json();
 
-      return {
-        success: true,
-        message: data.message,
-        documentId: data.data.id,
-      };
+      // Redirect to step 2 with the document ID
+      redirect(`/appeal-draft?step=2&documentId=${data.data.id}`);
     } catch (error) {
       if (error instanceof Error) {
         throw error;

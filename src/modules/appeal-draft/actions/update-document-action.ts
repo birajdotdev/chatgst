@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { env } from "@/env";
@@ -15,8 +16,6 @@ export const updateDocumentAction = actionClient
       throw new Error("Unauthorized");
     }
 
-    console.log("Parsed Input", parsedInput);
-
     try {
       const res = await fetch(`${env.API_URL}/document/${parsedInput.id}/`, {
         method: "PUT",
@@ -29,7 +28,6 @@ export const updateDocumentAction = actionClient
 
       if (!res.ok) {
         const errorData = await res.json();
-        console.log("Error:", errorData);
         throw new Error(
           errorData.detail || "Error occurred while updating the document"
         );
@@ -37,7 +35,13 @@ export const updateDocumentAction = actionClient
 
       await res.json();
 
-      // Redirect to view mode - automatically fetches fresh data
+      // Immediately invalidate document cache for read-your-own-writes
+      updateTag(`document-${parsedInput.id}`);
+
+      // Revalidate the page to ensure fresh data on redirect
+      revalidatePath("/appeal-draft", "page");
+
+      // Redirect to view mode
       redirect(`/appeal-draft?step=2&documentId=${parsedInput.id}`);
     } catch (error) {
       if (error instanceof Error) throw error;

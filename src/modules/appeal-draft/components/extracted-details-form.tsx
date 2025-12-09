@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { updateDocumentAction } from "@/modules/appeal-draft/actions/update-document-action";
+import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 import type { DocumentData } from "@/modules/appeal-draft/types";
 import {
   extractedDetailsSchema,
@@ -39,20 +40,22 @@ export function ExtractedDetailsForm({
   document: DocumentData;
   documentId: string;
 }) {
-  const {
-    form,
-    action: { execute },
-  } = useHookFormAction(
+  const { setIsSubmitting, setIsDirty } = useFormContext();
+
+  const { form, handleSubmitWithAction } = useHookFormAction(
     updateDocumentAction,
     zodResolver(updateDocumentSchema),
     {
       actionProps: {
+        onExecute: () => setIsSubmitting(true),
+        onSettled: () => setIsSubmitting(false),
         onError: ({ error }) => {
           toast.error(error.serverError || "Failed to update document");
         },
       },
       formProps: {
         defaultValues: {
+          id: documentId,
           assessee_details: document.assessee_details,
           jurisdiction_details: document.jurisdiction_details,
           order_details: document.order_details,
@@ -62,7 +65,14 @@ export function ExtractedDetailsForm({
     }
   );
 
-  const formFieldGroups: FormFieldGroup[] = [
+  form.subscribe({
+    formState: { isDirty: true },
+    callback: ({ isDirty }) => {
+      setIsDirty(isDirty ?? false);
+    },
+  });
+
+  const staticFieldGroups: FormFieldGroup[] = [
     {
       title: "Assessee Details",
       fields: [
@@ -89,15 +99,18 @@ export function ExtractedDetailsForm({
         },
       ],
     },
+  ];
+
+  const dynamicOrderFieldGroups = document.order_details.flatMap((_, index) => [
     {
       title: "Order Details",
       fields: [
         {
-          name: "order_details.0.order_number",
+          name: `order_details.${index}.order_number` as StringFieldPath,
           label: "Order Number",
         },
         {
-          name: "order_details.0.order_date",
+          name: `order_details.${index}.order_date` as StringFieldPath,
           label: "Order Date",
         },
       ],
@@ -106,26 +119,24 @@ export function ExtractedDetailsForm({
       title: "Other Details",
       fields: [
         {
-          name: "order_details.0.tax_period",
+          name: `order_details.${index}.tax_period` as StringFieldPath,
           label: "Tax Period",
         },
         {
-          name: "order_details.0.demand_amount",
+          name: `order_details.${index}.demand_amount` as StringFieldPath,
           label: "Demand Amount",
         },
       ],
     },
-  ];
+  ]);
 
-  const onSubmit = (data: FormSchema) => {
-    execute({ ...data, id: documentId });
-  };
+  const formFieldGroups = [...staticFieldGroups, ...dynamicOrderFieldGroups];
 
   return (
     <form
       id="extracted-details-form"
       className="size-full space-y-6 rounded-xl bg-card px-6 pt-3 pb-5"
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={handleSubmitWithAction}
     >
       <h1 className="text-lg font-medium">Extracted Details</h1>
       <div className="grid grid-cols-1 gap-6">

@@ -20,12 +20,7 @@ export function UploadDocumentStep() {
   const accept = ["application/pdf", "application/msword"];
 
   const { execute, isExecuting } = useAction(extractEntitiesAction, {
-    onSuccess: ({ data }) => {
-      // Redirect to step 2 with documentId
-      window.location.href = `/appeal-draft?step=2&documentId=${data.documentId}`;
-    },
     onError: ({ error }) => {
-      console.error(error);
       toast.error(error.serverError);
     },
   });
