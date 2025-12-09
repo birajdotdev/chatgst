@@ -7,7 +7,7 @@ interface ExtractedDetailsProps {
 }
 
 export function ExtractedDetails({ document }: ExtractedDetailsProps) {
-  const extractedDetails = [
+  const staticDetails = [
     {
       title: "Assessee Details",
       fields: [
@@ -34,62 +34,41 @@ export function ExtractedDetails({ document }: ExtractedDetailsProps) {
         },
       ],
     },
-    {
-      title: "Order Details",
-      fields: [
-        {
-          name: "Order Number",
-          value: document.order_details[0].order_number,
-        },
-        {
-          name: "Order Date",
-          value: document.order_details[0].order_date,
-        },
-      ],
-    },
-    {
-      title: "Other Details",
-      fields: [
-        {
-          name: "Tax Period",
-          value: document.order_details[0].tax_period,
-        },
-        {
-          name: "Demand Amount",
-          value: document.order_details[0].demand_amount,
-        },
-      ],
-    },
-    {
-      title: "Order Details",
-      fields: [
-        {
-          name: "Order Number",
-          value: "GST/AC/BLR-S/2024/ORD/125",
-        },
-        {
-          name: "Order Date",
-          value: "2024-03-15",
-        },
-      ],
-    },
-    {
-      title: "Other Details",
-      fields: [
-        {
-          name: "Tax Period",
-          value: "April 2023 to September 2023",
-        },
-        {
-          name: "Demand Amount",
-          value: "₹2,45,680",
-        },
-      ],
-    },
   ];
 
+  const dynamicOrderDetails = document.order_details.flatMap((order) => [
+    {
+      title: "Order Details",
+      fields: [
+        {
+          name: "Order Number",
+          value: order.order_number,
+        },
+        {
+          name: "Order Date",
+          value: order.order_date,
+        },
+      ],
+    },
+    {
+      title: "Other Details",
+      fields: [
+        {
+          name: "Tax Period",
+          value: order.tax_period,
+        },
+        {
+          name: "Demand Amount",
+          value: order.demand_amount,
+        },
+      ],
+    },
+  ]);
+
+  const extractedDetails = [...staticDetails, ...dynamicOrderDetails];
+
   return (
-    <div className="size-full space-y-6 rounded-xl bg-card px-6 py-3">
+    <div className="size-full space-y-6 rounded-xl bg-card px-6 pt-3 pb-5">
       <h1 className="text-lg font-medium">Extracted Details</h1>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {extractedDetails.map((detail, idx) => (
