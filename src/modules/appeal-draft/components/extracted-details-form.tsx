@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
 import { Controller, type FieldPath } from "react-hook-form";
@@ -65,12 +67,22 @@ export function ExtractedDetailsForm({
     }
   );
 
-  form.subscribe({
-    formState: { isDirty: true },
-    callback: ({ isDirty }) => {
-      setIsDirty(isDirty ?? false);
-    },
-  });
+  // Initialize isDirty to false when component mounts or document changes
+  useEffect(() => {
+    setIsDirty(false);
+  }, [documentId, setIsDirty]);
+
+  // Subscribe to form isDirty state changes
+  useEffect(() => {
+    const unsubscribe = form.subscribe({
+      formState: { isDirty: true },
+      callback: (state) => {
+        setIsDirty(state.isDirty as boolean);
+      },
+    });
+
+    return () => unsubscribe();
+  }, [form, setIsDirty]);
 
   const staticFieldGroups: FormFieldGroup[] = [
     {
