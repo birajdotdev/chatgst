@@ -1,4 +1,5 @@
 import { DocumentData } from "@/modules/appeal-draft/types/document";
+import { PotentialIssues } from "@/modules/appeal-draft/types/potential-issue";
 
 export interface APIResponse {
   message: string;
@@ -12,4 +13,8 @@ export interface ExtractEntitiesApiResponse extends APIResponse {
 
 export interface GetDocumentApiResponse extends APIResponse {
   data: DocumentData;
+}
+
+export interface GetIssuesApiResponse extends APIResponse {
+  data: PotentialIssues;
 }

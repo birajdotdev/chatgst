@@ -13,10 +13,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export function BasicDetailsError({
-  error,
-  resetErrorBoundary,
-}: FallbackProps) {
+export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
     <Empty className="w-full rounded-xl bg-card">
       <EmptyHeader>
@@ -32,8 +29,7 @@ export function BasicDetailsError({
             : "An unexpected error occurred"}
         </EmptyTitle>
         <EmptyDescription>
-          Please try refreshing the page or contact support if the problem
-          persists.
+          Please try again or contact support if the problem persists.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

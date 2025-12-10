@@ -38,6 +38,7 @@ export default function RootLayout({
           <NuqsAdapter
             defaultOptions={{
               shallow: false,
+              scroll: true,
             }}
           >
             {children}
