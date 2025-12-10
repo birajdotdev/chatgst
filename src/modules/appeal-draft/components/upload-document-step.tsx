@@ -49,7 +49,7 @@ export function UploadDocumentStep() {
   });
 
   const handelOpenFileDialog = () => {
-    if (!!documentId) {
+    if (documentId) {
       setSearchParams({ documentId: null });
     }
 

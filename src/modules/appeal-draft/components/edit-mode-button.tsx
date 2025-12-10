@@ -10,12 +10,12 @@ export function EditModeButton() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
 
-  const handelClick = () => {
+  const handleClick = () => {
     setSearchParams({ mode: "edit" });
   };
 
   return (
-    <Button type="button" variant="outline" onClick={handelClick}>
+    <Button type="button" variant="outline" onClick={handleClick}>
       <SquarePenIcon />
       Edit Details
     </Button>
