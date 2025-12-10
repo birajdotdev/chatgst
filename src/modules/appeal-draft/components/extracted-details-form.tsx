@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
@@ -35,15 +35,14 @@ type FormFieldGroup = {
   fields: FormField[];
 };
 
-export function ExtractedDetailsForm({
-  document,
-  documentId,
-}: {
-  document: DocumentData;
-  documentId: string;
-}) {
-  const { setIsSubmitting, setIsDirty } = useFormContext();
+interface ExtractedDetailsFormProps {
+  document: Promise<DocumentData>;
+}
 
+export function ExtractedDetailsForm({ document }: ExtractedDetailsFormProps) {
+  const documentData = use(document);
+
+  const { setIsSubmitting, setIsDirty } = useFormContext();
   const { form, handleSubmitWithAction } = useHookFormAction(
     updateDocumentAction,
     zodResolver(updateDocumentSchema),
@@ -56,12 +55,7 @@ export function ExtractedDetailsForm({
         },
       },
       formProps: {
-        defaultValues: {
-          id: documentId,
-          assessee_details: document.assessee_details,
-          jurisdiction_details: document.jurisdiction_details,
-          order_details: document.order_details,
-        },
+        defaultValues: documentData,
         mode: "onBlur",
       },
     }
@@ -70,7 +64,7 @@ export function ExtractedDetailsForm({
   // Initialize isDirty to false when component mounts or document changes
   useEffect(() => {
     setIsDirty(false);
-  }, [documentId, setIsDirty]);
+  }, [documentData.id, setIsDirty]);
 
   // Subscribe to form isDirty state changes
   useEffect(() => {
@@ -113,34 +107,36 @@ export function ExtractedDetailsForm({
     },
   ];
 
-  const dynamicOrderFieldGroups = document.order_details.flatMap((_, index) => [
-    {
-      title: "Order Details",
-      fields: [
-        {
-          name: `order_details.${index}.order_number` as StringFieldPath,
-          label: "Order Number",
-        },
-        {
-          name: `order_details.${index}.order_date` as StringFieldPath,
-          label: "Order Date",
-        },
-      ],
-    },
-    {
-      title: "Other Details",
-      fields: [
-        {
-          name: `order_details.${index}.tax_period` as StringFieldPath,
-          label: "Tax Period",
-        },
-        {
-          name: `order_details.${index}.demand_amount` as StringFieldPath,
-          label: "Demand Amount",
-        },
-      ],
-    },
-  ]);
+  const dynamicOrderFieldGroups = documentData.order_details.flatMap(
+    (_, index) => [
+      {
+        title: "Order Details",
+        fields: [
+          {
+            name: `order_details.${index}.order_number` as StringFieldPath,
+            label: "Order Number",
+          },
+          {
+            name: `order_details.${index}.order_date` as StringFieldPath,
+            label: "Order Date",
+          },
+        ],
+      },
+      {
+        title: "Other Details",
+        fields: [
+          {
+            name: `order_details.${index}.tax_period` as StringFieldPath,
+            label: "Tax Period",
+          },
+          {
+            name: `order_details.${index}.demand_amount` as StringFieldPath,
+            label: "Demand Amount",
+          },
+        ],
+      },
+    ]
+  );
 
   const formFieldGroups = [...staticFieldGroups, ...dynamicOrderFieldGroups];
 

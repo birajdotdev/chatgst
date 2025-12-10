@@ -1,26 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-
 import { SquarePenIcon } from "lucide-react";
+import { useQueryStates } from "nuqs";
 
 import { Button } from "@/components/ui/button";
+import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 
-export function EditModeButton({ mode }: { mode?: string }) {
-  const searchParams = useSearchParams();
+export function EditModeButton() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
 
-  if (mode === "edit") return null;
-
-  const editUrl = new URLSearchParams(searchParams.toString());
-  editUrl.set("mode", "edit");
+  const handelClick = () => {
+    setSearchParams({ mode: "edit" });
+  };
 
   return (
-    <Link href={`?${editUrl.toString()}`}>
-      <Button type="button" variant="outline">
-        <SquarePenIcon />
-        Edit Details
-      </Button>
-    </Link>
+    <Button type="button" variant="outline" onClick={handelClick}>
+      <SquarePenIcon />
+      Edit Details
+    </Button>
   );
 }

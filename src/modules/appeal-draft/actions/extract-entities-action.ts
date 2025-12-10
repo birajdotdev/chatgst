@@ -42,8 +42,6 @@ export const extractEntitiesAction = actionClient
       }
 
       const data: ExtractEntitiesApiResponse = await res.json();
-
-      // Redirect to step 2 with the document ID
       redirect(`/appeal-draft?step=2&documentId=${data.data.id}`);
     } catch (error) {
       if (error instanceof Error) {

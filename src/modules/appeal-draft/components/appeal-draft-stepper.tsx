@@ -8,6 +8,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { cn } from "@/lib/utils";
+import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 
 const steps = [
   {
@@ -43,14 +44,12 @@ const steps = [
 ];
 
 interface AppealDraftStepperProps {
-  step: number;
   className?: string;
 }
 
-export function AppealDraftStepper({
-  step,
-  className,
-}: AppealDraftStepperProps) {
+export function AppealDraftStepper({ className }: AppealDraftStepperProps) {
+  const step = appealDraftSearchParamsCache.get("step");
+
   return (
     <div className={cn("space-y-8 text-center", className)}>
       <Stepper defaultValue={1} value={step}>
