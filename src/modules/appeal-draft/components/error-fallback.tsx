@@ -13,10 +13,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export function BasicDetailsError({
-  error,
-  resetErrorBoundary,
-}: FallbackProps) {
+export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
     <Empty className="w-full rounded-xl bg-card">
       <EmptyHeader>
