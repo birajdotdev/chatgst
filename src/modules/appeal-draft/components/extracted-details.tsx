@@ -40,34 +40,36 @@ export function ExtractedDetails({ document }: ExtractedDetailsProps) {
     },
   ];
 
-  const dynamicOrderDetails = documentData.order_details.flatMap((order) => [
-    {
-      title: "Order Details",
-      fields: [
-        {
-          name: "Order Number",
-          value: order.order_number,
-        },
-        {
-          name: "Order Date",
-          value: order.order_date,
-        },
-      ],
-    },
-    {
-      title: "Other Details",
-      fields: [
-        {
-          name: "Tax Period",
-          value: order.tax_period,
-        },
-        {
-          name: "Demand Amount",
-          value: order.demand_amount,
-        },
-      ],
-    },
-  ]);
+  const dynamicOrderDetails = (documentData.order_details ?? []).flatMap(
+    (order) => [
+      {
+        title: "Order Details",
+        fields: [
+          {
+            name: "Order Number",
+            value: order.order_number,
+          },
+          {
+            name: "Order Date",
+            value: order.order_date,
+          },
+        ],
+      },
+      {
+        title: "Other Details",
+        fields: [
+          {
+            name: "Tax Period",
+            value: order.tax_period,
+          },
+          {
+            name: "Demand Amount",
+            value: order.demand_amount,
+          },
+        ],
+      },
+    ]
+  );
 
   const extractedDetails = [...staticDetails, ...dynamicOrderDetails];
 

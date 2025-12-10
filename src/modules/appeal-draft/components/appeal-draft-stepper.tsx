@@ -52,7 +52,7 @@ export function AppealDraftStepper({ className }: AppealDraftStepperProps) {
 
   return (
     <div className={cn("space-y-8 text-center", className)}>
-      <Stepper defaultValue={1} value={step}>
+      <Stepper value={step ?? 1}>
         {steps.map(({ step, title, description }) => (
           <StepperItem
             className="relative flex-1 flex-col!"

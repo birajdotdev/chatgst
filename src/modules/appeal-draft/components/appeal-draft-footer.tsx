@@ -19,15 +19,15 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
   const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
   const { isSubmitting, isDirty } = useFormContext();
 
-  const handelBack = () => {
+  const handleBack = () => {
     setSearchParams({ step: step - 1, mode: null });
   };
 
-  const handelNext = () => {
+  const handleNext = () => {
     setSearchParams({ step: step + 1, mode: null });
   };
 
-  const handelCancel = () => {
+  const handleCancel = () => {
     setSearchParams({ mode: null });
   };
 
@@ -38,7 +38,7 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
         type="button"
         variant="secondary"
         className="min-w-28"
-        onClick={handelBack}
+        onClick={handleBack}
         hidden={step === 1 || mode === "edit"}
       >
         Back
@@ -49,7 +49,7 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
         type="button"
         variant="secondary"
         className="min-w-28"
-        onClick={handelCancel}
+        onClick={handleCancel}
         hidden={mode !== "edit"}
       >
         Cancel
@@ -80,7 +80,7 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
       <Button
         type="button"
         className="ml-auto min-w-28"
-        onClick={handelNext}
+        onClick={handleNext}
         hidden={step === 2 && mode === "edit"}
       >
         Continue
