@@ -29,8 +29,7 @@ export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
             : "An unexpected error occurred"}
         </EmptyTitle>
         <EmptyDescription>
-          Please try refreshing the page or contact support if the problem
-          persists.
+          Please try again or contact support if the problem persists.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

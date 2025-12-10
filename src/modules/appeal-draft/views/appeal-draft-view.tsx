@@ -19,11 +19,7 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
   const { step, ...rest } =
     await appealDraftSearchParamsCache.parse(searchParams);
 
-  const steps = [
-    <UploadDocumentStep key="upload" />,
-    <BasicDetailsStep key="basic-details" />,
-    <IssueSelectionStep key="issues" />,
-  ];
+  const steps = [UploadDocumentStep, BasicDetailsStep, IssueSelectionStep];
 
   return (
     <FormProvider>
@@ -33,12 +29,12 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
             <AppealDraftStepper className="w-full md:max-w-2/3" />
             <Card className="size-full max-h-fit gap-0 overflow-hidden rounded-3xl bg-muted p-0">
               <CardContent className="size-full px-4 py-6">
-                {steps.map((stepComponent, index) => (
+                {steps.map((Step, index) => (
                   <Activity
-                    key={index}
+                    key={Step.name || index}
                     mode={step === index + 1 ? "visible" : "hidden"}
                   >
-                    {stepComponent}
+                    <Step />
                   </Activity>
                 ))}
                 <Activity mode={step > steps.length ? "visible" : "hidden"}>

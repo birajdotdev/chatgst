@@ -36,6 +36,7 @@ export function IssueToggleSwitch({
       <FieldLabel>Dispute</FieldLabel>
       <Switch
         checked={optimisticState?.selected ?? false}
+        disabled={!issueId}
         onCheckedChange={() => {
           if (!issueId) return;
           execute({ issueId });
