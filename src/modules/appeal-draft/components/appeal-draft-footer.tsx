@@ -1,53 +1,61 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-
 import { CircleCheckIcon } from "lucide-react";
+import { inferParserType, useQueryStates } from "nuqs";
 
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 
-export function AppealDraftFooter({
-  step,
-  mode,
-}: {
-  step: number;
-  documentId?: string | null;
-  mode: string | null;
-}) {
-  const searchParams = useSearchParams();
+interface AppealDraftFooterProps {
+  searchParams: inferParserType<typeof appealDraftSearchParams>;
+}
+
+export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
+  const { step, mode } = searchParams;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
   const { isSubmitting, isDirty } = useFormContext();
 
-  const backUrl = new URLSearchParams(searchParams.toString());
-  backUrl.set("step", String(step - 1));
-  if (mode) backUrl.delete("mode");
+  const handelBack = () => {
+    setSearchParams({ step: step - 1, mode: null });
+  };
 
-  const nextUrl = new URLSearchParams(searchParams.toString());
-  nextUrl.set("step", String(step + 1));
-  if (mode) nextUrl.delete("mode");
+  const handelNext = () => {
+    setSearchParams({ step: step + 1, mode: null });
+  };
 
-  const cancelUrl = new URLSearchParams(searchParams.toString());
-  cancelUrl.delete("mode");
+  const handelCancel = () => {
+    setSearchParams({ mode: null });
+  };
 
   return (
     <CardFooter className="border-t bg-card px-10 py-4!" hidden={step === 1}>
-      {step > 1 && mode !== "edit" && (
-        <Link href={`?${backUrl.toString()}`}>
-          <Button type="button" variant="secondary" className="min-w-28">
-            Back
-          </Button>
-        </Link>
-      )}
-      {mode === "edit" && (
-        <Link href={`?${cancelUrl.toString()}`}>
-          <Button type="button" variant="secondary" className="min-w-28">
-            Cancel
-          </Button>
-        </Link>
-      )}
+      {/* Back button */}
+      <Button
+        type="button"
+        variant="secondary"
+        className="min-w-28"
+        onClick={handelBack}
+        hidden={step === 1 || mode === "edit"}
+      >
+        Back
+      </Button>
+
+      {/* Cancel button */}
+      <Button
+        type="button"
+        variant="secondary"
+        className="min-w-28"
+        onClick={handelCancel}
+        hidden={mode !== "edit"}
+      >
+        Cancel
+      </Button>
+
+      {/* Save Details button */}
       <Button
         type="submit"
         form="extracted-details-form"
@@ -67,13 +75,16 @@ export function AppealDraftFooter({
           </>
         )}
       </Button>
-      {!(step === 2 && mode === "edit") && (
-        <Link href={`?${nextUrl.toString()}`} className="ml-auto">
-          <Button type="button" className="min-w-28">
-            Continue
-          </Button>
-        </Link>
-      )}
+
+      {/* Continue button */}
+      <Button
+        type="button"
+        className="ml-auto min-w-28"
+        onClick={handelNext}
+        hidden={step === 2 && mode === "edit"}
+      >
+        Continue
+      </Button>
     </CardFooter>
   );
 }

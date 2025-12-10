@@ -1,23 +1,27 @@
 "use client";
 
+import { use } from "react";
+
 import { DocumentData } from "@/modules/appeal-draft/types";
 
 interface ExtractedDetailsProps {
-  document: DocumentData;
+  document: Promise<DocumentData>;
 }
 
 export function ExtractedDetails({ document }: ExtractedDetailsProps) {
+  const documentData = use(document);
+
   const staticDetails = [
     {
       title: "Assessee Details",
       fields: [
         {
           name: "Name",
-          value: document.assessee_details.assessee_name,
+          value: documentData.assessee_details.assessee_name,
         },
         {
           name: "Address",
-          value: document.assessee_details.assessee_address,
+          value: documentData.assessee_details.assessee_address,
         },
       ],
     },
@@ -26,17 +30,17 @@ export function ExtractedDetails({ document }: ExtractedDetailsProps) {
       fields: [
         {
           name: "Officer",
-          value: document.jurisdiction_details.jurisdiction_officer,
+          value: documentData.jurisdiction_details.jurisdiction_officer,
         },
         {
           name: "Jurisdiction Office",
-          value: document.jurisdiction_details.jurisdiction_office,
+          value: documentData.jurisdiction_details.jurisdiction_office,
         },
       ],
     },
   ];
 
-  const dynamicOrderDetails = document.order_details.flatMap((order) => [
+  const dynamicOrderDetails = documentData.order_details.flatMap((order) => [
     {
       title: "Order Details",
       fields: [

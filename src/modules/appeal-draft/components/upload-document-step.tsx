@@ -7,17 +7,23 @@ import {
   XCircleIcon,
 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { useQueryStates } from "nuqs";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload";
 import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
+import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 
 export function UploadDocumentStep() {
   const maxSize = 10 * 1024 * 1024; // 10MB default
   const maxFiles = 1;
   const accept = ["application/pdf", "application/msword"];
+
+  const [{ documentId }, setSearchParams] = useQueryStates(
+    appealDraftSearchParams
+  );
 
   const { execute, isExecuting } = useAction(extractEntitiesAction, {
     onError: ({ error }) => {
@@ -41,6 +47,14 @@ export function UploadDocumentStep() {
     maxSize,
     accept: accept.join(","),
   });
+
+  const handelOpenFileDialog = () => {
+    if (!!documentId) {
+      setSearchParams({ documentId: null });
+    }
+
+    openFileDialog();
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -139,7 +153,7 @@ export function UploadDocumentStep() {
                 className="text-primary!"
                 variant="ghost"
                 disabled={isExecuting}
-                onClick={openFileDialog}
+                onClick={handelOpenFileDialog}
               >
                 Choose Different File
               </Button>
@@ -159,7 +173,11 @@ export function UploadDocumentStep() {
             <p className="text-xs text-muted-foreground">
               Max Size: <span className="text-card-foreground">10 MB</span>
             </p>
-            <Button type="button" className="mt-4" onClick={openFileDialog}>
+            <Button
+              type="button"
+              className="mt-4"
+              onClick={handelOpenFileDialog}
+            >
               <FileTextIcon aria-hidden="true" className="-ms-1" />
               Choose File
             </Button>
