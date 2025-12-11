@@ -37,8 +37,17 @@ export async function proxy(request: NextRequest) {
 
   let response = NextResponse.next();
 
-  // Check if access token is expired or missing, but refresh token exists
-  if (refreshToken && (!accessToken || isTokenExpired(accessToken))) {
+  // Check if refresh token itself is expired before attempting refresh
+  const isRefreshTokenExpired = refreshToken
+    ? isTokenExpired(refreshToken)
+    : true;
+
+  // Check if access token is expired or missing, but refresh token exists and is valid
+  if (
+    refreshToken &&
+    !isRefreshTokenExpired &&
+    (!accessToken || isTokenExpired(accessToken))
+  ) {
     try {
       const res = await fetch(`${env.API_URL}/token/refresh/`, {
         method: "POST",
@@ -72,20 +81,29 @@ export async function proxy(request: NextRequest) {
 
         accessToken = newAccessToken;
       } else {
-        // Refresh failed - logout
+        // Refresh failed - clear cookies and redirect
+        accessToken = undefined;
+
+        // Create a redirect response with cleared cookies
+        const loginUrl = new URL("/login", request.url);
+        response = NextResponse.redirect(loginUrl);
         response.cookies.delete("access_token");
         response.cookies.delete("refresh_token");
 
-        // If API route, return 401
+        // If API route, return 401 instead
         if (pathname.startsWith("/chat/api")) {
           return Response.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const loginUrl = new URL("/login", request.url);
-        return NextResponse.redirect(loginUrl);
+        return response;
       }
     } catch (error) {
-      // Error refreshing - logout
+      // Error refreshing - clear cookies and redirect
+      accessToken = undefined;
+
+      // Create a redirect response with cleared cookies
+      const loginUrl = new URL("/login", request.url);
+      response = NextResponse.redirect(loginUrl);
       response.cookies.delete("access_token");
       response.cookies.delete("refresh_token");
 
@@ -93,12 +111,18 @@ export async function proxy(request: NextRequest) {
         return Response.json({ message: "Unauthorized" }, { status: 401 });
       }
 
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      return response;
     }
   }
 
-  const isAuthenticated = !!accessToken;
+  // If refresh token is expired, clear it to prevent further attempts
+  if (refreshToken && isRefreshTokenExpired) {
+    response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
+    accessToken = undefined;
+  }
+
+  const isAuthenticated = !!accessToken && !isTokenExpired(accessToken);
 
   // Check if the current route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -112,7 +136,13 @@ export async function proxy(request: NextRequest) {
   if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    response = NextResponse.redirect(loginUrl);
+    // Ensure cookies are cleared when redirecting unauthenticated users
+    if (!accessToken || (accessToken && isTokenExpired(accessToken))) {
+      response.cookies.delete("access_token");
+      response.cookies.delete("refresh_token");
+    }
+    return response;
   }
 
   // Redirect to /chat if trying to access auth routes while authenticated

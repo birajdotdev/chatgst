@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { CirclePlusIcon, ClockIcon, PaperclipIcon } from "lucide-react";
+import { CirclePlusIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -18,14 +18,14 @@ export default function SidebarButtons() {
             <span>New Chat</span>
           </Link>
         </SidebarMenuButton>
-        <SidebarMenuButton>
+        {/* <SidebarMenuButton>
           <ClockIcon />
           <span>History</span>
         </SidebarMenuButton>
         <SidebarMenuButton>
           <PaperclipIcon />
           <span>Files Uploaded</span>
-        </SidebarMenuButton>
+        </SidebarMenuButton> */}
       </SidebarGroupContent>
     </SidebarGroup>
   );
