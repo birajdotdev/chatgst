@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
 import { getProfileAction } from "@/modules/profile/actions/get-profile-action";
 import { ProfileForm } from "@/modules/profile/components/profile-form";
+import { ProfileFormSkeleton } from "@/modules/profile/components/profile-form-skeleton";
 import { UpdateProfileSchema } from "@/modules/profile/validations/profile-schema";
 
 interface ProfileUpdateDialogProps {
@@ -54,9 +54,7 @@ export function ProfileUpdateDialog({
           <DialogTitle>Update Profile</DialogTitle>
         </DialogHeader>
         {isExecuting ? (
-          <div className="flex h-40 items-center justify-center">
-            <Spinner />
-          </div>
+          <ProfileFormSkeleton />
         ) : profileData ? (
           <ProfileForm
             initialData={profileData}
