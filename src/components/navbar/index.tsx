@@ -23,9 +23,13 @@ export function Navbar({ className, isAuthenticated, user }: NavbarProps) {
       )}
     >
       <div className="mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between">
-        <Link href="/">
+        {isAuthenticated ? (
           <Logo />
-        </Link>
+        ) : (
+          <Link href="/">
+            <Logo />
+          </Link>
+        )}
 
         {/* Desktop Menu */}
         <NavMenu
