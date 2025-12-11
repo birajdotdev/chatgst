@@ -14,6 +14,7 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { getChats } from "@/modules/chat/apis/get-chats";
+import { useSearch } from "@/modules/chat/contexts/search-context";
 
 export function NavChats({
   chatsPromise,
@@ -22,9 +23,15 @@ export function NavChats({
 }) {
   const chats = use(chatsPromise);
   const pathname = usePathname();
+  const { searchQuery } = useSearch();
+
+  // Filter chats based on search query
+  const filteredChats = chats.filter((chat) =>
+    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Sort chats by date descending
-  const sortedChats = [...chats].sort(
+  const sortedChats = [...filteredChats].sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
@@ -69,7 +76,11 @@ export function NavChats({
     <>
       {sidebarItems.length === 0 ? (
         <SidebarGroup className="p-0 px-3 text-center text-sm text-muted-foreground">
-          <SidebarMenuItem>There is no recent chat!</SidebarMenuItem>
+          <SidebarMenuItem>
+            {searchQuery
+              ? "No matching chats found."
+              : "There is no recent chat!"}
+          </SidebarMenuItem>
         </SidebarGroup>
       ) : (
         sidebarItems.map((chat) => (
@@ -86,7 +97,12 @@ export function NavChats({
                           href={`/chat/${item.id}`}
                           className="block w-full"
                         >
-                          <span className="block truncate">{item.title}</span>
+                          <span className="block truncate">
+                            <HighlightedText
+                              text={item.title}
+                              highlight={searchQuery}
+                            />
+                          </span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -96,6 +112,36 @@ export function NavChats({
             </SidebarGroupContent>
           </SidebarGroup>
         ))
+      )}
+    </>
+  );
+}
+
+function HighlightedText({
+  text,
+  highlight,
+}: {
+  text: string;
+  highlight: string;
+}) {
+  if (!highlight.trim()) return <>{text}</>;
+
+  const escapedHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const parts = text.split(new RegExp(`(${escapedHighlight})`, "gi"));
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.toLowerCase() === highlight.toLowerCase() ? (
+          <span
+            key={index}
+            className="rounded-[2px] bg-yellow-200 px-0.5 font-medium dark:bg-yellow-900/50 dark:text-yellow-100"
+          >
+            {part}
+          </span>
+        ) : (
+          part
+        )
       )}
     </>
   );

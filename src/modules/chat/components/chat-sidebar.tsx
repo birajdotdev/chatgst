@@ -15,23 +15,26 @@ import {
 } from "@/modules/chat/components/nav-chats";
 import { SearchForm } from "@/modules/chat/components/search-form";
 import SidebarButtons from "@/modules/chat/components/sidebar-buttons";
+import { SearchProvider } from "@/modules/chat/contexts/search-context";
 
 export async function ChatSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const chatsPromise = getChats();
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="mb-4.5 gap-4.5 p-0 px-3 pt-6">
-        <SearchForm />
-        <SidebarButtons />
-      </SidebarHeader>
-      <SidebarContent className="gap-4 pb-6">
-        <ErrorBoundary fallback={<NavChatsError />}>
-          <Suspense fallback={<NavChatsSkeleton />}>
-            <NavChats chatsPromise={chatsPromise} />
-          </Suspense>
-        </ErrorBoundary>
-      </SidebarContent>
+      <SearchProvider>
+        <SidebarHeader className="mb-4.5 gap-4.5 p-0 px-3 pt-6">
+          <SearchForm />
+          <SidebarButtons />
+        </SidebarHeader>
+        <SidebarContent className="gap-4 pb-6">
+          <ErrorBoundary fallback={<NavChatsError />}>
+            <Suspense fallback={<NavChatsSkeleton />}>
+              <NavChats chatsPromise={chatsPromise} />
+            </Suspense>
+          </ErrorBoundary>
+        </SidebarContent>
+      </SearchProvider>
     </Sidebar>
   );
 }
