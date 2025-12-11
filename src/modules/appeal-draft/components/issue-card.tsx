@@ -45,7 +45,7 @@ export function IssueCard({
         >
           AI Suggestions
         </h1>
-        <Suggestions>
+        <Suggestions scrollFade>
           {legal_bases.map((suggestion) => (
             <Suggestion
               key={suggestion}

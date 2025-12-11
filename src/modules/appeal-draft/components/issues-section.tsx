@@ -19,7 +19,7 @@ export function IssuesSection({ issues }: IssuesSectionProps) {
       <AlertMessage
         message={`Identified ${issuesData.length} potential ${issuesData.length === 1 ? "issue" : "issues"} using legal pattern recognition.`}
       />
-      <ScrollArea className="max-h-[34rem]">
+      <ScrollArea className="max-h-[34rem]" scrollFade>
         <section className="grid grid-cols-1 gap-4.5 md:grid-cols-2">
           {issuesData.map((issue, index) => (
             <IssueCard key={index} {...issue} />
