@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Stepper,
   StepperDescription,
@@ -10,6 +8,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { cn } from "@/lib/utils";
+import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 
 const steps = [
   {
@@ -46,16 +45,14 @@ const steps = [
 
 interface AppealDraftStepperProps {
   className?: string;
-  stepperProps?: React.ComponentProps<typeof Stepper>;
 }
 
-export function AppealDraftStepper({
-  className,
-  stepperProps,
-}: AppealDraftStepperProps) {
+export function AppealDraftStepper({ className }: AppealDraftStepperProps) {
+  const step = appealDraftSearchParamsCache.get("step");
+
   return (
     <div className={cn("space-y-8 text-center", className)}>
-      <Stepper defaultValue={1} {...stepperProps}>
+      <Stepper value={step ?? 1}>
         {steps.map(({ step, title, description }) => (
           <StepperItem
             className="relative flex-1 flex-col!"

@@ -1,5 +1,7 @@
 "use server";
 
+import { redirect } from "next/navigation";
+
 import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
@@ -20,14 +22,16 @@ export const extractEntitiesAction = actionClient
     }
 
     try {
+      const formData = new FormData();
+      formData.append("pdf_file", parsedInput.pdf_file);
+
       const res = await fetch(`${env.API_URL}/documents/`, {
         method: "POST",
         headers: {
           accept: "application/json",
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${session.accessToken}`,
         },
-        body: parsedInput.pdf_file,
+        body: formData,
       });
 
       if (!res.ok) {
@@ -38,12 +42,7 @@ export const extractEntitiesAction = actionClient
       }
 
       const data: ExtractEntitiesApiResponse = await res.json();
-
-      return {
-        success: true,
-        message: data.message,
-        documentId: data.data.id,
-      };
+      redirect(`/appeal-draft?step=2&documentId=${data.data.id}`);
     } catch (error) {
       if (error instanceof Error) {
         throw error;

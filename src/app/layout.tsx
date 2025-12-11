@@ -35,7 +35,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NuqsAdapter>
+          <NuqsAdapter
+            defaultOptions={{
+              shallow: false,
+              scroll: true,
+            }}
+          >
             {children}
             <Toaster richColors />
           </NuqsAdapter>
