@@ -67,14 +67,14 @@ export default function UserButton({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <UserRoundIcon aria-hidden="true" />
               <span>Account</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <SettingsIcon aria-hidden="true" />
               <span>Settings</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <PaletteIcon aria-hidden="true" />
