@@ -8,6 +8,7 @@ import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
+  ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
@@ -92,6 +93,7 @@ export function AIConversation({
         {/* Scroll anchor */}
         <div ref={contentRef} />
       </ConversationContent>
+      <ConversationScrollButton />
     </Conversation>
   );
 }
