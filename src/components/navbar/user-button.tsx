@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LogoutAlertDialog from "@/modules/auth/components/logout-alert-dialog";
+import { ProfileUpdateDialog } from "@/modules/profile/components/profile-update-dialog";
 
 export default function UserButton({
   name = "",
@@ -38,9 +39,14 @@ export default function UserButton({
 }) {
   const { theme, setTheme } = useTheme();
   const [openLogoutDialog, setOpenLogoutDialog] = useState<boolean>(false);
+  const [showProfileDialog, setShowProfileDialog] = useState<boolean>(false);
 
   return (
     <>
+      <ProfileUpdateDialog
+        open={showProfileDialog}
+        onOpenChange={setShowProfileDialog}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
@@ -67,14 +73,14 @@ export default function UserButton({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setShowProfileDialog(true)}>
               <UserRoundIcon aria-hidden="true" />
               <span>Account</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            {/* <DropdownMenuItem>
               <SettingsIcon aria-hidden="true" />
               <span>Settings</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <PaletteIcon aria-hidden="true" />
