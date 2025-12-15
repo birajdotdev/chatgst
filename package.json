@@ -16,6 +16,7 @@
     "@base-ui/react": "^1.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@next-safe-action/adapter-react-hook-form": "^2.0.0",
+    "@radix-ui/react-accordion": "^1.2.12",
     "@t3-oss/env-nextjs": "^0.13.8",
     "ai": "^5.0.113",
     "babel-plugin-react-compiler": "^1.0.0",

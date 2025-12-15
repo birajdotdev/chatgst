@@ -7,6 +7,7 @@ import { AppealDraftFooter } from "@/modules/appeal-draft/components/appeal-draf
 import { AppealDraftStepper } from "@/modules/appeal-draft/components/appeal-draft-stepper";
 import BasicDetailsStep from "@/modules/appeal-draft/components/basic-details-step";
 import { IssueSelectionStep } from "@/modules/appeal-draft/components/issue-selection-step";
+import { ReferencesStep } from "@/modules/appeal-draft/components/references-step";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 import { UploadDocumentStep } from "@/modules/appeal-draft/components/upload-document-step";
 import { FormProvider } from "@/modules/appeal-draft/contexts/form-context";
@@ -19,7 +20,12 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
   const { step, ...rest } =
     await appealDraftSearchParamsCache.parse(searchParams);
 
-  const steps = [UploadDocumentStep, BasicDetailsStep, IssueSelectionStep];
+  const steps = [
+    UploadDocumentStep,
+    BasicDetailsStep,
+    IssueSelectionStep,
+    ReferencesStep,
+  ];
 
   return (
     <FormProvider>

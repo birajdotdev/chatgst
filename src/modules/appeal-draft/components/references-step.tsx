@@ -4,20 +4,20 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
-import { IssuesSection } from "@/modules/appeal-draft/components/issues-section";
-import { IssuesSectionSkeleton } from "@/modules/appeal-draft/components/issues-section-skeleton";
+import { ReferenceSectionSkeleton } from "@/modules/appeal-draft/components/reference-section-skeleton";
+import { ReferencesClient } from "@/modules/appeal-draft/components/references-client";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
-import { getPotentialIssues } from "@/modules/appeal-draft/queries";
+import { getLegalReferences } from "@/modules/appeal-draft/queries";
 
-export function IssueSelectionStep() {
+export function ReferencesStep() {
   const documentId = appealDraftSearchParamsCache.get("documentId");
   if (!documentId) redirect("/appeal-draft?step=1");
 
   return (
     <div className="flex size-full max-h-fit flex-col gap-4.5">
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Suspense fallback={<IssuesSectionSkeleton />}>
-          <IssuesSection issues={getPotentialIssues(documentId)} />
+        <Suspense fallback={<ReferenceSectionSkeleton />}>
+          <ReferencesClient references={getLegalReferences(documentId)} />
         </Suspense>
       </ErrorBoundary>
     </div>
