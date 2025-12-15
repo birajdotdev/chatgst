@@ -17,7 +17,7 @@ export const updateProfileAction = actionClient
     }
 
     // Exclude email and other non-API fields from the payload
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const {
       email,
       terms_and_privacy_policy,

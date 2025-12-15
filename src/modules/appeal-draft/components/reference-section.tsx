@@ -10,7 +10,9 @@ import { ReferenceCard } from "@/modules/appeal-draft/components/reference-card"
 import { LegalReference } from "@/modules/appeal-draft/types";
 
 export function ReferenceSection({ data }: { data: LegalReference[] }) {
-  const defaultValues = data.map((reference) => reference.dispute_type);
+  const defaultValues = data.map(
+    (reference, index) => `${reference.dispute_type}-${index}`
+  );
   return (
     <Accordion
       type="multiple"
@@ -25,7 +27,7 @@ export function ReferenceSection({ data }: { data: LegalReference[] }) {
         return (
           <AccordionItem
             key={`${reference.dispute_type}-${index}`}
-            value={reference.dispute_type}
+            value={`${reference.dispute_type}-${index}`}
           >
             <AccordionTrigger className="mb-3 items-center p-0">
               <h1 className="text-lg">{reference.dispute_type}</h1>

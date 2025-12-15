@@ -37,11 +37,11 @@ export function ReferenceCard({ reference, ...props }: ReferenceCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-[4px] text-xs font-medium">
-        <h1 className="leading-[20px]">Authority</h1>
+        <h3 className="leading-[20px]">Authority</h3>
         <p className="text-foreground">{reference.authority}</p>
       </CardContent>
       <CardContent className="space-y-[4px] text-xs font-medium">
-        <h1 className="leading-[20px]">Key Points</h1>
+        <h3 className="leading-[20px]">Key Points</h3>
         <ul className="list-disc space-y-[6px] px-4 text-foreground">
           {reference.key_points.map((point, index) => (
             <li key={`point-${index}`}>{point}</li>

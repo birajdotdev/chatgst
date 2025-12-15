@@ -16,6 +16,8 @@ export function LegalReferenceSelection({
   referenceId,
   selected,
 }: LegalReferenceSelectionProps) {
+  const checkboxId = referenceId || "legal-reference-selection";
+
   const { execute, optimisticState } = useOptimisticAction(
     toggleLegalReferenceSelectionAction,
     {
@@ -34,7 +36,7 @@ export function LegalReferenceSelection({
   return (
     <Field orientation="horizontal">
       <Checkbox
-        id={referenceId}
+        id={checkboxId}
         checked={optimisticState.selected}
         disabled={!referenceId}
         onCheckedChange={() => {
@@ -42,7 +44,7 @@ export function LegalReferenceSelection({
           execute({ sectionId: referenceId });
         }}
       />
-      <FieldLabel htmlFor={referenceId} className="text-muted-foreground">
+      <FieldLabel htmlFor={checkboxId} className="text-muted-foreground">
         Select
       </FieldLabel>
     </Field>
