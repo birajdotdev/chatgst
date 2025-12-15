@@ -4,9 +4,9 @@ import "server-only";
 
 import { env } from "@/env";
 import { verifySession } from "@/lib/auth";
-import { GetIssuesApiResponse } from "@/modules/appeal-draft/types";
+import { GetLegalReferencesApiResponse } from "@/modules/appeal-draft/types";
 
-export const getPotentialIssues = cache(async (documentId: string) => {
+export const getLegalReferences = cache(async (documentId: string) => {
   const session = await verifySession();
   if (!session?.accessToken) {
     throw new Error("Unauthorized");
@@ -14,7 +14,7 @@ export const getPotentialIssues = cache(async (documentId: string) => {
 
   try {
     const res = await fetch(
-      `${env.API_URL}/documents/${documentId}/potential-issues/`,
+      `${env.API_URL}/documents/${documentId}/references/`,
       {
         method: "GET",
         headers: {
@@ -22,23 +22,20 @@ export const getPotentialIssues = cache(async (documentId: string) => {
           Authorization: `Bearer ${session.accessToken}`,
         },
         next: {
-          tags: [`document-${documentId}-potential-issues`],
+          tags: [`document-${documentId}-legal-references`],
           revalidate: 60, // Cache for 60 seconds
         },
       }
     );
-
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(
-        errorData.detail || "Error occurred while fetching potential issues"
-      );
+      throw new Error(errorData.detail || "Failed to fetch legal references");
     }
 
-    const data: GetIssuesApiResponse = await res.json();
+    const data: GetLegalReferencesApiResponse = await res.json();
     return data.data;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error("Unexpected error occurred!");
+    throw new Error("An unexpected error occurred");
   }
 });

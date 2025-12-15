@@ -1,4 +1,5 @@
 import { DocumentData } from "@/modules/appeal-draft/types/document";
+import { LegalReference } from "@/modules/appeal-draft/types/legal-reference";
 import { PotentialIssues } from "@/modules/appeal-draft/types/potential-issue";
 
 export interface APIResponse {
@@ -17,4 +18,8 @@ export interface GetDocumentApiResponse extends APIResponse {
 
 export interface GetIssuesApiResponse extends APIResponse {
   data: PotentialIssues;
+}
+
+export interface GetLegalReferencesApiResponse extends APIResponse {
+  data: LegalReference[];
 }
