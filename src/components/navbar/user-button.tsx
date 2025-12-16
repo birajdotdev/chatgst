@@ -6,7 +6,6 @@ import {
   ChevronDownIcon,
   LogOutIcon,
   PaletteIcon,
-  SettingsIcon,
   UserRoundIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -49,10 +48,13 @@ export default function UserButton({
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+          <Button
+            variant="ghost"
+            className="h-auto cursor-pointer p-0 hover:bg-transparent"
+          >
             <Avatar>
               <AvatarImage
-                src="https://www.pngfind.com/pngs/m/610-6104451_image-placeholder-png-user-profile-placeholder-image-png.png"
+                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${name || "User"}`}
                 alt="Profile image"
               />
               <AvatarFallback>
