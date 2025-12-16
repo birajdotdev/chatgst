@@ -10,12 +10,15 @@ import {
 
 export default function SidebarButtons() {
   return (
-    <SidebarGroup className="p-0">
+    <SidebarGroup>
       <SidebarGroupContent>
-        <SidebarMenuButton asChild>
+        <SidebarMenuButton
+          asChild
+          className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground"
+        >
           <Link href="/chat">
             <CirclePlusIcon />
-            <span>New Chat</span>
+            <span className="font-semibold">New Chat</span>
           </Link>
         </SidebarMenuButton>
         {/* <SidebarMenuButton>
