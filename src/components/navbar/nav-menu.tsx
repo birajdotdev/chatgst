@@ -35,7 +35,7 @@ const navMenuItems: NavMenuItem[] = [
 ];
 
 const navMenuAuthenticatedItems: NavMenuItem[] = [
-  { title: "AI - Assistant", href: "/chat", icon: Bot },
+  { title: "ChatGst - AI", href: "/chat", icon: Bot },
   // { title: "About", href: "/#about", icon: Info },
   { title: "Appeal Draft", href: "/appeal-draft", icon: FileText },
   {
