@@ -1,4 +1,4 @@
-FROM node:25-alpine AS base
+FROM oven/bun:1-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -6,19 +6,13 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
-
 # Install dependencies based on the preferred package manager
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-
-# Install pnpm
-RUN npm install -g pnpm
 
 # Accept API_URL as build argument
 ARG API_URL
@@ -33,7 +27,7 @@ COPY . .
 # ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
-RUN pnpm build
+RUN bun run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -67,4 +61,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+CMD ["bun", "run", "server.js"]
