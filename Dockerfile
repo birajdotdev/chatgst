@@ -2,7 +2,8 @@ FROM oven/bun:1-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+# Alpine uses musl instead of glibc. Install libc6-compat for compatibility
+# with Node.js native modules that may be used by Next.js and dependencies.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
