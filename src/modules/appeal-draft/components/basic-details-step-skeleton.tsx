@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { EditModeButton } from "@/modules/appeal-draft/components/edit-mode-button";
 
 export function BasicDetailsStepSkeleton({
   isEditMode = false,
@@ -8,9 +9,7 @@ export function BasicDetailsStepSkeleton({
 }) {
   return (
     <>
-      {!isEditMode && (
-        <Skeleton className="min-h-9 min-w-[120px] rounded-md bg-card" />
-      )}
+      {!isEditMode && <EditModeButton />}
       <Skeleton
         className={cn(
           "min-h-80 w-full rounded-xl bg-card",

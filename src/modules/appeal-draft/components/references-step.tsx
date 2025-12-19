@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
 import { ReferenceSectionSkeleton } from "@/modules/appeal-draft/components/reference-section-skeleton";
-import { ReferencesClient } from "@/modules/appeal-draft/components/references-client";
+import { ReferencesContent } from "@/modules/appeal-draft/components/references-content";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 import { getLegalReferences } from "@/modules/appeal-draft/queries";
 
@@ -17,7 +17,7 @@ export function ReferencesStep() {
     <div className="flex size-full max-h-fit flex-col gap-4.5">
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Suspense fallback={<ReferenceSectionSkeleton />}>
-          <ReferencesClient references={getLegalReferences(documentId)} />
+          <ReferencesContent references={getLegalReferences(documentId)} />
         </Suspense>
       </ErrorBoundary>
     </div>

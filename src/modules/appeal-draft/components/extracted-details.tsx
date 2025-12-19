@@ -1,16 +1,11 @@
-"use client";
-
-import { use } from "react";
-
 import { DocumentData } from "@/modules/appeal-draft/types";
 
 interface ExtractedDetailsProps {
   document: Promise<DocumentData>;
 }
 
-export function ExtractedDetails({ document }: ExtractedDetailsProps) {
-  const documentData = use(document);
-
+export async function ExtractedDetails({ document }: ExtractedDetailsProps) {
+  const documentData = await document;
   const staticDetails = [
     {
       title: "Assessee Details",
