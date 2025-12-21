@@ -12,6 +12,7 @@ import { ReviewStep } from "@/modules/appeal-draft/components/review-step";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 import { UploadDocumentStep } from "@/modules/appeal-draft/components/upload-document-step";
 import { FormProvider } from "@/modules/appeal-draft/contexts/form-context";
+import { DraftStep } from "@/modules/appeal-draft/components/draft-step";
 
 interface AppealDraftViewProps {
   searchParams: Promise<SearchParams>;
@@ -26,7 +27,7 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
     BasicDetailsStep,
     IssueSelectionStep,
     ReferencesStep,
-    // DraftView,
+    DraftStep,
     ReviewStep,
   ];
 
