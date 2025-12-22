@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 
 import { DownloadIcon } from "lucide-react";
 
-import { FileUploader } from "@/components/file-uploader";
 import { Button } from "@/components/ui/button";
+import { AttachSupportingDocument } from "@/modules/appeal-draft/components/attach-supporting-document";
 import { ExportPdfButton } from "@/modules/appeal-draft/components/export-pdf-button";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 import { getEffectiveDocumentId } from "@/modules/appeal-draft/lib/get-effective-id";
@@ -44,7 +44,18 @@ export async function ReviewStep() {
         references={getLegalReferences(effectiveDocumentId)}
       /> */}
 
-      <FileUploader label="Attach Supporting Document" />
+      <div className="flex flex-col gap-4">
+        <h3 className="text-lg font-semibold text-foreground">
+          Still want to add something?
+        </h3>
+        {appealId ? (
+          <AttachSupportingDocument appealId={appealId} />
+        ) : (
+          <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed text-muted-foreground">
+            Save appeal draft first to attach documents
+          </div>
+        )}
+      </div>
     </div>
   );
 }

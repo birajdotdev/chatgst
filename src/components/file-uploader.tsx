@@ -23,6 +23,8 @@ interface FileUploaderProps {
   dropAreaClassName?: string;
   onFileUpload?: (formData: FormData) => void;
   onOpenFileDialog?: () => void;
+  fileKey?: string;
+  hideSubmitButton?: boolean;
 }
 
 export function FileUploader({
@@ -35,6 +37,8 @@ export function FileUploader({
   onFileUpload,
   isExecuting,
   onOpenFileDialog,
+  fileKey = "pdf_file",
+  hideSubmitButton = false,
 }: FileUploaderProps) {
   const [
     { files, isDragging, errors },
@@ -68,12 +72,13 @@ export function FileUploader({
       return;
     }
 
-    // Create FormData and add the file
+    // Create FormData and add all files
     const formData = new FormData();
-    const file = files[0].file;
-    if (file instanceof File) {
-      formData.append("pdf_file", file);
-    }
+    files.forEach((f) => {
+      if (f.file instanceof File) {
+        formData.append(fileKey, f.file);
+      }
+    });
 
     // Execute the action with FormData
     if (onFileUpload) {
@@ -146,16 +151,18 @@ export function FileUploader({
               ))}
             </div>
             <div className="mx-auto flex max-w-fit flex-col gap-3">
-              <Button type="submit" disabled={isExecuting}>
-                {isExecuting ? (
-                  <Spinner />
-                ) : (
-                  <>
-                    <UploadIcon aria-hidden="true" className="-ms-1" />
-                    Upload file & Process
-                  </>
-                )}
-              </Button>
+              {!hideSubmitButton && (
+                <Button type="submit" disabled={isExecuting}>
+                  {isExecuting ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <UploadIcon aria-hidden="true" className="-ms-1" />
+                      Upload file & Process
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 type="button"
                 className="text-primary!"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { DownloadIcon } from "lucide-react";
@@ -18,6 +19,7 @@ export function ExportPdfButton({
   appealName,
 }: ExportPdfButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleExportPdf = async () => {
     try {
@@ -52,6 +54,9 @@ export function ExportPdfButton({
       window.URL.revokeObjectURL(url);
 
       toast.success("PDF exported successfully");
+
+      // Redirect to chat page after download starts
+      router.push("/chat");
     } catch (error) {
       console.error("Error exporting PDF:", error);
       toast.error("Failed to export PDF. Please try again.");
