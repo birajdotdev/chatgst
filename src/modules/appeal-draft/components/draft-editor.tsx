@@ -38,12 +38,10 @@ export function DraftEditor({
 
   const { execute, isPending, result } = useAction(updateAppealAction, {
     onSuccess: () => {
-      console.log("✅ onSuccess triggered");
       toast.success("Appeal updated successfully");
       setIsDirty(false);
     },
     onError: ({ error }) => {
-      console.log("❌ onError triggered:", error);
       shouldNavigateRef.current = false; // Reset on error too
       toast.error(error.serverError || "Failed to update appeal");
     },
@@ -56,7 +54,6 @@ export function DraftEditor({
   // Handle navigation after successful submission
   useEffect(() => {
     if (result.data && shouldNavigateRef.current) {
-      console.log("🚀 Navigation effect triggered - moving to step 6");
       shouldNavigateRef.current = false; // Reset the flag
       setSearchParams(
         {
@@ -70,11 +67,9 @@ export function DraftEditor({
   }, [result.data, documentId, appealId, setSearchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    console.log("📝 Form submitted");
     e.preventDefault();
     // Set flag to indicate we want to navigate after success
     shouldNavigateRef.current = true;
-    console.log("Set shouldNavigateRef.current to true");
     execute({
       appealId,
       appeal_name: name,

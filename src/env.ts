@@ -6,6 +6,10 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "production"]).default("development"),
     API_URL: z.string().url(),
   },
-  client: {},
-  experimental__runtimeEnv: {},
+  client: {
+    NEXT_PUBLIC_API_URL: z.string().url(),
+  },
+  experimental__runtimeEnv: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
 });
