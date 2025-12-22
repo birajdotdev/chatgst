@@ -29,10 +29,17 @@ export const getPotentialIssues = cache(async (documentId: string) => {
     );
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(
-        errorData.detail || "Error occurred while fetching potential issues"
-      );
+      const contentType = res.headers.get("content-type");
+      let errorMessage = "Error occurred while fetching potential issues";
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+      } else {
+        errorMessage = `API Error: ${res.status} ${res.statusText}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data: GetIssuesApiResponse = await res.json();

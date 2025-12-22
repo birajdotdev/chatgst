@@ -4,32 +4,30 @@ import "server-only";
 
 import { env } from "@/env";
 import { verifySession } from "@/lib/auth";
-import { GetLegalReferencesApiResponse } from "@/modules/appeal-draft/types";
+import { GenerateAppealApiResponse } from "@/modules/appeal-draft/types";
 
-export const getLegalReferences = cache(async (documentId: string) => {
+export const getAppeal = cache(async (appealId: string) => {
   const session = await verifySession();
   if (!session?.accessToken) {
     throw new Error("Unauthorized");
   }
 
   try {
-    const res = await fetch(
-      `${env.API_URL}/documents/${documentId}/references/`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        next: {
-          tags: [`document-${documentId}-legal-references`],
-          revalidate: 60, // Cache for 60 seconds
-        },
-      }
-    );
+    const res = await fetch(`${env.API_URL}/documents/appeals/${appealId}/`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      next: {
+        tags: [`appeal-${appealId}`],
+        revalidate: 60,
+      },
+    });
+
     if (!res.ok) {
       const contentType = res.headers.get("content-type");
-      let errorMessage = "Failed to fetch legal references";
+      let errorMessage = "Error occurred while fetching the appeal";
 
       if (contentType && contentType.includes("application/json")) {
         const errorData = await res.json();
@@ -41,10 +39,10 @@ export const getLegalReferences = cache(async (documentId: string) => {
       throw new Error(errorMessage);
     }
 
-    const data: GetLegalReferencesApiResponse = await res.json();
+    const data: GenerateAppealApiResponse = await res.json();
     return data.data;
   } catch (error) {
     if (error instanceof Error) throw error;
-    throw new Error("An unexpected error occurred");
+    throw new Error("Unexpected error occurred!");
   }
 });

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 
 export function CtaSection() {
@@ -11,8 +13,8 @@ export function CtaSection() {
           Upload your first document and see how AI transforms legal processing
           in just seconds.
         </p>
-        <Button size="lg" className="px-8">
-          Try Now
+        <Button size="lg" className="px-8" asChild>
+          <Link href="/login">Try Now</Link>
         </Button>
       </div>
     </section>

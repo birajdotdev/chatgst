@@ -20,11 +20,11 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
   const { isSubmitting, isDirty } = useFormContext();
 
   const handleBack = () => {
-    setSearchParams({ step: step - 1, mode: null });
+    setSearchParams({ step: step - 1, mode: null }, { shallow: false });
   };
 
   const handleNext = () => {
-    setSearchParams({ step: step + 1, mode: null });
+    setSearchParams({ step: step + 1, mode: null }, { shallow: false });
   };
 
   const handleCancel = () => {
@@ -76,12 +76,30 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
         )}
       </Button>
 
+      {/* Save & Continue (Step 5) */}
+      <Button
+        type="submit"
+        form="appeal-draft-form"
+        className="ml-auto min-w-28"
+        hidden={step !== 5}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <Spinner />
+            Saving...
+          </>
+        ) : (
+          <>Continue</>
+        )}
+      </Button>
+
       {/* Continue button */}
       <Button
         type="button"
         className="ml-auto min-w-28"
         onClick={handleNext}
-        hidden={step === 2 && mode === "edit"}
+        hidden={(step === 2 && mode === "edit") || step === 5 || step === 6}
       >
         Continue
       </Button>

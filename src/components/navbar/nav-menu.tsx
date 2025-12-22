@@ -38,11 +38,11 @@ const navMenuAuthenticatedItems: NavMenuItem[] = [
   { title: "ChatGst - AI", href: "/chat", icon: Bot },
   // { title: "About", href: "/#about", icon: Info },
   { title: "Appeal Draft", href: "/appeal-draft", icon: FileText },
-  {
-    title: "Language Assistance",
-    href: "/language-assistance" as Route,
-    icon: Languages,
-  },
+  // {
+  //   title: "Language Assistance",
+  //   href: "/language-assistance" as Route,
+  //   icon: Languages,
+  // },
 ];
 
 interface NavMenuProps extends ComponentProps<typeof NavigationMenu> {
