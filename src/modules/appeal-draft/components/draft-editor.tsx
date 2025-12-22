@@ -33,7 +33,7 @@ export function DraftEditor({
     onSuccess: () => {
       toast.success("Appeal updated successfully");
       setIsDirty(false);
-      setSearchParams({ step: 6 });
+      setSearchParams({ step: 6, documentId: null }, { shallow: false });
     },
     onError: ({ error }) => {
       toast.error(error.serverError || "Failed to update appeal");

@@ -20,11 +20,11 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
   const { isSubmitting, isDirty } = useFormContext();
 
   const handleBack = () => {
-    setSearchParams({ step: step - 1, mode: null });
+    setSearchParams({ step: step - 1, mode: null }, { shallow: false });
   };
 
   const handleNext = () => {
-    setSearchParams({ step: step + 1, mode: null });
+    setSearchParams({ step: step + 1, mode: null }, { shallow: false });
   };
 
   const handleCancel = () => {

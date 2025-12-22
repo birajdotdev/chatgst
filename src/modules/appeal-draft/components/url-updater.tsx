@@ -15,7 +15,7 @@ export function URLUpdater({ appealId }: URLUpdaterProps) {
 
   useEffect(() => {
     if (params.documentId && !params.appealId) {
-      setParams({ documentId: null, appealId: appealId }, { shallow: true });
+      setParams({ appealId: appealId, documentId: null }, { shallow: false });
     }
   }, [appealId, params, setParams]);
 
