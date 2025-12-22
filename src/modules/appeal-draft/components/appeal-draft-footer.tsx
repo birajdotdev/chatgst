@@ -99,7 +99,7 @@ export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
         type="button"
         className="ml-auto min-w-28"
         onClick={handleNext}
-        hidden={(step === 2 && mode === "edit") || step === 5}
+        hidden={(step === 2 && mode === "edit") || step === 5 || step === 6}
       >
         Continue
       </Button>
