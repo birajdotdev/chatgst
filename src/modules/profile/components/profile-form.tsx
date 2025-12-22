@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
 import { Controller } from "react-hook-form";
@@ -30,12 +32,16 @@ import {
   updateProfileSchema,
 } from "@/modules/profile/validations/profile-schema";
 
+import { ResetPasswordDialog } from "./reset-password-dialog";
+import { LockIcon } from "lucide-react";
+
 interface ProfileFormProps {
   initialData: Partial<UpdateProfileSchema>;
   onSuccess?: () => void;
 }
 
 export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const {
     form: { control, handleSubmit },
     action: { isExecuting, execute },
@@ -395,16 +401,29 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
             />
           </div>
         </FieldGroup>
-        <div className="flex justify-end pt-6">
+        <div className="flex flex-col-reverse gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <Button
-            className="w-[150px]"
+            variant="outline"
+            type="button"
+            className="w-full sm:w-auto"
+            onClick={() => setPasswordDialogOpen(true)}
+          >
+           <LockIcon className=" h-4 w-4"/> Change Password
+          </Button>
+          <Button
+            type="submit"
+            className="w-full sm:w-[150px]"
             disabled={isExecuting}
-            onClick={handleSubmit(execute)}
           >
             {isExecuting ? <Spinner /> : "Update Profile"}
           </Button>
         </div>
       </form>
+
+      <ResetPasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
+      />
     </div>
   );
 }
