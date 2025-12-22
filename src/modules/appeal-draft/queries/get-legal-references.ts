@@ -28,8 +28,17 @@ export const getLegalReferences = cache(async (documentId: string) => {
       }
     );
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.detail || "Failed to fetch legal references");
+      const contentType = res.headers.get("content-type");
+      let errorMessage = "Failed to fetch legal references";
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+      } else {
+        errorMessage = `API Error: ${res.status} ${res.statusText}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data: GetLegalReferencesApiResponse = await res.json();

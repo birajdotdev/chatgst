@@ -6,20 +6,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AppealDraftFooter } from "@/modules/appeal-draft/components/appeal-draft-footer";
 import { AppealDraftStepper } from "@/modules/appeal-draft/components/appeal-draft-stepper";
 import BasicDetailsStep from "@/modules/appeal-draft/components/basic-details-step";
+import { DraftStep } from "@/modules/appeal-draft/components/draft-step";
 import { IssueSelectionStep } from "@/modules/appeal-draft/components/issue-selection-step";
 import { ReferencesStep } from "@/modules/appeal-draft/components/references-step";
 import { ReviewStep } from "@/modules/appeal-draft/components/review-step";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
 import { UploadDocumentStep } from "@/modules/appeal-draft/components/upload-document-step";
 import { FormProvider } from "@/modules/appeal-draft/contexts/form-context";
-import { DraftStep } from "@/modules/appeal-draft/components/draft-step";
 
 interface AppealDraftViewProps {
   searchParams: Promise<SearchParams>;
 }
 
 export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
-  const { step, ...rest } =
+  const { step, documentId, appealId, ...rest } =
     await appealDraftSearchParamsCache.parse(searchParams);
 
   const steps = [
@@ -53,7 +53,14 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
                   </div>
                 </Activity>
               </CardContent>
-              <AppealDraftFooter searchParams={{ step, ...rest }} />
+              <AppealDraftFooter
+                searchParams={{
+                  step,
+                  documentId,
+                  appealId,
+                  ...rest,
+                }}
+              />
             </Card>
           </div>
         </section>

@@ -20,6 +20,7 @@ export async function DraftContent({
       {!appealId && <URLUpdater appealId={appealData.id} />}
       <DraftEditor
         appealId={appealData.id}
+        documentId={appealData.document_id}
         initialName={appealData.appeal_name}
         initialContent={appealData.appeal_text}
       />

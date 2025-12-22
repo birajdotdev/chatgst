@@ -26,10 +26,17 @@ export const getAppeal = cache(async (appealId: string) => {
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(
-        errorData.detail || "Error occurred while fetching the appeal"
-      );
+      const contentType = res.headers.get("content-type");
+      let errorMessage = "Error occurred while fetching the appeal";
+
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+      } else {
+        errorMessage = `API Error: ${res.status} ${res.statusText}`;
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data: GenerateAppealApiResponse = await res.json();

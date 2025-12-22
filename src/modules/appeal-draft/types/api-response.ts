@@ -26,6 +26,7 @@ export interface GetLegalReferencesApiResponse extends APIResponse {
 export interface GenerateAppealApiResponse extends APIResponse {
   data: {
     id: string;
+    document_id: string;
     appeal_name: string;
     appeal_text: string;
     attachments: any[];

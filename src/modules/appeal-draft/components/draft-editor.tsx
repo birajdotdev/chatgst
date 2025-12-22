@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAction } from "next-safe-action/hooks";
@@ -15,12 +16,14 @@ import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 
 interface DraftEditorProps {
   appealId: string;
+  documentId: string;
   initialName: string;
   initialContent: string;
 }
 
 export function DraftEditor({
   appealId,
+  documentId,
   initialName,
   initialContent,
 }: DraftEditorProps) {
@@ -29,11 +32,20 @@ export function DraftEditor({
   const { setIsSubmitting, setIsDirty } = useFormContext();
   const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
 
+  const router = useRouter();
   const { execute, isPending } = useAction(updateAppealAction, {
     onSuccess: () => {
       toast.success("Appeal updated successfully");
       setIsDirty(false);
-      setSearchParams({ step: 6, documentId: null }, { shallow: false });
+      // Construct URL manually to be 100% sure and trigger server refresh
+      if (documentId && appealId) {
+        router.push(
+          `/appeal-draft?step=6&documentId=${documentId}&appealId=${appealId}`
+        );
+      } else {
+        router.push(`/appeal-draft?step=1`);
+      }
+      router.refresh();
     },
     onError: ({ error }) => {
       toast.error(error.serverError || "Failed to update appeal");
