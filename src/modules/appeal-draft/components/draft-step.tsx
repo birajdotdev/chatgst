@@ -7,17 +7,35 @@ import { DraftContent } from "@/modules/appeal-draft/components/draft-content";
 import { DraftStepSkeleton } from "@/modules/appeal-draft/components/draft-step-skeleton";
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
-import { generateAppeal } from "@/modules/appeal-draft/queries";
+import { generateAppeal, getAppeal } from "@/modules/appeal-draft/queries";
 
 export function DraftStep() {
   const documentId = appealDraftSearchParamsCache.get("documentId");
-  if (!documentId) redirect("/appeal-draft?step=1");
+  const appealId = appealDraftSearchParamsCache.get("appealId");
+
+  if (!documentId && !appealId) {
+    redirect("/appeal-draft?step=1");
+  }
+
+  const appealPromise = appealId
+    ? getAppeal(appealId)
+    : documentId
+      ? generateAppeal(documentId)
+      : null;
+
+  if (!appealPromise) {
+    redirect("/appeal-draft?step=1");
+  }
 
   return (
     <div className="flex size-full max-h-fit flex-col gap-4.5">
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Suspense fallback={<DraftStepSkeleton />}>
-          <DraftContent appealPromise={generateAppeal(documentId)} />
+          <DraftContent
+            appealId={appealId}
+            documentId={documentId}
+            appealPromise={appealPromise}
+          />
         </Suspense>
       </ErrorBoundary>
     </div>

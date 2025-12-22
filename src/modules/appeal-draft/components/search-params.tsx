@@ -8,6 +8,7 @@ import {
 export const appealDraftSearchParams = {
   step: parseAsInteger.withDefault(1),
   documentId: parseAsString,
+  appealId: parseAsString,
   mode: parseAsString,
 };
 
