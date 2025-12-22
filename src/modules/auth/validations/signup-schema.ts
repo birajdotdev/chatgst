@@ -53,7 +53,16 @@ export const signupSchema = z
         return firstPathEl !== "password" && firstPathEl !== "confirm_password";
       });
     },
-  });
+  })
+  .refine(
+    (data) =>
+      !data.alternate_email_or_phone ||
+      data.alternate_email_or_phone !== data.email,
+    {
+      message: "Alternate email/phone cannot be same as primary email",
+      path: ["alternate_email_or_phone"],
+    }
+  );
 
 // ============================================================================
 // STEP SCHEMAS - Derived from base form schema for multi-step validation
