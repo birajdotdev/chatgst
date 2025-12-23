@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 
 interface StepCardProps {
@@ -97,7 +99,9 @@ export function HowItWorks() {
         </div>
 
         <div className="mt-14 flex justify-center">
-          <Button size="lg">Begin Appeal Draft</Button>
+          <Button size="lg" asChild>
+            <Link href="/login">Begin Appeal Draft</Link>
+          </Button>
         </div>
       </div>
     </section>
