@@ -5,7 +5,7 @@ import { verifySession } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { appealId: string } }
+  { params }: { params: Promise<{ appealId: string }> }
 ) {
   try {
     // Verify user session
@@ -30,7 +30,8 @@ export async function GET(
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
-          accept: "application/json",
+          // No Accept header as we expect binary PDF, or use application/pdf
+          Accept: "application/pdf",
         },
       }
     );
@@ -38,8 +39,10 @@ export async function GET(
     if (!response.ok) {
       const errorText = await response.text();
       console.error("PDF generation error:", errorText);
+
+      // If the backend returns a 401, we want to know it
       return NextResponse.json(
-        { error: "Failed to generate PDF" },
+        { error: "Failed to generate PDF", detail: errorText },
         { status: response.status }
       );
     }
