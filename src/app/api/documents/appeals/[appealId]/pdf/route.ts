@@ -3,7 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
 import { verifySession } from "@/lib/auth";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { appealId: string } }
+) {
   try {
     // Verify user session
     const session = await verifySession();
@@ -11,9 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get appealId from query params
-    const searchParams = request.nextUrl.searchParams;
-    const appealId = searchParams.get("appealId");
+    const { appealId } = await params;
 
     if (!appealId) {
       return NextResponse.json(
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
-          accept: "application/pdf",
+          accept: "application/json",
         },
       }
     );

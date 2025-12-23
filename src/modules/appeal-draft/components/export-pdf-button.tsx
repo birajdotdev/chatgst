@@ -26,7 +26,7 @@ export function ExportPdfButton({
       setIsLoading(true);
 
       // Fetch the PDF from our Next.js API route (which proxies to backend)
-      const response = await fetch(`/api/appeal/pdf?appealId=${appealId}`, {
+      const response = await fetch(`/api/documents/appeals/${appealId}/pdf/`, {
         method: "GET",
       });
 

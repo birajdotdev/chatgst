@@ -5,15 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 
-import {
-  Bot,
-  FileText,
-  Home,
-  Info,
-  Languages,
-  type LucideIcon,
-  Zap,
-} from "lucide-react";
+import { Bot, FileText, Home, Info, type LucideIcon, Zap } from "lucide-react";
 
 import {
   NavigationMenu,
@@ -35,7 +27,7 @@ const navMenuItems: NavMenuItem[] = [
 ];
 
 const navMenuAuthenticatedItems: NavMenuItem[] = [
-  { title: "ChatGst - AI", href: "/chat", icon: Bot },
+  { title: "Chatgst - AI", href: "/chat", icon: Bot },
   // { title: "About", href: "/#about", icon: Info },
   { title: "Appeal Draft", href: "/appeal-draft", icon: FileText },
   // {
