@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
+import { LockIcon } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -33,7 +34,6 @@ import {
 } from "@/modules/profile/validations/profile-schema";
 
 import { ResetPasswordDialog } from "./reset-password-dialog";
-import { LockIcon } from "lucide-react";
 
 interface ProfileFormProps {
   initialData: Partial<UpdateProfileSchema>;
@@ -408,7 +408,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
             className="w-full sm:w-auto"
             onClick={() => setPasswordDialogOpen(true)}
           >
-           <LockIcon className=" h-4 w-4"/> Change Password
+            <LockIcon className="h-4 w-4" /> Change Password
           </Button>
           <Button
             type="submit"

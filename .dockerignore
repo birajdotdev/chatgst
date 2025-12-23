@@ -7,9 +7,6 @@ pnpm-debug.log
 yarn-debug.log
 yarn-error.log
 
-# Ensure lockfile is included
-!bun.lock
-
 # Build outputs
 .next
 out
