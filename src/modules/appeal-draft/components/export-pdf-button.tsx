@@ -26,9 +26,12 @@ export function ExportPdfButton({
       setIsLoading(true);
 
       // Fetch the PDF from our Next.js API route (which proxies to backend)
-      const response = await fetch(`/api/documents/appeals/${appealId}/pdf/`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `/action-api/documents/appeals/${appealId}/pdf/`,
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to generate PDF");
