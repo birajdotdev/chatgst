@@ -1,13 +1,18 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DraftHistorySidebar } from "@/modules/appeal-draft/components/draft-history-sidebar";
+"use client";
 
-export function DraftHistoryLayout({
-  children,
-  step,
-}: {
-  children: React.ReactNode;
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+import DraftHistorySidebar from "./draft-history-sidebar";
+
+interface DraftSidebarWrapperProps {
   step: number;
-}) {
+  children: React.ReactNode;
+}
+
+export function DraftSidebarWrapper({
+  step,
+  children,
+}: DraftSidebarWrapperProps) {
   return (
     <SidebarProvider>
       {step === 6 && <DraftHistorySidebar />}
