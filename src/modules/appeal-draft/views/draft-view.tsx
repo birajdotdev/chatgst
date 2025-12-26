@@ -7,21 +7,18 @@ import { DraftContent } from "@/modules/appeal-draft/components/draft-content";
 import { DraftStepSkeleton } from "@/modules/appeal-draft/components/draft-step-skeleton";
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
 import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
-import { getEffectiveDocumentId } from "@/modules/appeal-draft/lib/get-effective-id";
 import { generateAppeal, getAppeal } from "@/modules/appeal-draft/queries";
 
-export async function DraftStep() {
-  const { appealId } = appealDraftSearchParamsCache.all();
-  const effectiveDocumentId = await getEffectiveDocumentId();
-
-  if (!effectiveDocumentId && !appealId) {
+export function DraftView() {
+  const { appealId, documentId } = appealDraftSearchParamsCache.all();
+  if (!appealId && !documentId) {
     redirect("/appeal-draft?step=1");
   }
 
   const appealPromise = appealId
     ? getAppeal(appealId)
-    : effectiveDocumentId
-      ? generateAppeal(effectiveDocumentId)
+    : documentId
+      ? generateAppeal(documentId)
       : null;
 
   if (!appealPromise) {
@@ -34,7 +31,7 @@ export async function DraftStep() {
         <Suspense fallback={<DraftStepSkeleton />}>
           <DraftContent
             appealId={appealId}
-            documentId={effectiveDocumentId}
+            documentId={documentId}
             appealPromise={appealPromise}
           />
         </Suspense>

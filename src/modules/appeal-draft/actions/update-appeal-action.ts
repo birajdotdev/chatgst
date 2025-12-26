@@ -15,7 +15,7 @@ const updateAppealSchema = z.object({
 });
 
 export const updateAppealAction = actionClient
-  .schema(updateAppealSchema)
+  .inputSchema(updateAppealSchema)
   .action(async ({ parsedInput }) => {
     const session = await verifySession();
     if (!session?.accessToken) {

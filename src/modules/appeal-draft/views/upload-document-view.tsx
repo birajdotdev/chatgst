@@ -8,7 +8,7 @@ import { FileUploader } from "@/components/file-uploader";
 import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
 import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 
-export function UploadDocumentStep() {
+export function UploadDocumentView() {
   const [{ documentId }, setSearchParams] = useQueryStates(
     appealDraftSearchParams
   );
