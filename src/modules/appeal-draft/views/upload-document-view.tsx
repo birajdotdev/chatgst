@@ -19,7 +19,7 @@ export function UploadDocumentView() {
     },
   });
 
-  const handelOpenFileDialog = () => {
+  const handleOpenFileDialog = () => {
     if (documentId) {
       setSearchParams({ documentId: null });
     }
@@ -35,7 +35,7 @@ export function UploadDocumentView() {
       <FileUploader
         className="max-w-3xl"
         isExecuting={isExecuting}
-        onOpenFileDialog={handelOpenFileDialog}
+        onOpenFileDialog={handleOpenFileDialog}
         onFileUpload={execute}
       />
     </div>

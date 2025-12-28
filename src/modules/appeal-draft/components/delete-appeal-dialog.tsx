@@ -46,9 +46,11 @@ export function DeleteAppealDialog({
   });
 
   const handleDelete = () => {
-    if (documentId) {
-      execute({ appealId: appeal.id, documentId });
+    if (!documentId) {
+      toast.error("Unable to delete: missing document context");
+      return;
     }
+    execute({ appealId: appeal.id, documentId });
   };
 
   return (

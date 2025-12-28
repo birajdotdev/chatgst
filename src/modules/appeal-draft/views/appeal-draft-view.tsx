@@ -19,18 +19,18 @@ interface AppealDraftViewProps {
   searchParams: Promise<SearchParams>;
 }
 
+const APPEAL_DRAFT_STEPS = [
+  { step: 1, Component: UploadDocumentView },
+  { step: 2, Component: BasicDetailsView },
+  { step: 3, Component: IssueSelectionView },
+  { step: 4, Component: ReferencesView },
+  { step: 5, Component: DraftView },
+  { step: 6, Component: ReviewView },
+] as const;
+
 export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
   const { step, ...rest } =
     await appealDraftSearchParamsCache.parse(searchParams);
-
-  const APPEAL_DRAFT_STEPS = [
-    { step: 1, component: <UploadDocumentView /> },
-    { step: 2, component: <BasicDetailsView /> },
-    { step: 3, component: <IssueSelectionView /> },
-    { step: 4, component: <ReferencesView /> },
-    { step: 5, component: <DraftView /> },
-    { step: 6, component: <ReviewView /> },
-  ] as const;
 
   return (
     <FormProvider>
@@ -41,12 +41,12 @@ export async function AppealDraftView({ searchParams }: AppealDraftViewProps) {
               <AppealDraftStepper className="w-full md:max-w-2/3" />
               <Card className="size-full max-h-fit gap-0 overflow-hidden rounded-3xl bg-muted p-0">
                 <CardContent className="size-full px-4 py-6">
-                  {APPEAL_DRAFT_STEPS.map((item) => (
+                  {APPEAL_DRAFT_STEPS.map(({ step: itemStep, Component }) => (
                     <Activity
-                      key={`appeal-draft-step-${item.step}`}
-                      mode={step === item.step ? "visible" : "hidden"}
+                      key={`appeal-draft-step-${itemStep}`}
+                      mode={step === itemStep ? "visible" : "hidden"}
                     >
-                      {item.component}
+                      <Component />
                     </Activity>
                   ))}
                 </CardContent>

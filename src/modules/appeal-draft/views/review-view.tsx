@@ -10,8 +10,8 @@ import { getAppeal } from "@/modules/appeal-draft/queries";
 import { generateAppealPdf } from "@/modules/appeal-draft/queries/generate-appeal-pdf";
 
 export async function ReviewView() {
-  const { appealId, documentId } = appealDraftSearchParamsCache.all();
-  if (!appealId && !documentId) redirect("/appeal-draft?step=1");
+  const { appealId } = appealDraftSearchParamsCache.all();
+  if (!appealId) redirect("/appeal-draft?step=1");
 
   return (
     <div className="flex size-full max-h-fit flex-col gap-4.5">
