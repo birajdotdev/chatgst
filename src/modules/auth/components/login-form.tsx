@@ -146,7 +146,7 @@ export function LoginForm({
             />
             <div className="mb-6 flex items-center">
               <Link
-                href="#"
+                href="/forgot-password"
                 className="ml-auto text-sm text-primary underline-offset-2 hover:underline"
               >
                 Forgot your password?
