@@ -35,7 +35,7 @@ export const emailField = () =>
     .check(z.trim());
 
 /**
- * Helper for password validation (8-100 characters, must contain uppercase and lowercase)
+ * Helper for password validation (8-100 characters, must contain uppercase, lowercase, and special character)
  * @returns Zod string schema for password validation
  */
 export const passwordField = () =>
@@ -58,6 +58,11 @@ export const passwordField = () =>
     .check(
       z.regex(/[a-z]/, {
         error: "Password must contain at least one lowercase letter",
+      })
+    )
+    .check(
+      z.regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, {
+        error: "Password must contain at least 1 special character",
       })
     )
     .check(z.trim());

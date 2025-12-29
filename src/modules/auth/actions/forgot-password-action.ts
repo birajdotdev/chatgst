@@ -134,11 +134,11 @@ export const resetPasswordAction = actionClient
 
       // Return field-level validation error for password
       returnValidationErrors(resetPasswordSchema, {
-        password: {
-          _errors: [
-            errorData.detail || "Failed to reset password. Please try again.",
-          ],
-        },
+        _errors: [
+          typeof errorData.detail === "string"
+            ? errorData.detail
+            : "Failed to reset password. Please try again.",
+        ],
       });
     }
 
