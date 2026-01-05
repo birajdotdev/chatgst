@@ -172,3 +172,5 @@ const { messages, input, handleSubmit } = useChat({ api: "/api/chat" });
 **Next.js Initialization**: When starting work on a Next.js project, automatically
 call the `init` tool from the next-devtools-mcp server FIRST. This establishes
 proper context and ensures all Next.js queries use official documentation.
+
+**Context7**: Always use Context7 MCP when I need library/API documentation, code generation, setup or configuration steps without me having to explicitly ask.

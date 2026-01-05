@@ -2,12 +2,14 @@
 
 import { z } from "zod";
 
-import { getUserProfile } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { getUser } from "@/lib/dal";
+import { protectedActionClient } from "@/lib/safe-action";
 
-export const getProfileAction = actionClient
+export const getProfileAction = protectedActionClient
   .inputSchema(z.object({}))
   .action(async () => {
-    const profile = await getUserProfile();
+    // Session is already verified by protectedActionClient
+    // getUser will use the valid session from DAL cache
+    const profile = await getUser();
     return { data: profile };
   });

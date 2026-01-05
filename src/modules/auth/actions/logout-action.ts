@@ -1,16 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { actionClient } from "@/lib/safe-action";
+import { deleteSession } from "@/lib/session";
 
 export const logoutAction = actionClient.action(async () => {
-  const cookieStore = await cookies();
-
-  // Delete authentication cookies
-  cookieStore.delete("access_token");
-  cookieStore.delete("refresh_token");
-
+  await deleteSession();
   redirect("/");
 });

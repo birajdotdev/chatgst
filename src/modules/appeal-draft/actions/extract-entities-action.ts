@@ -5,22 +5,16 @@ import { redirect } from "next/navigation";
 import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 import { ExtractEntitiesApiResponse } from "@/modules/appeal-draft/types";
 
 const inputSchema = zfd.formData({
   pdf_file: zfd.file(),
 });
 
-export const extractEntitiesAction = actionClient
+export const extractEntitiesAction = protectedActionClient
   .inputSchema(inputSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx: { session } }) => {
     try {
       const formData = new FormData();
       formData.append("pdf_file", parsedInput.pdf_file);

@@ -6,22 +6,16 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 
 const attachDocumentsSchema = zfd.formData({
   appealId: zfd.text(),
   files: z.union([zfd.file(), z.array(zfd.file())]),
 });
 
-export const attachSupportingDocumentsAction = actionClient
-  .schema(attachDocumentsSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+export const attachSupportingDocumentsAction = protectedActionClient
+  .inputSchema(attachDocumentsSchema)
+  .action(async ({ parsedInput, ctx: { session } }) => {
     const { appealId, files } = parsedInput;
     const formData = new FormData();
 

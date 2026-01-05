@@ -5,21 +5,15 @@ import { revalidatePath } from "next/cache";
 import z from "zod";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 
-export const toggleIssueSelectionAction = actionClient
+export const toggleIssueSelectionAction = protectedActionClient
   .inputSchema(
     z.object({
       issueId: z.string(),
     })
   )
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx: { session } }) => {
     try {
       const res = await fetch(
         `${env.API_URL}/documents/potential-issues/${parsedInput.issueId}/`,

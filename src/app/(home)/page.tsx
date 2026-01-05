@@ -1,14 +1,8 @@
-import { redirect } from "next/navigation";
-
-import { auth } from "@/lib/auth";
 import { LandingView } from "@/modules/home/views/landing-view";
 
-export default async function Page() {
-  const { isAuthenticated } = await auth();
+// Auth redirect handled by middleware (src/proxy.ts)
+// Authenticated users are redirected to /chat
 
-  if (isAuthenticated) {
-    redirect("/chat");
-  }
-
+export default function Page() {
   return <LandingView />;
 }

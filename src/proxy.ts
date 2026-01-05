@@ -1,168 +1,91 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { env } from "@/env";
+import { decodeJwt } from "jose";
 
 // Routes that require authentication
-const protectedRoutes = ["/chat", "/appeal-draft"];
+const protectedRoutes = ["/chat", "/appeal-draft", "/profile"];
 
 // Routes that should redirect to /chat if already authenticated
-const authRoutes = ["/login", "/register"];
+const authRoutes = ["/login", "/register", "/forgot-password"];
 
-function isTokenExpired(token: string): boolean {
+// Routes that redirect to /chat only on exact match
+const exactAuthRoutes = ["/", "/general"];
+
+/**
+ * Optimistic check: decode JWT to check expiry.
+ * Does NOT verify signature (backend owns the secret).
+ *
+ * This is safe because:
+ * 1. We only use this for routing decisions, not authorization
+ * 2. Actual authorization happens in the DAL/Server Actions
+ * 3. A tampered token would fail backend validation anyway
+ */
+function isTokenLikelyValid(token: string): boolean {
   try {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => {
-          return `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`;
-        })
-        .join("")
-    );
-    const { exp } = JSON.parse(jsonPayload);
-    return Date.now() >= exp * 1000;
-  } catch (e) {
-    return true;
+    const payload = decodeJwt(token);
+    if (typeof payload.exp !== "number") return false;
+    // Check if token expires in the next 30 seconds
+    // We're generous here because DAL will handle the actual refresh
+    return Date.now() < payload.exp * 1000 - 30000;
+  } catch {
+    return false;
   }
 }
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get authentication tokens from cookies
-  let accessToken = request.cookies.get("access_token")?.value;
+  // Get tokens from cookies (optimistic read only - no API calls)
+  const accessToken = request.cookies.get("access_token")?.value;
   const refreshToken = request.cookies.get("refresh_token")?.value;
 
-  let response = NextResponse.next();
+  // Optimistic auth check:
+  // - If access token is valid, consider authenticated
+  // - If access token expired but refresh token exists and valid, consider authenticated
+  //   (DAL will handle the actual refresh when the page loads)
+  // - Otherwise, not authenticated
+  const hasValidAccess = accessToken && isTokenLikelyValid(accessToken);
+  const hasValidRefresh = refreshToken && isTokenLikelyValid(refreshToken);
+  const isLikelyAuthenticated = hasValidAccess || hasValidRefresh;
 
-  // Check if refresh token itself is expired before attempting refresh
-  const isRefreshTokenExpired = refreshToken
-    ? isTokenExpired(refreshToken)
-    : true;
-
-  // Check if access token is expired or missing, but refresh token exists and is valid
-  if (
-    refreshToken &&
-    !isRefreshTokenExpired &&
-    (!accessToken || isTokenExpired(accessToken))
-  ) {
-    try {
-      const res = await fetch(`${env.API_URL}/token/refresh/`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh: refreshToken }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const newAccessToken = data.data.access_token;
-
-        // Update request headers for downstream
-        request.cookies.set("access_token", newAccessToken);
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-
-        // Update response cookies for browser
-        response.cookies.set("access_token", newAccessToken, {
-          httpOnly: true,
-          secure: env.NODE_ENV === "production",
-          sameSite: "lax",
-          maxAge: 60 * 60 * 24, // 24 hours
-          path: "/",
-        });
-
-        accessToken = newAccessToken;
-      } else {
-        // Refresh failed - clear cookies and redirect
-        accessToken = undefined;
-
-        // Create a redirect response with cleared cookies
-        const loginUrl = new URL("/login", request.url);
-        response = NextResponse.redirect(loginUrl);
-        response.cookies.delete("access_token");
-        response.cookies.delete("refresh_token");
-
-        // If API route, return 401 instead
-        if (pathname.startsWith("/chat/api")) {
-          return Response.json({ message: "Unauthorized" }, { status: 401 });
-        }
-
-        return response;
-      }
-    } catch (error) {
-      // Error refreshing - clear cookies and redirect
-      accessToken = undefined;
-
-      // Create a redirect response with cleared cookies
-      const loginUrl = new URL("/login", request.url);
-      response = NextResponse.redirect(loginUrl);
-      response.cookies.delete("access_token");
-      response.cookies.delete("refresh_token");
-
-      if (pathname.startsWith("/chat/api")) {
-        return Response.json({ message: "Unauthorized" }, { status: 401 });
-      }
-
-      return response;
-    }
-  }
-
-  // If refresh token is expired, clear it to prevent further attempts
-  if (refreshToken && isRefreshTokenExpired) {
-    response.cookies.delete("access_token");
-    response.cookies.delete("refresh_token");
-    accessToken = undefined;
-  }
-
-  const isAuthenticated = !!accessToken && !isTokenExpired(accessToken);
-
-  // Check if the current route is protected
+  // Check route types
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
-
-  // Check if the current route is an auth route
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isExactAuthRoute = exactAuthRoutes.includes(pathname);
 
-  // Redirect to login if trying to access protected route without authentication
-  if (isProtectedRoute && !isAuthenticated) {
+  // Redirect to login if accessing protected route without authentication
+  if (isProtectedRoute && !isLikelyAuthenticated) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
-    response = NextResponse.redirect(loginUrl);
-    // Ensure cookies are cleared when redirecting unauthenticated users
-    if (!accessToken || (accessToken && isTokenExpired(accessToken))) {
-      response.cookies.delete("access_token");
-      response.cookies.delete("refresh_token");
-    }
+
+    const response = NextResponse.redirect(loginUrl);
+    // Clear potentially stale cookies
+    response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
     return response;
   }
 
-  // Redirect to /chat if trying to access auth routes while authenticated
-  if (isAuthRoute && isAuthenticated) {
+  // Redirect to /chat if accessing auth routes while authenticated
+  if ((isAuthRoute || isExactAuthRoute) && isLikelyAuthenticated) {
     return NextResponse.redirect(new URL("/chat", request.url));
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except:
      * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * - _next/image (image optimization)
+     * - favicon.ico
      * - public files (images, etc.)
-     * - api (API routes) - EXCLUDING /chat/api
+     * - API routes (handled separately by Route Handlers)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|public|api/(?!chat/api)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)",
   ],
 };

@@ -3,14 +3,12 @@ import { cache } from "react";
 import "server-only";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
+import { verifySession } from "@/lib/dal";
 import { GenerateAppealApiResponse } from "@/modules/appeal-draft/types";
 
 export const generateAppeal = cache(async (documentId: string) => {
+  // verifySession redirects to login if not authenticated
   const session = await verifySession();
-  if (!session?.accessToken) {
-    throw new Error("Unauthorized");
-  }
 
   try {
     const res = await fetch(`${env.API_URL}/documents/${documentId}/appeal/`, {

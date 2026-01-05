@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
+import { verifySession } from "@/lib/dal";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ appealId: string }> }
 ) {
   try {
-    // Verify user session
+    // verifySession redirects to login if not authenticated
     const session = await verifySession();
-    if (!session?.accessToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     const { appealId } = await params;
 
@@ -30,7 +27,6 @@ export async function GET(
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
-          // No Accept header as we expect binary PDF, or use application/pdf
           Accept: "application/pdf",
         },
       }
@@ -40,7 +36,6 @@ export async function GET(
       const errorText = await response.text();
       console.error("PDF generation error:", errorText);
 
-      // If the backend returns a 401, we want to know it
       return NextResponse.json(
         { error: "Failed to generate PDF", detail: errorText },
         { status: response.status }

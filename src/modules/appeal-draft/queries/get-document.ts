@@ -1,9 +1,9 @@
-"use server";
-
 import { cache } from "react";
 
+import "server-only";
+
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
+import { verifySession } from "@/lib/dal";
 import type { GetDocumentApiResponse } from "@/modules/appeal-draft/types";
 
 /**
@@ -11,11 +11,8 @@ import type { GetDocumentApiResponse } from "@/modules/appeal-draft/types";
  * This is a query function (read operation), not a Server Action (mutation).
  */
 export const getDocument = cache(async (documentId: string) => {
+  // verifySession redirects to login if not authenticated
   const session = await verifySession();
-
-  if (!session?.accessToken) {
-    throw new Error("Unauthorized");
-  }
 
   try {
     const res = await fetch(`${env.API_URL}/documents/${documentId}/`, {
