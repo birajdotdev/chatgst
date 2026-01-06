@@ -4,24 +4,18 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 import { updateDocumentSchema } from "@/modules/appeal-draft/validations/extracted-details-schema";
 
-export const updateDocumentAction = actionClient
+export const updateDocumentAction = protectedActionClient
   .inputSchema(updateDocumentSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx }) => {
     try {
       const res = await fetch(`${env.API_URL}/document/${parsedInput.id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
+          Authorization: `Bearer ${ctx.accessToken}`,
         },
         body: JSON.stringify(parsedInput),
       });

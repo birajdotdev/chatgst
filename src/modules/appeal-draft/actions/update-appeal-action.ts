@@ -5,8 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 
 const updateAppealSchema = z.object({
   appealId: z.string(),
@@ -14,14 +13,9 @@ const updateAppealSchema = z.object({
   appeal_text: z.string(),
 });
 
-export const updateAppealAction = actionClient
-  .schema(updateAppealSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+export const updateAppealAction = protectedActionClient
+  .inputSchema(updateAppealSchema)
+  .action(async ({ parsedInput, ctx }) => {
     const { appealId, appeal_name, appeal_text } = parsedInput;
 
     try {
@@ -30,7 +24,7 @@ export const updateAppealAction = actionClient
         headers: {
           "Content-Type": "application/json",
           accept: "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
+          Authorization: `Bearer ${ctx.accessToken}`,
         },
         body: JSON.stringify({
           appeal_name,

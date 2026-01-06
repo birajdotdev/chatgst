@@ -3,6 +3,8 @@ import {
   createSafeActionClient,
 } from "next-safe-action";
 
+import { verifySession } from "@/lib/auth";
+
 // Create the client with error handling configuration.
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
@@ -17,4 +19,13 @@ export const actionClient = createSafeActionClient({
 
     return DEFAULT_SERVER_ERROR_MESSAGE;
   },
+});
+
+export const protectedActionClient = actionClient.use(async ({ next }) => {
+  const session = await verifySession();
+  if (!session?.accessToken) {
+    throw new Error("Unauthorized: No valid session found.");
+  }
+
+  return next({ ctx: { accessToken: session.accessToken } });
 });
