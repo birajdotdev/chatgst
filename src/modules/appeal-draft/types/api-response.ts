@@ -1,3 +1,5 @@
+import { Appeal } from "@/modules/appeal-draft/types/appeal";
+import { AppealHistory } from "@/modules/appeal-draft/types/appeal-history";
 import { DocumentData } from "@/modules/appeal-draft/types/document";
 import { LegalReference } from "@/modules/appeal-draft/types/legal-reference";
 import { PotentialIssues } from "@/modules/appeal-draft/types/potential-issue";
@@ -23,12 +25,11 @@ export interface GetIssuesApiResponse extends APIResponse {
 export interface GetLegalReferencesApiResponse extends APIResponse {
   data: LegalReference[];
 }
+
 export interface GenerateAppealApiResponse extends APIResponse {
-  data: {
-    id: string;
-    document_id: string;
-    appeal_name: string;
-    appeal_text: string;
-    attachments: any[];
-  };
+  data: Appeal;
+}
+
+export interface GetAllAppealsApiResponse extends APIResponse {
+  data: AppealHistory[];
 }

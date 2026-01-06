@@ -8,7 +8,7 @@ import { FileUploader } from "@/components/file-uploader";
 import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
 import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 
-export function UploadDocumentStep() {
+export function UploadDocumentView() {
   const [{ documentId }, setSearchParams] = useQueryStates(
     appealDraftSearchParams
   );
@@ -19,7 +19,7 @@ export function UploadDocumentStep() {
     },
   });
 
-  const handelOpenFileDialog = () => {
+  const handleOpenFileDialog = () => {
     if (documentId) {
       setSearchParams({ documentId: null });
     }
@@ -35,7 +35,7 @@ export function UploadDocumentStep() {
       <FileUploader
         className="max-w-3xl"
         isExecuting={isExecuting}
-        onOpenFileDialog={handelOpenFileDialog}
+        onOpenFileDialog={handleOpenFileDialog}
         onFileUpload={execute}
       />
     </div>
