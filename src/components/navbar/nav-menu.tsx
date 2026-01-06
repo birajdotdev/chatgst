@@ -5,8 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 
-import { Bot, FileText, Home, Info, type LucideIcon, Zap } from "lucide-react";
-
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -17,24 +15,18 @@ import {
 type NavMenuItem = {
   title: string;
   href: Route;
-  icon: LucideIcon;
 };
 
 const navMenuItems: NavMenuItem[] = [
-  { title: "Home", href: "/", icon: Home },
-  { title: "About", href: "/#about", icon: Info },
-  { title: "How it works", href: "/#how-it-works", icon: Zap },
+  { title: "Home", href: "/" },
+  { title: "About", href: "/#about" },
+  { title: "How it works", href: "/#how-it-works" },
 ];
 
 const navMenuAuthenticatedItems: NavMenuItem[] = [
-  { title: "Chatgst - AI", href: "/chat", icon: Bot },
-  // { title: "About", href: "/#about", icon: Info },
-  { title: "Appeal Draft", href: "/appeal-draft", icon: FileText },
-  // {
-  //   title: "Language Assistance",
-  //   href: "/language-assistance" as Route,
-  //   icon: Languages,
-  // },
+  { title: "Chat", href: "/chat" },
+  { title: "Appeal Draft", href: "/appeal-draft" },
+  { title: "Language Assistance", href: "/language-assistance" as Route },
 ];
 
 interface NavMenuProps extends ComponentProps<typeof NavigationMenu> {
@@ -51,7 +43,9 @@ export function NavMenu({ isAuthenticated = false, ...props }: NavMenuProps) {
           (item) => (
             <NavigationMenuItem key={item.title}>
               <NavigationMenuLink
-                active={pathname === item.href}
+                active={
+                  pathname === item.href || pathname.startsWith(item.href)
+                }
                 className="bg-transparent! text-base underline-offset-4 hover:text-primary! hover:underline data-active:text-primary! data-active:underline"
                 asChild
               >
@@ -59,8 +53,7 @@ export function NavMenu({ isAuthenticated = false, ...props }: NavMenuProps) {
                   href={item.href}
                   className="flex flex-row items-center gap-2 whitespace-nowrap"
                 >
-                  <item.icon className="size-4" />
-                  <span>{item.title}</span>
+                  {item.title}
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
