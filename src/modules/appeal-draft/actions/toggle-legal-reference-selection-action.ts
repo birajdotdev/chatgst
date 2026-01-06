@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import z from "zod";
+import { z } from "zod";
 
 import { env } from "@/env";
 import { protectedActionClient } from "@/lib/safe-action";
@@ -29,7 +29,8 @@ export const toggleLegalReferenceSelectionAction = protectedActionClient
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(
-          errorData.detail || "Error occurred while toggling issue selection"
+          errorData.detail ||
+            "Error occurred while toggling legal reference selection"
         );
       }
 

@@ -14,7 +14,7 @@ const updateAppealSchema = z.object({
 });
 
 export const updateAppealAction = protectedActionClient
-  .schema(updateAppealSchema)
+  .inputSchema(updateAppealSchema)
   .action(async ({ parsedInput, ctx: { session } }) => {
     const { appealId, appeal_name, appeal_text } = parsedInput;
 

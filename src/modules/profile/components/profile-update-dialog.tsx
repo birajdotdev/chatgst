@@ -30,7 +30,7 @@ export function ProfileUpdateDialog({
 
   useEffect(() => {
     if (open) {
-      execute({});
+      execute();
     }
   }, [open, execute]);
 
