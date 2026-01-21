@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAction } from "next-safe-action/hooks";
 import { useQueryStates } from "nuqs";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MinimalTiptap } from "@/components/ui/shadcn-io/minimal-tiptap";
+import { sanitizeHtmlForTiptap } from "@/lib/sanitize-html";
 import { updateAppealAction } from "@/modules/appeal-draft/actions/update-appeal-action";
 import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
 import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
@@ -26,8 +27,14 @@ export function DraftEditor({
   initialName,
   initialContent,
 }: DraftEditorProps) {
+  // Sanitize the initial HTML content from the API
+  const sanitizedInitialContent = useMemo(
+    () => sanitizeHtmlForTiptap(initialContent),
+    [initialContent]
+  );
+
   const [name, setName] = useState(initialName);
-  const [content, setContent] = useState(initialContent);
+  const [content, setContent] = useState(sanitizedInitialContent);
   const { setIsSubmitting, setIsDirty } = useFormContext();
   const [searchParams, setSearchParams] = useQueryStates(
     appealDraftSearchParams
