@@ -15,7 +15,7 @@ const attachDocumentsSchema = zfd.formData({
 
 export const attachSupportingDocumentsAction = protectedActionClient
   .inputSchema(attachDocumentsSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput, ctx: { session } }) => {
     const { appealId, files } = parsedInput;
     const formData = new FormData();
 
@@ -33,7 +33,7 @@ export const attachSupportingDocumentsAction = protectedActionClient
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${ctx.accessToken}`,
+            Authorization: `Bearer ${session.accessToken}`,
           },
           body: formData,
         }

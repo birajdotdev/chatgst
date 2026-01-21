@@ -3,21 +3,14 @@
 import { revalidatePath } from "next/cache";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
 
 import { updateProfileSchema } from "../validations/profile-schema";
 
-export const updateProfileAction = actionClient
+export const updateProfileAction = protectedActionClient
   .inputSchema(updateProfileSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx: { session } }) => {
     // Exclude email and other non-API fields from the payload
-
     const {
       email,
       terms_and_privacy_policy,

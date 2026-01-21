@@ -1,8 +1,9 @@
-import { cookies } from "next/headers";
+import { cache } from "react";
 
 import "server-only";
 
 import { env } from "@/env";
+import { verifySession } from "@/lib/dal";
 
 export interface APIResponse {
   message: string;
@@ -15,31 +16,25 @@ export interface Datum {
   created_at: Date;
 }
 
-export async function getChats() {
-  try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token")?.value;
+export const getChats = cache(async () => {
+  const session = await verifySession();
 
-    if (!accessToken) {
-      throw new Error("Unauthorized");
-    }
+  const res = await fetch(`${env.API_URL}/chats/`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    next: {
+      tags: ["chats-list"],
+      revalidate: 60,
+    },
+  });
 
-    const res = await fetch(`${env.API_URL}/chats/`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch chats");
-    }
-
-    const data: APIResponse = await res.json();
-    return data.data;
-  } catch (error) {
-    console.error("Error fetching chats:", error);
-    return [];
+  if (!res.ok) {
+    throw new Error("Failed to fetch chats");
   }
-}
+
+  const data: APIResponse = await res.json();
+  return data.data;
+});

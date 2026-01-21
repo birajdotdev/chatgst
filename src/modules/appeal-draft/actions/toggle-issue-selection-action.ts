@@ -13,7 +13,7 @@ export const toggleIssueSelectionAction = protectedActionClient
       issueId: z.string(),
     })
   )
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput, ctx: { session } }) => {
     try {
       const res = await fetch(
         `${env.API_URL}/documents/potential-issues/${parsedInput.issueId}/`,
@@ -21,7 +21,7 @@ export const toggleIssueSelectionAction = protectedActionClient
           method: "POST",
           headers: {
             accept: "application/json",
-            Authorization: `Bearer ${ctx.accessToken}`,
+            Authorization: `Bearer ${session.accessToken}`,
           },
         }
       );

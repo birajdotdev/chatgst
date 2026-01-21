@@ -14,7 +14,7 @@ const inputSchema = zfd.formData({
 
 export const extractEntitiesAction = protectedActionClient
   .inputSchema(inputSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput, ctx: { session } }) => {
     try {
       const formData = new FormData();
       formData.append("pdf_file", parsedInput.pdf_file);
@@ -23,7 +23,7 @@ export const extractEntitiesAction = protectedActionClient
         method: "POST",
         headers: {
           accept: "application/json",
-          Authorization: `Bearer ${ctx.accessToken}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: formData,
       });

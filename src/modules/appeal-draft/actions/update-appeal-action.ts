@@ -15,7 +15,7 @@ const updateAppealSchema = z.object({
 
 export const updateAppealAction = protectedActionClient
   .inputSchema(updateAppealSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput, ctx: { session } }) => {
     const { appealId, appeal_name, appeal_text } = parsedInput;
 
     try {
@@ -24,7 +24,7 @@ export const updateAppealAction = protectedActionClient
         headers: {
           "Content-Type": "application/json",
           accept: "application/json",
-          Authorization: `Bearer ${ctx.accessToken}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: JSON.stringify({
           appeal_name,

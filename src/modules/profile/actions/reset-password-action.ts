@@ -1,22 +1,16 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { env } from "@/env";
-import { verifySession } from "@/lib/auth";
-import { actionClient } from "@/lib/safe-action";
+import { protectedActionClient } from "@/lib/safe-action";
+import { deleteSession } from "@/lib/session";
 
 import { resetPasswordSchema } from "../validations/reset-password-schema";
 
-export const resetPasswordAction = actionClient
+export const resetPasswordAction = protectedActionClient
   .inputSchema(resetPasswordSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await verifySession();
-    if (!session?.accessToken) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx: { session } }) => {
     const { current_password, new_password } = parsedInput;
 
     const res = await fetch(`${env.API_URL}/reset-password/`, {
@@ -35,10 +29,8 @@ export const resetPasswordAction = actionClient
       );
     }
 
-    // Clear cookies
-    const cookieStore = await cookies();
-    cookieStore.delete("access_token");
-    cookieStore.delete("refresh_token");
+    // Clear session after password reset
+    await deleteSession();
 
     // Redirect to login page
     redirect("/login");

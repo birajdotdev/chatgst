@@ -9,13 +9,13 @@ import { updateDocumentSchema } from "@/modules/appeal-draft/validations/extract
 
 export const updateDocumentAction = protectedActionClient
   .inputSchema(updateDocumentSchema)
-  .action(async ({ parsedInput, ctx }) => {
+  .action(async ({ parsedInput, ctx: { session } }) => {
     try {
       const res = await fetch(`${env.API_URL}/document/${parsedInput.id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${ctx.accessToken}`,
+          Authorization: `Bearer ${session.accessToken}`,
         },
         body: JSON.stringify(parsedInput),
       });

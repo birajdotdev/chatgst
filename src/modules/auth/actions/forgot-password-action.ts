@@ -35,7 +35,7 @@ export const forgotPasswordAction = actionClient
       const errorData = await res.json();
 
       // Return field-level validation error for email
-      returnValidationErrors(forgotPasswordSchema, {
+      return returnValidationErrors(forgotPasswordSchema, {
         email: {
           _errors: [
             errorData.detail || "Failed to send OTP. Please try again.",
@@ -69,7 +69,7 @@ export const verifyResetOtpAction = actionClient
 
     if (!resetSessionCookie) {
       // Return form-level error for session expiration
-      returnValidationErrors(verifyResetOtpSchema, {
+      return returnValidationErrors(verifyResetOtpSchema, {
         _errors: ["Session expired. Please request a new OTP."],
       });
     }
@@ -87,7 +87,7 @@ export const verifyResetOtpAction = actionClient
       const errorData = await res.json();
 
       // Return field-level validation error for OTP
-      returnValidationErrors(verifyResetOtpSchema, {
+      return returnValidationErrors(verifyResetOtpSchema, {
         otp: {
           _errors: [errorData.detail || "Invalid OTP. Please try again."],
         },
@@ -111,7 +111,7 @@ export const resetPasswordAction = actionClient
 
     if (!resetSessionCookie) {
       // Return form-level error for session expiration
-      returnValidationErrors(resetPasswordSchema, {
+      return returnValidationErrors(resetPasswordSchema, {
         _errors: [
           "Session expired. Please start the password reset process again.",
         ],
@@ -133,7 +133,7 @@ export const resetPasswordAction = actionClient
       const errorData = await res.json();
 
       // Return field-level validation error for password
-      returnValidationErrors(resetPasswordSchema, {
+      return returnValidationErrors(resetPasswordSchema, {
         _errors: [
           typeof errorData.detail === "string"
             ? errorData.detail

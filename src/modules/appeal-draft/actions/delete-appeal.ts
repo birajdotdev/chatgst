@@ -21,7 +21,7 @@ export const deleteAppealAction = protectedActionClient
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${ctx.accessToken}`,
+            Authorization: `Bearer ${ctx.session.accessToken}`,
             Accept: "application/json",
           },
         }

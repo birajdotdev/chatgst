@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 
+import { env } from "@/env";
 import {
   RESET_SESSION_COOKIE_NAME,
   RESET_SESSION_MAX_AGE,
@@ -23,6 +24,7 @@ export async function setResetSessionCookie(value: string) {
     maxAge: RESET_SESSION_MAX_AGE,
     path: "/",
     sameSite: "lax",
+    secure: env.NODE_ENV === "production",
   });
 }
 
