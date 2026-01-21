@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import Link from "@tiptap/extension-link";
+import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -17,6 +19,7 @@ import {
   Quote,
   Redo,
   Strikethrough,
+  UnderlineIcon,
   Undo,
 } from "lucide-react";
 
@@ -53,6 +56,13 @@ export function MinimalTiptap({
           keepAttributes: false,
         },
       }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-primary underline underline-offset-2",
+        },
+      }),
+      Underline,
     ],
     content,
     editable,
@@ -78,8 +88,6 @@ export function MinimalTiptap({
   if (!editor) {
     return null;
   }
-
-  console.log("isActive:", editor.isActive("bold"));
 
   return (
     <div className={cn("overflow-hidden rounded-lg border", className)}>
@@ -109,6 +117,15 @@ export function MinimalTiptap({
           disabled={!editor.can().chain().focus().toggleStrike().run()}
         >
           <Strikethrough className="h-4 w-4" />
+        </Toggle>
+
+        <Toggle
+          size="sm"
+          pressed={editor.isActive("underline")}
+          onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+          disabled={!editor.can().chain().focus().toggleUnderline().run()}
+        >
+          <UnderlineIcon className="h-4 w-4" />
         </Toggle>
 
         <Toggle
