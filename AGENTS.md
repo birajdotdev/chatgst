@@ -6,7 +6,7 @@ ChatGST is a Next.js 16 application for GST (Goods and Services Tax) appeals aut
 
 **Tech Stack**: Next.js 16.1.1, React 19.2.3, TypeScript 5.9.3, Tailwind CSS v4, shadcn/ui
 
-## Build/Lint/Test Commands
+## Build/Lint Commands
 
 ```bash
 pnpm dev              # Start development server (localhost:3000)
@@ -20,16 +20,6 @@ pnpm format           # Format with Prettier (auto-sorts imports)
 # Adding Components
 npx shadcn@latest add <component>              # Add shadcn/ui component
 npx shadcn@latest add @ai-elements/<component> # Add AI chat component
-```
-
-### Running Tests
-
-No test framework is currently configured. If tests are added (Vitest recommended):
-
-```bash
-pnpm test             # Run all tests
-pnpm test <file>      # Run single test file
-pnpm test -t "name"   # Run tests matching pattern
 ```
 
 ## Project Structure

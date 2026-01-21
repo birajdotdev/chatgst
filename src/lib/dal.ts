@@ -6,6 +6,7 @@ import "server-only";
 import { env } from "@/env";
 
 import {
+  authLog,
   deleteSession,
   getSession,
   isTokenExpired,
@@ -28,10 +29,12 @@ export interface VerifiedSession {
  * @throws Redirects to /login if not authenticated
  */
 export const verifySession = cache(async (): Promise<VerifiedSession> => {
+  authLog("info", "Verifying session...");
   const session = await getSession();
 
   // No session at all
   if (!session) {
+    authLog("warn", "No session found - redirecting to login");
     redirect("/login");
   }
 
@@ -39,16 +42,19 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
 
   // Check if refresh token is expired (can't recover)
   if (isTokenExpired(refreshToken)) {
+    authLog("warn", "Refresh token expired - clearing session");
     await deleteSession();
     redirect("/login");
   }
 
   // Check if access token needs refresh
   if (isTokenExpired(accessToken)) {
+    authLog("info", "Access token expired, attempting refresh");
     const newAccessToken = await refreshAccessToken(refreshToken);
 
     if (!newAccessToken) {
       // Refresh failed - session is invalid
+      authLog("error", "Token refresh failed - clearing session");
       await deleteSession();
       redirect("/login");
     }
@@ -56,12 +62,14 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
     // Update the cookie with new access token
     await updateAccessToken(newAccessToken);
 
+    authLog("info", "Session verified (token refreshed)");
     return {
       accessToken: newAccessToken,
       refreshToken,
     };
   }
 
+  authLog("info", "Session verified successfully");
   return {
     accessToken,
     refreshToken,
@@ -77,9 +85,11 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
  */
 export const getOptionalSession = cache(
   async (): Promise<VerifiedSession | null> => {
+    authLog("info", "Getting optional session...");
     const session = await getSession();
 
     if (!session) {
+      authLog("info", "No session found (optional check)");
       return null;
     }
 
@@ -87,27 +97,32 @@ export const getOptionalSession = cache(
 
     // Check if refresh token is expired
     if (isTokenExpired(refreshToken)) {
+      authLog("warn", "Refresh token expired (optional check) - clearing");
       await deleteSession();
       return null;
     }
 
     // Check if access token needs refresh
     if (isTokenExpired(accessToken)) {
+      authLog("info", "Access token expired (optional check), refreshing");
       const newAccessToken = await refreshAccessToken(refreshToken);
 
       if (!newAccessToken) {
+        authLog("warn", "Token refresh failed (optional check)");
         await deleteSession();
         return null;
       }
 
       await updateAccessToken(newAccessToken);
 
+      authLog("info", "Optional session verified (token refreshed)");
       return {
         accessToken: newAccessToken,
         refreshToken,
       };
     }
 
+    authLog("info", "Optional session verified");
     return {
       accessToken,
       refreshToken,

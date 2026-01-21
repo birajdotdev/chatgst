@@ -5,6 +5,25 @@ import "server-only";
 
 import { env } from "@/env";
 
+// Auth debug logging - only logs in development
+const DEBUG_AUTH = env.NODE_ENV === "development";
+
+export function authLog(level: "info" | "warn" | "error", message: string) {
+  if (!DEBUG_AUTH) return;
+  const prefix = "[Auth]";
+  switch (level) {
+    case "info":
+      console.log(prefix, message);
+      break;
+    case "warn":
+      console.warn(prefix, message);
+      break;
+    case "error":
+      console.error(prefix, message);
+      break;
+  }
+}
+
 // Types
 export interface SessionTokens {
   accessToken: string;
@@ -113,6 +132,8 @@ export async function deleteSession(): Promise<void> {
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<string | null> {
+  authLog("info", "Token refresh initiated");
+
   try {
     const res = await fetch(`${env.API_URL}/token/refresh/`, {
       method: "POST",
@@ -124,12 +145,17 @@ export async function refreshAccessToken(
     });
 
     if (!res.ok) {
+      authLog("warn", `Token refresh failed: ${res.status} ${res.statusText}`);
       return null;
     }
 
     const data = await res.json();
+    authLog("info", "Token refreshed successfully");
     return data.data.access_token;
-  } catch {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown network error";
+    authLog("error", `Network error during token refresh: ${message}`);
     return null;
   }
 }

@@ -6,6 +6,7 @@ import {
 } from "next-safe-action";
 
 import {
+  authLog,
   deleteSession,
   getSession,
   isTokenExpired,
@@ -73,10 +74,12 @@ export interface ActionSession {
  * ```
  */
 export const protectedActionClient = actionClient.use(async ({ next }) => {
+  authLog("info", "Protected action: verifying session");
   const session = await getSession();
 
   // No session at all
   if (!session) {
+    authLog("warn", "Protected action: no session found");
     throw new AuthenticationError();
   }
 
@@ -84,15 +87,18 @@ export const protectedActionClient = actionClient.use(async ({ next }) => {
 
   // Check if refresh token is expired (can't recover)
   if (isTokenExpired(refreshToken)) {
+    authLog("warn", "Protected action: refresh token expired");
     await deleteSession();
     throw new AuthenticationError("Session expired");
   }
 
   // Check if access token needs refresh
   if (isTokenExpired(accessToken)) {
+    authLog("info", "Protected action: access token expired, refreshing");
     const newAccessToken = await refreshAccessToken(refreshToken);
 
     if (!newAccessToken) {
+      authLog("error", "Protected action: token refresh failed");
       await deleteSession();
       throw new AuthenticationError("Session expired");
     }
@@ -100,6 +106,7 @@ export const protectedActionClient = actionClient.use(async ({ next }) => {
     // Update the cookie with new access token
     await updateAccessToken(newAccessToken);
 
+    authLog("info", "Protected action: session verified (token refreshed)");
     // Return session with new access token in context
     return next({
       ctx: {
@@ -111,6 +118,7 @@ export const protectedActionClient = actionClient.use(async ({ next }) => {
     });
   }
 
+  authLog("info", "Protected action: session verified");
   // Return valid session in context
   return next({
     ctx: {

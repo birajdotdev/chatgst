@@ -5,6 +5,7 @@ import {
 } from "ai";
 
 import { env } from "@/env";
+import { getOptionalSession } from "@/lib/auth";
 import {
   type BackendErrorResponse,
   ErrorCodes,
@@ -27,21 +28,9 @@ export async function GET(req: Request) {
       return Response.json(error, { status: 400 });
     }
 
-    const clientCookies = req.headers.get("cookie");
+    const session = await getOptionalSession();
 
-    // Parse access_token from cookies
-    const cookies = clientCookies?.split(";").reduce(
-      (acc, cookie) => {
-        const [name, value] = cookie.trim().split("=");
-        acc[name] = value;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-
-    const accessToken = cookies?.["access_token"];
-
-    if (!accessToken) {
+    if (!session) {
       const error: StructuredError = {
         code: ErrorCodes.BACKEND_ERROR,
         message: "Unauthorized",
@@ -54,7 +43,7 @@ export async function GET(req: Request) {
       method: "GET",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
@@ -132,21 +121,9 @@ export async function POST(req: Request) {
       return Response.json(error, { status: 400 });
     }
 
-    const clientCookies = req.headers.get("cookie");
+    const session = await getOptionalSession();
 
-    // Parse access_token from cookies
-    const cookies = clientCookies?.split(";").reduce(
-      (acc, cookie) => {
-        const [name, value] = cookie.trim().split("=");
-        acc[name] = value;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-
-    const accessToken = cookies?.["access_token"];
-
-    if (!accessToken) {
+    if (!session) {
       const error: StructuredError = {
         code: ErrorCodes.BACKEND_ERROR,
         message: "Unauthorized",
@@ -184,7 +161,7 @@ export async function POST(req: Request) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.accessToken}`,
       },
       body,
     });
