@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
@@ -79,13 +79,31 @@ export function MinimalTiptap({
     },
   });
 
+  // Track active formatting states reactively for toolbar buttons
+  const editorState = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      isBold: e?.isActive("bold") ?? false,
+      isItalic: e?.isActive("italic") ?? false,
+      isStrike: e?.isActive("strike") ?? false,
+      isUnderline: e?.isActive("underline") ?? false,
+      isCode: e?.isActive("code") ?? false,
+      isHeading1: e?.isActive("heading", { level: 1 }) ?? false,
+      isHeading2: e?.isActive("heading", { level: 2 }) ?? false,
+      isHeading3: e?.isActive("heading", { level: 3 }) ?? false,
+      isBulletList: e?.isActive("bulletList") ?? false,
+      isOrderedList: e?.isActive("orderedList") ?? false,
+      isBlockquote: e?.isActive("blockquote") ?? false,
+    }),
+  });
+
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);
 
-  if (!editor) {
+  if (!editor || !editorState) {
     return null;
   }
 
@@ -94,7 +112,7 @@ export function MinimalTiptap({
       <div className="flex flex-wrap items-center gap-1 border-b p-2">
         <Toggle
           size="sm"
-          pressed={editor.isActive("bold")}
+          pressed={editorState.isBold}
           onPressedChange={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
         >
@@ -103,7 +121,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("italic")}
+          pressed={editorState.isItalic}
           onPressedChange={() => editor.chain().focus().toggleItalic().run()}
           disabled={!editor.can().chain().focus().toggleItalic().run()}
         >
@@ -112,7 +130,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("strike")}
+          pressed={editorState.isStrike}
           onPressedChange={() => editor.chain().focus().toggleStrike().run()}
           disabled={!editor.can().chain().focus().toggleStrike().run()}
         >
@@ -121,7 +139,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("underline")}
+          pressed={editorState.isUnderline}
           onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
           disabled={!editor.can().chain().focus().toggleUnderline().run()}
         >
@@ -130,7 +148,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("code")}
+          pressed={editorState.isCode}
           onPressedChange={() => editor.chain().focus().toggleCode().run()}
           disabled={!editor.can().chain().focus().toggleCode().run()}
         >
@@ -141,7 +159,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("heading", { level: 1 })}
+          pressed={editorState.isHeading1}
           onPressedChange={() =>
             editor.chain().focus().toggleHeading({ level: 1 }).run()
           }
@@ -151,7 +169,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("heading", { level: 2 })}
+          pressed={editorState.isHeading2}
           onPressedChange={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
@@ -161,7 +179,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("heading", { level: 3 })}
+          pressed={editorState.isHeading3}
           onPressedChange={() =>
             editor.chain().focus().toggleHeading({ level: 3 }).run()
           }
@@ -173,7 +191,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("bulletList")}
+          pressed={editorState.isBulletList}
           onPressedChange={() =>
             editor.chain().focus().toggleBulletList().run()
           }
@@ -183,7 +201,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("orderedList")}
+          pressed={editorState.isOrderedList}
           onPressedChange={() =>
             editor.chain().focus().toggleOrderedList().run()
           }
@@ -193,7 +211,7 @@ export function MinimalTiptap({
 
         <Toggle
           size="sm"
-          pressed={editor.isActive("blockquote")}
+          pressed={editorState.isBlockquote}
           onPressedChange={() =>
             editor.chain().focus().toggleBlockquote().run()
           }
