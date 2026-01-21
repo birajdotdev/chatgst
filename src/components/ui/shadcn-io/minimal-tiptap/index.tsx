@@ -72,8 +72,8 @@ export function MinimalTiptap({
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl dark:prose-invert mx-auto focus:outline-none",
-          "min-h-[200px] p-4 border-0"
+          "prose prose-sm lg:prose-base xl:prose-lg dark:prose-invert mx-auto focus:outline-none",
+          "min-h-[200px] p-4 border-0 min-w-full"
         ),
       },
     },
