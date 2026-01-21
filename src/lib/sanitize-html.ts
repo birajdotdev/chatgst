@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 /**
  * Sanitizes HTML content from the API for use with Tiptap editor.
  *
@@ -70,8 +72,11 @@ function processCodeBlocks(html: string): string {
       // Decode HTML entities inside code blocks
       const decoded = decodeHtmlEntities(content);
 
+      // Sanitize the decoded content to prevent executable HTML
+      const sanitized = DOMPurify.sanitize(decoded);
+
       // Split on <br><br> or double newlines to create separate paragraphs
-      const paragraphs = decoded
+      const paragraphs = sanitized
         .split(/(?:<br\s*\/?>\s*){2,}|\n{2,}/gi)
         .map((p) => p.trim())
         .filter((p) => p.length > 0);
@@ -89,7 +94,7 @@ function convertUnsupportedTags(html: string): string {
   return (
     html
       // Convert <div> to <p> (Tiptap doesn't support div by default)
-      .replace(/<div([^>]*)>/gi, "<p$1>")
+      .replace(/<div[^>]*>/gi, "<p>")
       .replace(/<\/div>/gi, "</p>")
       // Convert <span> content (just remove the span tags, keep content)
       .replace(/<span[^>]*>/gi, "")
