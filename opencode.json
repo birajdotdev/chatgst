@@ -15,11 +15,6 @@
       "type": "local",
       "command": ["bunx", "shadcn@latest", "mcp"],
       "enabled": true
-    },
-    "ai-elements": {
-      "type": "remote",
-      "url": "https://registry.ai-sdk.dev/api/mcp",
-      "enabled": true
     }
   }
 }
