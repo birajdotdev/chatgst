@@ -16,7 +16,7 @@ export function ChatRedirectHandler({
 }) {
   const router = useRouter();
   const params = useParams();
-  const { chat } = useDefaultChat();
+  const { messages } = useDefaultChat();
   const chatId = params?.id as string | undefined;
 
   const hasRedirectedRef = useRef(false);
@@ -29,7 +29,7 @@ export function ChatRedirectHandler({
     }
 
     // Check if a new message was added (user submitted something)
-    const currentMessageCount = chat.messages.length;
+    const currentMessageCount = messages.length;
     if (currentMessageCount > previousMessageCountRef.current) {
       previousMessageCountRef.current = currentMessageCount;
 
@@ -60,7 +60,7 @@ export function ChatRedirectHandler({
 
       pollForChatId();
     }
-  }, [chat.messages, chatId, router]);
+  }, [messages, chatId, router]);
 
   return <>{children}</>;
 }

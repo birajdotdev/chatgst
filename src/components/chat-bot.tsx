@@ -2,48 +2,66 @@
 
 import { ViewTransition, useEffect, useRef, useState } from "react";
 
-import { Chat, useChat } from "@ai-sdk/react";
-import { UIDataTypes, UIMessage, UITools } from "ai";
+import type { ChatStatus, FileUIPart, UIMessage } from "ai";
 import { toast } from "sonner";
 
-import { AIConversation } from "@/components/ai-conversation";
-import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
-import { AIPromptInput } from "@/components/ai-prompt-input";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
+  PromptInputAttachment,
+  PromptInputAttachments,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputHeader,
+  type PromptInputMessage,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
+import { Shimmer } from "@/components/ai-elements/shimmer";
+import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { CHAT_SUGGESTIONS } from "@/modules/chat/constants/chat-suggestions";
 
 interface ChatBotProps {
-  aiPromptInputClassName?: string;
+  messages: UIMessage[];
+  status: ChatStatus;
+  sendMessage: (message: { text: string; files?: FileUIPart[] }) => void;
+  stop: () => void;
+  promptInputClassName?: string;
   className?: string;
   viewTransitionName?: string;
-  chat: Chat<UIMessage<unknown, UIDataTypes, UITools>>;
-  initialMessages?: UIMessage[];
+  loadingText?: string;
 }
 
 export function ChatBot({
-  aiPromptInputClassName,
+  messages,
+  status,
+  sendMessage,
+  stop,
+  promptInputClassName,
   className,
   viewTransitionName,
-  chat: sharedChat,
-  initialMessages,
+  loadingText = "Generating your response...",
 }: ChatBotProps) {
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasSentPendingMessageRef = useRef(false);
-
-  const { messages, status, stop, sendMessage, setMessages } = useChat({
-    chat: sharedChat,
-  });
-
-  // Initialize messages if provided (e.g. from transfer)
-  useEffect(() => {
-    if (
-      initialMessages &&
-      initialMessages.length > 0 &&
-      messages.length === 0
-    ) {
-      setMessages(initialMessages);
-    }
-  }, [initialMessages, messages.length, setMessages]);
 
   // Check for pending message from /chat redirect and send it
   useEffect(() => {
@@ -71,7 +89,7 @@ export function ChatBot({
 
         sendMessage({
           text: message.text || "Sent with attachments",
-          files: message.files,
+          files: message.files as FileUIPart[] | undefined,
         });
       } catch (error) {
         console.error("Error sending pending message:", error);
@@ -99,15 +117,9 @@ export function ChatBot({
       return;
     }
 
-    if (message.files?.length) {
-      toast.success("Files attached", {
-        description: `${message.files.length} file(s) attached to message`,
-      });
-    }
-
     sendMessage({
       text: message.text || "Sent with attachments",
-      files: message.files,
+      files: message.files as FileUIPart[] | undefined,
     });
 
     setInput("");
@@ -116,20 +128,94 @@ export function ChatBot({
   return (
     <div className={cn("relative mx-auto size-full max-w-4xl", className)}>
       <div className="flex h-full flex-col">
-        <AIConversation
-          messages={messages}
-          status={status}
-          onSuggestionClick={handleSuggestionClick}
-        />
+        {/* Conversation Area */}
+        <Conversation className="h-full">
+          <ConversationContent className="h-full">
+            {messages.length === 0 ? (
+              <ConversationEmptyState className="flex size-full items-center justify-center p-0">
+                <div className="flex flex-col items-center gap-6">
+                  <div className="text-center">
+                    <h2 className="mb-2 text-2xl font-semibold">
+                      How can I help you today?
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Ask me anything about GST appeals
+                    </p>
+                  </div>
+                  <Suggestions className="max-w-2xl flex-wrap justify-center gap-2">
+                    {CHAT_SUGGESTIONS.map((suggestion) => (
+                      <Suggestion
+                        key={suggestion}
+                        onClick={handleSuggestionClick}
+                        suggestion={suggestion}
+                      />
+                    ))}
+                  </Suggestions>
+                </div>
+              </ConversationEmptyState>
+            ) : (
+              messages.map((message) => (
+                <div key={message.id}>
+                  {message.parts.map((part, i) => {
+                    switch (part.type) {
+                      case "text":
+                        return (
+                          <Message from={message.role} key={`${message.id}-${i}`}>
+                            <div className="flex flex-col gap-3">
+                              <Badge
+                                className="hidden w-fit rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 uppercase text-primary group-[.is-assistant]:block"
+                                variant="outline"
+                              >
+                                ChatGST AI
+                              </Badge>
+                              <MessageContent className="group-[.is-assistant]:bg-transparent group-[.is-assistant]:p-0 group-[.is-user]:max-w-full group-[.is-user]:border group-[.is-user]:bg-card group-[.is-user]:text-foreground">
+                                <MessageResponse>{part.text}</MessageResponse>
+                              </MessageContent>
+                            </div>
+                          </Message>
+                        );
+                      default:
+                        return null;
+                    }
+                  })}
+                </div>
+              ))
+            )}
+            {status === "submitted" && <Shimmer>{loadingText}</Shimmer>}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation>
+
+        {/* Prompt Input Area */}
         <ViewTransition name={viewTransitionName}>
-          <AIPromptInput
-            ref={inputRef}
-            className={cn("mx-auto mt-4", aiPromptInputClassName)}
-            value={input}
-            onChange={setInput}
-            onSubmit={handleSubmit}
-            status={status}
-          />
+          <div className={cn("mx-auto mt-4 w-full px-4 pb-4", promptInputClassName)}>
+            <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+              <PromptInputHeader>
+                <PromptInputAttachments>
+                  {(attachment) => <PromptInputAttachment data={attachment} />}
+                </PromptInputAttachments>
+              </PromptInputHeader>
+              <PromptInputBody>
+                <PromptInputTextarea
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about GST appeals..."
+                  ref={inputRef}
+                  value={input}
+                />
+              </PromptInputBody>
+              <PromptInputFooter>
+                <PromptInputTools>
+                  <PromptInputActionMenu>
+                    <PromptInputActionMenuTrigger />
+                    <PromptInputActionMenuContent>
+                      <PromptInputActionAddAttachments />
+                    </PromptInputActionMenuContent>
+                  </PromptInputActionMenu>
+                </PromptInputTools>
+                <PromptInputSubmit status={status} />
+              </PromptInputFooter>
+            </PromptInput>
+          </div>
         </ViewTransition>
       </div>
     </div>

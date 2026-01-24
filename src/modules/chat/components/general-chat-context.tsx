@@ -1,15 +1,18 @@
 "use client";
 
-import { type ReactNode, createContext, useContext, useState } from "react";
+import { type ReactNode, createContext, useCallback, useContext, useState } from "react";
 
-import { Chat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import type { ChatStatus, FileUIPart, UIMessage } from "ai";
 import { toast } from "sonner";
 
-import { ErrorCodes, parseClientError } from "@/types/errors";
+import { useChatSession } from "@/modules/chat/hooks/use-chat-session";
 
 interface ChatContextValue {
-  chat: Chat<UIMessage>;
+  messages: UIMessage[];
+  status: ChatStatus;
+  sendMessage: (message: { text: string; files?: FileUIPart[] }) => void;
+  stop: () => void;
+  setMessages: (messages: UIMessage[]) => void;
   isQuotaExceeded: boolean;
   setIsQuotaExceeded: (value: boolean) => void;
 }
@@ -19,29 +22,47 @@ const ChatContext = createContext<ChatContextValue | undefined>(undefined);
 export function GeneralChatProvider({ children }: { children: ReactNode }) {
   const [isQuotaExceeded, setIsQuotaExceeded] = useState<boolean>(false);
 
-  const chat = new Chat<UIMessage>({
-    id: "general-chat",
-    transport: new DefaultChatTransport({
-      api: "/general/api",
-    }),
-    onError: (error) => {
-      const errorData = parseClientError(error);
-
-      switch (errorData.code) {
-        case ErrorCodes.QUOTA_EXCEEDED:
-          setIsQuotaExceeded(true);
-          break;
-
-        default:
-          toast.error("Failed to send message", {
-            description: errorData.message || "An unknown error occurred.",
-          });
-          break;
-      }
+  const {
+    messages,
+    status,
+    sendMessage: originalSendMessage,
+    stop,
+    setMessages,
+  } = useChatSession({
+    api: "/general/api",
+    onQuotaExceeded: () => {
+      setIsQuotaExceeded(true);
     },
   });
+
+  // Wrap sendMessage to match our expected interface
+  const sendMessage = useCallback(
+    (message: { text: string; files?: FileUIPart[] }) => {
+      if (message.files?.length) {
+        toast.success("Files attached", {
+          description: `${message.files.length} file(s) attached to message`,
+        });
+      }
+      originalSendMessage({
+        text: message.text,
+        files: message.files,
+      });
+    },
+    [originalSendMessage]
+  );
+
   return (
-    <ChatContext.Provider value={{ chat, isQuotaExceeded, setIsQuotaExceeded }}>
+    <ChatContext.Provider
+      value={{
+        messages,
+        status,
+        sendMessage,
+        stop,
+        setMessages,
+        isQuotaExceeded,
+        setIsQuotaExceeded,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

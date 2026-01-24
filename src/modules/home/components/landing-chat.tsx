@@ -3,16 +3,28 @@
 import { useRouter } from "next/navigation";
 import { ViewTransition, useRef, useState } from "react";
 
-import { useChat } from "@ai-sdk/react";
-
-import { AIPromptInput } from "@/components/ai-prompt-input";
+import {
+  PromptInput,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
+  PromptInputAttachment,
+  PromptInputAttachments,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputHeader,
+  type PromptInputMessage,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
 import { ChatSuggestions } from "@/modules/chat/components/chat-suggestions";
 import { useGeneralChat } from "@/modules/chat/components/general-chat-context";
 
 export function LandingChat() {
-  const { chat } = useGeneralChat();
+  const { sendMessage } = useGeneralChat();
   const router = useRouter();
-  const { sendMessage } = useChat({ chat });
 
   const [input, setInput] = useState<string>("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -22,23 +34,44 @@ export function LandingChat() {
     inputRef.current?.focus();
   };
 
-  const handleSubmit = () => {
-    if (!input.trim()) return;
+  const handleSubmit = (message: PromptInputMessage) => {
+    if (!message.text?.trim()) return;
 
-    sendMessage({ text: input });
+    sendMessage({ text: message.text });
     router.push("/general");
   };
 
   return (
     <>
       <ViewTransition name="general-chat">
-        <AIPromptInput
-          ref={inputRef}
-          className="mx-auto my-8 max-w-none sm:max-w-md md:my-12 md:max-w-xl"
-          onSubmit={handleSubmit}
-          value={input}
-          onChange={setInput}
-        />
+        <div className="mx-auto my-8 max-w-none px-4 sm:max-w-md md:my-12 md:max-w-xl">
+          <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+            <PromptInputHeader>
+              <PromptInputAttachments>
+                {(attachment) => <PromptInputAttachment data={attachment} />}
+              </PromptInputAttachments>
+            </PromptInputHeader>
+            <PromptInputBody>
+              <PromptInputTextarea
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about GST appeals..."
+                ref={inputRef}
+                value={input}
+              />
+            </PromptInputBody>
+            <PromptInputFooter>
+              <PromptInputTools>
+                <PromptInputActionMenu>
+                  <PromptInputActionMenuTrigger />
+                  <PromptInputActionMenuContent>
+                    <PromptInputActionAddAttachments />
+                  </PromptInputActionMenuContent>
+                </PromptInputActionMenu>
+              </PromptInputTools>
+              <PromptInputSubmit />
+            </PromptInputFooter>
+          </PromptInput>
+        </div>
       </ViewTransition>
 
       <ChatSuggestions onClick={handleSuggestionClick} />
