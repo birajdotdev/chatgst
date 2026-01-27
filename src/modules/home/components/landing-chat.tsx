@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ViewTransition, useRef, useState } from "react";
 
 import { useChat } from "@ai-sdk/react";
+import { useRouter } from "@tanstack/react-router";
 
 import { AIPromptInput } from "@/components/ai-prompt-input";
 import { ChatSuggestions } from "@/modules/chat/components/chat-suggestions";
@@ -26,7 +26,7 @@ export function LandingChat() {
     if (!input.trim()) return;
 
     sendMessage({ text: input });
-    router.push("/general");
+    router.navigate({ to: "/general" });
   };
 
   return (

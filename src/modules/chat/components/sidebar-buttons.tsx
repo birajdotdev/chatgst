@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "@tanstack/react-router";
 import { CirclePlusIcon } from "lucide-react";
 
 import {
@@ -16,7 +15,7 @@ export default function SidebarButtons() {
           asChild
           className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground"
         >
-          <Link href="/chat">
+          <Link to="/chat">
             <CirclePlusIcon />
             <span className="font-semibold">New Chat</span>
           </Link>

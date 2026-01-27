@@ -1,44 +1,42 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
+import { verifySession } from "@/lib/auth";
 
-export const toggleLegalReferenceSelectionAction = protectedActionClient
-  .inputSchema(
-    z.object({
-      sectionId: z.string(),
-    })
-  )
-  .action(async ({ parsedInput, ctx: { session } }) => {
-    try {
-      const res = await fetch(
-        `${env.API_URL}/documents/references/sections/${parsedInput.sectionId}/`,
-        {
-          method: "POST",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-        }
-      );
+const toggleLegalReferenceSchema = z.object({
+  sectionId: z.string(),
+});
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.detail ||
-            "Error occurred while toggling legal reference selection"
-        );
+export type ToggleLegalReferenceInput = z.infer<
+  typeof toggleLegalReferenceSchema
+>;
+
+export const toggleLegalReferenceSelectionFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator((data: unknown) => toggleLegalReferenceSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await verifySession();
+
+    const res = await fetch(
+      `${env.API_URL}/documents/references/sections/${data.sectionId}/`,
+      {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
       }
+    );
 
-      revalidatePath("/appeal-draft");
-
-      return { success: true };
-    } catch (error) {
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected error occurred!");
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(
+        errorData.detail ||
+          "Error occurred while toggling legal reference selection"
+      );
     }
+
+    return { success: true };
   });

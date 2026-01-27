@@ -1,27 +1,38 @@
 "use client";
 
-import { useAction } from "next-safe-action/hooks";
-import { useQueryStates } from "nuqs";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { FileUploader } from "@/components/file-uploader";
-import { extractEntitiesAction } from "@/modules/appeal-draft/actions/extract-entities-action";
-import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
+import { extractEntitiesFn } from "@/modules/appeal-draft/actions/extract-entities-action";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 
 export function UploadDocumentView() {
-  const [{ documentId }, setSearchParams] = useQueryStates(
-    appealDraftSearchParams
-  );
+  const { searchParams, setSearchParams } = useSearchParamsContext();
+  const { documentId } = searchParams;
 
-  const { execute, isExecuting } = useAction(extractEntitiesAction, {
-    onError: ({ error }) => {
-      toast.error(error.serverError);
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => {
+      const file = formData.get("pdf_file") as File;
+      if (!file) {
+        throw new Error("No file provided");
+      }
+      return extractEntitiesFn({ data: { pdf_file: file } });
+    },
+    onSuccess: (data) => {
+      // Navigate to step 2 with the document ID
+      setSearchParams({ step: 2, documentId: data.data.id });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to process file"
+      );
     },
   });
 
   const handleOpenFileDialog = () => {
     if (documentId) {
-      setSearchParams({ documentId: null });
+      setSearchParams({ documentId: undefined });
     }
   };
 
@@ -34,9 +45,9 @@ export function UploadDocumentView() {
 
       <FileUploader
         className="max-w-3xl"
-        isExecuting={isExecuting}
+        isExecuting={mutation.isPending}
         onOpenFileDialog={handleOpenFileDialog}
-        onFileUpload={execute}
+        onFileUpload={(formData) => mutation.mutate(formData)}
       />
     </div>
   );

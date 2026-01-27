@@ -1,21 +1,21 @@
-import {
-  createLoader,
-  createSearchParamsCache,
-  parseAsInteger,
-  parseAsString,
-} from "nuqs/server";
+import { z } from "zod";
 
-export const appealDraftSearchParams = {
-  step: parseAsInteger.withDefault(1),
-  documentId: parseAsString,
-  appealId: parseAsString,
-  mode: parseAsString,
-};
+export const appealDraftSearchSchema = z.object({
+  step: z.number().int().min(1).max(6).default(1),
+  documentId: z.string().optional(),
+  appealId: z.string().optional(),
+  mode: z.string().optional(),
+});
 
-export const loadAppealDraftSearchParams = createLoader(
-  appealDraftSearchParams
-);
+export type AppealDraftSearchParams = z.infer<typeof appealDraftSearchSchema>;
 
-export const appealDraftSearchParamsCache = createSearchParamsCache(
-  appealDraftSearchParams
-);
+// Re-export from context for backward compatibility
+export {
+  appealDraftSearchParamsCache,
+  SearchParamsProvider,
+  useAppealDraftSearchParams,
+  useSearchParamsContext,
+} from "@/modules/appeal-draft/contexts/search-params-context";
+
+// Compatibility type for nuqs-style components
+export type { AppealDraftSearchParams as appealDraftSearchParams };

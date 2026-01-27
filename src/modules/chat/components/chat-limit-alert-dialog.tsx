@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 
 import {
@@ -40,7 +39,7 @@ export function ChatLimitAlertDialog(
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction className="min-w-[145px]" asChild>
-            <Link href="/login">Log In to continue</Link>
+            <Link to="/login">Log In to continue</Link>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,18 +1,12 @@
-import { redirect } from "next/navigation";
-import { cache } from "react";
-
-import "server-only";
+import { redirect } from "@tanstack/react-router";
 
 import { env } from "@/env";
 
 import {
-  authLog,
-  deleteSession,
-  getSession,
-  isTokenExpired,
-  refreshAccessToken,
-  updateAccessToken,
-} from "./session";
+  deleteSessionFn,
+  getSessionFn,
+  verifySessionFn,
+} from "./session.server";
 
 export interface VerifiedSession {
   accessToken: string;
@@ -21,60 +15,21 @@ export interface VerifiedSession {
 
 /**
  * Verify session and auto-refresh if needed.
- * Redirects to login if session is invalid.
+ * Throws redirect to login if session is invalid.
  *
- * Use this in Server Components, Route Handlers, and data fetching functions
- * where you need to ensure the user is authenticated.
+ * Use this in server functions where you need to ensure the user is authenticated.
  *
  * @throws Redirects to /login if not authenticated
  */
-export const verifySession = cache(async (): Promise<VerifiedSession> => {
-  authLog("info", "Verifying session...");
-  const session = await getSession();
+export async function verifySession(): Promise<VerifiedSession> {
+  const session = await verifySessionFn();
 
-  // No session at all
   if (!session) {
-    authLog("warn", "No session found - redirecting to login");
-    redirect("/login");
+    throw redirect({ to: "/login" });
   }
 
-  const { accessToken, refreshToken } = session;
-
-  // Check if refresh token is expired (can't recover)
-  if (isTokenExpired(refreshToken)) {
-    authLog("warn", "Refresh token expired - clearing session");
-    await deleteSession();
-    redirect("/login");
-  }
-
-  // Check if access token needs refresh
-  if (isTokenExpired(accessToken)) {
-    authLog("info", "Access token expired, attempting refresh");
-    const newAccessToken = await refreshAccessToken(refreshToken);
-
-    if (!newAccessToken) {
-      // Refresh failed - session is invalid
-      authLog("error", "Token refresh failed - clearing session");
-      await deleteSession();
-      redirect("/login");
-    }
-
-    // Update the cookie with new access token
-    await updateAccessToken(newAccessToken);
-
-    authLog("info", "Session verified (token refreshed)");
-    return {
-      accessToken: newAccessToken,
-      refreshToken,
-    };
-  }
-
-  authLog("info", "Session verified successfully");
-  return {
-    accessToken,
-    refreshToken,
-  };
-});
+  return session;
+}
 
 /**
  * Get session without redirect (for optional auth scenarios).
@@ -83,52 +38,10 @@ export const verifySession = cache(async (): Promise<VerifiedSession> => {
  * Use this in layouts or components where authentication is optional,
  * such as showing different UI for logged-in vs anonymous users.
  */
-export const getOptionalSession = cache(
-  async (): Promise<VerifiedSession | null> => {
-    authLog("info", "Getting optional session...");
-    const session = await getSession();
-
-    if (!session) {
-      authLog("info", "No session found (optional check)");
-      return null;
-    }
-
-    const { accessToken, refreshToken } = session;
-
-    // Check if refresh token is expired
-    if (isTokenExpired(refreshToken)) {
-      authLog("warn", "Refresh token expired (optional check) - clearing");
-      await deleteSession();
-      return null;
-    }
-
-    // Check if access token needs refresh
-    if (isTokenExpired(accessToken)) {
-      authLog("info", "Access token expired (optional check), refreshing");
-      const newAccessToken = await refreshAccessToken(refreshToken);
-
-      if (!newAccessToken) {
-        authLog("warn", "Token refresh failed (optional check)");
-        await deleteSession();
-        return null;
-      }
-
-      await updateAccessToken(newAccessToken);
-
-      authLog("info", "Optional session verified (token refreshed)");
-      return {
-        accessToken: newAccessToken,
-        refreshToken,
-      };
-    }
-
-    authLog("info", "Optional session verified");
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-);
+export async function getOptionalSession(): Promise<VerifiedSession | null> {
+  const session = await verifySessionFn();
+  return session;
+}
 
 export interface UserProfile {
   id: string;
@@ -154,7 +67,7 @@ export interface UserProfile {
  *
  * Use this when you need user data and the user must be logged in.
  */
-export const getUser = cache(async (): Promise<UserProfile | null> => {
+export async function getUser(): Promise<UserProfile | null> {
   const session = await verifySession();
 
   try {
@@ -174,7 +87,7 @@ export const getUser = cache(async (): Promise<UserProfile | null> => {
   } catch {
     return null;
   }
-});
+}
 
 /**
  * Get user profile optionally (for mixed auth scenarios).
@@ -183,7 +96,7 @@ export const getUser = cache(async (): Promise<UserProfile | null> => {
  * Use this in layouts where you want to show user info if logged in,
  * but not require authentication.
  */
-export const getOptionalUser = cache(async (): Promise<UserProfile | null> => {
+export async function getOptionalUser(): Promise<UserProfile | null> {
   const session = await getOptionalSession();
 
   if (!session) {
@@ -207,4 +120,7 @@ export const getOptionalUser = cache(async (): Promise<UserProfile | null> => {
   } catch {
     return null;
   }
-});
+}
+
+// Re-export session utilities for backward compatibility
+export { deleteSessionFn, getSessionFn };

@@ -1,5 +1,4 @@
-import { Route } from "next";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
 import { Separator } from "@/components/ui/separator";
@@ -9,7 +8,7 @@ import { XIcon } from "@/modules/home/components/footer/x";
 
 type FooterSection = {
   title: string;
-  links: { title: string; href: Route }[];
+  links: { title: string; href: string }[];
 };
 
 const footerSections: FooterSection[] = [
@@ -86,7 +85,7 @@ export function Footer() {
 
             <div className="mt-4 flex items-center gap-5 text-primary-foreground">
               <Link
-                href="#"
+                to="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
                 aria-label="Open Facebook Profile"
@@ -94,7 +93,7 @@ export function Footer() {
                 <FacebookIcon className="h-5 w-5" />
               </Link>
               <Link
-                href="#"
+                to="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
                 aria-label="Open LinkedIn Profile"
@@ -102,7 +101,7 @@ export function Footer() {
                 <LinkedinIcon className="h-5 w-5" />
               </Link>
               <Link
-                href="#"
+                to="#"
                 target="_blank"
                 className="transition-colors hover:text-primary-foreground/80"
                 aria-label="Open X (Twitter) Profile"
@@ -119,7 +118,7 @@ export function Footer() {
                 {links.map(({ title, href }) => (
                   <li key={title}>
                     <Link
-                      href={href}
+                      to={href}
                       className="text-primary-foreground/80 transition-colors hover:text-primary-foreground"
                     >
                       {title}

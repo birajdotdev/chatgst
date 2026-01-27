@@ -3,10 +3,11 @@
 import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
+import { useMutation } from "@tanstack/react-query";
 import { LockIcon } from "lucide-react";
-import { Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { CONSTITUTION_OF_BUSINESS_VALUES } from "@/modules/auth/constants/constitution-of-businesses";
 import { USER_TYPE_VALUES } from "@/modules/auth/constants/user-types";
-import { updateProfileAction } from "@/modules/profile/actions/update-profile-action";
+import { updateProfileFn } from "@/modules/profile/actions/update-profile-action";
 import {
   UpdateProfileSchema,
   updateProfileSchema,
@@ -40,35 +41,42 @@ interface ProfileFormProps {
   onSuccess?: () => void;
 }
 
+type ProfileFormData = z.infer<typeof updateProfileSchema>;
+
 export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
-  const {
-    form: { control, handleSubmit },
-    action: { isExecuting, execute },
-  } = useHookFormAction(updateProfileAction, zodResolver(updateProfileSchema), {
-    formProps: {
-      defaultValues: initialData,
+
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: initialData,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: ProfileFormData) => updateProfileFn({ data: input }),
+    onSuccess: (data) => {
+      toast.success(data?.message || "Profile updated successfully");
+      onSuccess?.();
     },
-    actionProps: {
-      onSuccess: ({ data }) => {
-        toast.success(data?.message || "Profile updated successfully");
-        onSuccess?.();
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError || "Failed to update profile");
-      },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update profile"
+      );
     },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
   });
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit(execute)} className="space-y-6">
+      <form onSubmit={onSubmit} className="space-y-6">
         <FieldGroup className="gap-4">
           {/* Personal Details */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="full_name"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -90,7 +98,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
 
             <Controller
               name="email"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -115,7 +123,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="phone_number"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -141,7 +149,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="gstin"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -161,7 +169,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
             />
             <Controller
               name="business_name"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -184,7 +192,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="constitution_of_business"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -217,7 +225,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
             />
             <Controller
               name="state_or_jurisdiction"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -242,7 +250,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="user_type"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -275,7 +283,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
 
             <Controller
               name="organization_name"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -299,7 +307,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="designation"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Designation</FieldLabel>
@@ -318,7 +326,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
 
             <Controller
               name="professional_registration_number"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -342,7 +350,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4">
             <Controller
               name="address"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Address</FieldLabel>
@@ -362,7 +370,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Controller
               name="pincode"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>Pincode</FieldLabel>
@@ -381,7 +389,7 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
 
             <Controller
               name="alternate_email_or_phone"
-              control={control}
+              control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>
@@ -413,9 +421,9 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           <Button
             type="submit"
             className="w-full sm:w-[150px]"
-            disabled={isExecuting}
+            disabled={mutation.isPending}
           >
-            {isExecuting ? <Spinner /> : "Update Profile"}
+            {mutation.isPending ? <Spinner /> : "Update Profile"}
           </Button>
         </div>
       </form>

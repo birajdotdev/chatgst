@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   type ChangeEvent,
   type ChangeEventHandler,
@@ -288,7 +287,7 @@ export function PromptInputAttachment({
       {...props}
     >
       {mediaType === "image" ? (
-        <Image
+        <img
           alt={data.filename || "attachment"}
           className="size-full rounded-md object-cover"
           height={56}

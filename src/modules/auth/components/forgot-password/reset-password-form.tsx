@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
-import { Controller } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
@@ -25,44 +24,43 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { resetPasswordAction } from "@/modules/auth/actions/forgot-password-action";
+import { resetPasswordFn } from "@/modules/auth/actions/forgot-password-action";
 import { resetPasswordSchema } from "@/modules/auth/validations/forgot-password-schema";
 
-export function ResetPasswordForm() {
-  const router = useRouter();
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
-  const {
-    form,
-    action: { isExecuting },
-    handleSubmitWithAction,
-    resetFormAndAction,
-  } = useHookFormAction(resetPasswordAction, zodResolver(resetPasswordSchema), {
-    formProps: {
-      defaultValues: {
-        password: "",
-        confirmPassword: "",
-      },
-    },
-    actionProps: {
-      onSuccess: ({ data }) => {
-        toast.success(data.message);
-        resetFormAndAction();
-        router.push("/login");
-      },
-      onError: ({ error }) => {
-        // Show root validation errors (like session expiration) via toast
-        if (error.validationErrors?._errors) {
-          toast.error(error.validationErrors._errors.join(" "));
-        } else if (error.serverError) {
-          // Fallback for unexpected server errors
-          toast.error(error.serverError);
-        }
-      },
+export function ResetPasswordForm() {
+  const navigate = useNavigate();
+
+  const form = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: (input: ResetPasswordFormData) =>
+      resetPasswordFn({ data: input }),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      form.reset();
+      navigate({ to: "/login" });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reset password"
+      );
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
+  });
+
   return (
-    <form onSubmit={handleSubmitWithAction}>
+    <form onSubmit={onSubmit}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Reset Your Password</CardTitle>
@@ -114,13 +112,17 @@ export function ResetPasswordForm() {
           </FieldGroup>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isExecuting}>
-            {isExecuting ? <Spinner /> : "Reset Password"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <Spinner /> : "Reset Password"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Remember your password?{" "}
             <Link
-              href="/login"
+              to="/login"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               Sign in

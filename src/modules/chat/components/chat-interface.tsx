@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { Chat, useChat } from "@ai-sdk/react";
+import { useRouter } from "@tanstack/react-router";
 import { DefaultChatTransport, UIMessage } from "ai";
 import { toast } from "sonner";
 
@@ -117,7 +117,7 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
 
         // Perform full redirect to switch to DefaultChatProvider
         // We use router.replace for a seamless transition now that we wait for the stream
-        router.replace(`/chat/${chatId}`);
+        router.navigate({ to: `/chat/${chatId}`, replace: true });
       }
     }
   }, [status, messages]);

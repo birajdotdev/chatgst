@@ -2,22 +2,20 @@
 
 import { useEffect } from "react";
 
-import { useQueryStates } from "nuqs";
-
-import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 
 interface URLUpdaterProps {
   appealId: string;
 }
 
 export function URLUpdater({ appealId }: URLUpdaterProps) {
-  const [params, setParams] = useQueryStates(appealDraftSearchParams);
+  const { searchParams, setSearchParams } = useSearchParamsContext();
 
   useEffect(() => {
-    if (params.documentId && !params.appealId) {
-      setParams({ appealId: appealId }, { shallow: false });
+    if (searchParams.documentId && !searchParams.appealId) {
+      setSearchParams({ appealId: appealId }, { shallow: false });
     }
-  }, [appealId, params, setParams]);
+  }, [appealId, searchParams, setSearchParams]);
 
   return null;
 }

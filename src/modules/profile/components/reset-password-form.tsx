@@ -1,9 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
-import { Controller } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
@@ -14,30 +16,48 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { resetPasswordAction } from "@/modules/profile/actions/reset-password-action";
+import { resetProfilePasswordFn } from "@/modules/profile/actions/reset-password-action";
 import { resetPasswordSchema } from "@/modules/profile/validations/reset-password-schema";
 
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
 export function ResetPasswordForm() {
-  const {
-    form: { control, handleSubmit },
-    action: { isExecuting, execute },
-  } = useHookFormAction(resetPasswordAction, zodResolver(resetPasswordSchema), {
-    actionProps: {
-      onSuccess: ({ data }) => {
-        toast.success(data?.message || "Password changed successfully");
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError || "Failed to change password");
-      },
+  const navigate = useNavigate();
+
+  const form = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      current_password: "",
+      new_password: "",
+      confirm_password: "",
     },
   });
 
+  const mutation = useMutation({
+    mutationFn: (input: ResetPasswordFormData) =>
+      resetProfilePasswordFn({ data: input }),
+    onSuccess: (data) => {
+      toast.success(data?.message || "Password changed successfully");
+      form.reset();
+      navigate({ to: "/login" });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to change password"
+      );
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
+  });
+
   return (
-    <form onSubmit={handleSubmit(execute)} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6">
       <FieldGroup className="gap-4">
         <Controller
           name="current_password"
-          control={control}
+          control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Current Password</FieldLabel>
@@ -55,7 +75,7 @@ export function ResetPasswordForm() {
 
         <Controller
           name="new_password"
-          control={control}
+          control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>New Password</FieldLabel>
@@ -74,7 +94,7 @@ export function ResetPasswordForm() {
 
         <Controller
           name="confirm_password"
-          control={control}
+          control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>Confirm New Password</FieldLabel>
@@ -95,9 +115,9 @@ export function ResetPasswordForm() {
         <Button
           type="submit"
           className="w-full sm:w-auto"
-          disabled={isExecuting}
+          disabled={mutation.isPending}
         >
-          {isExecuting ? <Spinner /> : "Update Password"}
+          {mutation.isPending ? <Spinner /> : "Update Password"}
         </Button>
       </div>
     </form>

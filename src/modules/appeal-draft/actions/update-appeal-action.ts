@@ -1,11 +1,8 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
+import { verifySession } from "@/lib/auth";
 
 const updateAppealSchema = z.object({
   appealId: z.string(),
@@ -13,41 +10,34 @@ const updateAppealSchema = z.object({
   appeal_text: z.string(),
 });
 
-export const updateAppealAction = protectedActionClient
-  .inputSchema(updateAppealSchema)
-  .action(async ({ parsedInput, ctx: { session } }) => {
-    const { appealId, appeal_name, appeal_text } = parsedInput;
+export type UpdateAppealInput = z.infer<typeof updateAppealSchema>;
 
-    try {
-      const res = await fetch(`${env.API_URL}/documents/appeals/${appealId}/`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        body: JSON.stringify({
-          appeal_name,
-          appeal_text,
-        }),
-      });
+export const updateAppealFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateAppealSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await verifySession();
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.detail || "Error occurred while updating the appeal"
-        );
-      }
+    const { appealId, appeal_name, appeal_text } = data;
 
-      revalidatePath(`/appeal-draft`);
+    const res = await fetch(`${env.API_URL}/documents/appeals/${appealId}/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify({
+        appeal_name,
+        appeal_text,
+      }),
+    });
 
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-
-      throw new Error("Unexpected error occurred!");
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(
+        errorData.detail || "Error occurred while updating the appeal"
+      );
     }
+
+    return res.json();
   });

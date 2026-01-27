@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 
-import { useAction } from "next-safe-action/hooks";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import {
@@ -14,14 +17,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { logoutAction } from "@/modules/auth/actions/logout-action";
+import { logoutFn } from "@/modules/auth/actions/logout-action";
 
 export default function LogoutAlertDialog(
   props: React.ComponentProps<typeof AlertDialog>
 ) {
-  const { execute, isExecuting, reset } = useAction(logoutAction, {
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: () => logoutFn(),
     onSuccess: () => {
-      reset();
+      navigate({ to: "/" });
     },
     onError: () => {
       toast.error("Logout failed. Please try again.");
@@ -30,7 +36,7 @@ export default function LogoutAlertDialog(
 
   const handelLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    execute();
+    mutation.mutate();
   };
 
   return (
@@ -48,9 +54,9 @@ export default function LogoutAlertDialog(
           <AlertDialogAction
             className="min-w-20"
             onClick={handelLogout}
-            disabled={isExecuting}
+            disabled={mutation.isPending}
           >
-            {isExecuting ? <Spinner /> : "Logout"}
+            {mutation.isPending ? <Spinner /> : "Logout"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

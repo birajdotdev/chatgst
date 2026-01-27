@@ -1,0 +1,1 @@
+import{j as t,O as n}from"./main-BmsFRsaK.js";function s({children:e}){return t.jsx("main",{className:"flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10",children:e})}function o(){return t.jsx(s,{children:t.jsx(n,{})})}export{o as component};

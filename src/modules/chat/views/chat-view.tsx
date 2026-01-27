@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
+import { Link } from "@tanstack/react-router";
 import { AlertCircleIcon } from "lucide-react";
 
 import { ChatBot } from "@/components/chat-bot";
@@ -28,7 +27,7 @@ export function ChatView() {
           <p className="text-muted-foreground">{error}</p>
         </div>
         <Button asChild>
-          <Link href="/chat">Start a New Chat</Link>
+          <Link to="/chat">Start a New Chat</Link>
         </Button>
       </section>
     );

@@ -15,6 +15,11 @@
       "type": "local",
       "command": ["bunx", "shadcn@latest", "mcp"],
       "enabled": true
+    },
+    "tanstack": {
+      "type": "local",
+      "command": ["bunx", "@tanstack/cli", "mcp"],
+      "enabled": true
     }
   }
 }

@@ -1,17 +1,19 @@
-"use server";
-
-import { redirect } from "next/navigation";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
-import { deleteSession } from "@/lib/session";
+import { deleteSessionFn, verifySession } from "@/lib/auth";
 
 import { resetPasswordSchema } from "../validations/reset-password-schema";
 
-export const resetPasswordAction = protectedActionClient
-  .inputSchema(resetPasswordSchema)
-  .action(async ({ parsedInput, ctx: { session } }) => {
-    const { current_password, new_password } = parsedInput;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+export const resetProfilePasswordFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => resetPasswordSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await verifySession();
+
+    const { current_password, new_password } = data;
 
     const res = await fetch(`${env.API_URL}/reset-password/`, {
       method: "POST",
@@ -30,8 +32,10 @@ export const resetPasswordAction = protectedActionClient
     }
 
     // Clear session after password reset
-    await deleteSession();
+    await deleteSessionFn();
 
-    // Redirect to login page
-    redirect("/login");
+    return {
+      success: true,
+      message: "Password changed successfully! Please login again.",
+    };
   });

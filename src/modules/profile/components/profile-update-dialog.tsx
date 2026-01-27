@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useAction } from "next-safe-action/hooks";
+import { useMutation } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getProfileAction } from "@/modules/profile/actions/get-profile-action";
+import { getProfileFn } from "@/modules/profile/actions/get-profile-action";
 import { ProfileForm } from "@/modules/profile/components/profile-form";
 import { ProfileFormSkeleton } from "@/modules/profile/components/profile-form-skeleton";
 import { UpdateProfileSchema } from "@/modules/profile/validations/profile-schema";
@@ -24,28 +24,31 @@ export function ProfileUpdateDialog({
   open,
   onOpenChange,
 }: ProfileUpdateDialogProps) {
-  const { execute, result, isExecuting } = useAction(getProfileAction);
   const [profileData, setProfileData] =
     useState<Partial<UpdateProfileSchema> | null>(null);
 
-  useEffect(() => {
-    if (open) {
-      execute();
-    }
-  }, [open, execute]);
+  const mutation = useMutation({
+    mutationFn: () => getProfileFn(),
+    onSuccess: (result) => {
+      if (result?.data) {
+        const rawData = result.data as unknown as Record<string, unknown>;
+        const cleanData = Object.fromEntries(
+          Object.entries(rawData).map(([key, value]) => [
+            key,
+            value === "string" ? "" : value,
+          ])
+        );
+        setProfileData(cleanData as unknown as Partial<UpdateProfileSchema>);
+      }
+    },
+  });
 
   useEffect(() => {
-    if (result.data?.data) {
-      const rawData = result.data.data as Record<string, any>;
-      const cleanData = Object.fromEntries(
-        Object.entries(rawData).map(([key, value]) => [
-          key,
-          value === "string" ? "" : value,
-        ])
-      );
-      setProfileData(cleanData as unknown as Partial<UpdateProfileSchema>);
+    if (open) {
+      mutation.mutate();
     }
-  }, [result]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,7 +56,7 @@ export function ProfileUpdateDialog({
         <DialogHeader>
           <DialogTitle>Update Profile</DialogTitle>
         </DialogHeader>
-        {isExecuting ? (
+        {mutation.isPending ? (
           <ProfileFormSkeleton />
         ) : profileData ? (
           <ProfileForm

@@ -1,44 +1,32 @@
-"use server";
-
-import { revalidatePath, updateTag } from "next/cache";
-import { redirect } from "next/navigation";
+import { createServerFn } from "@tanstack/react-start";
+import { type z } from "zod";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
+import { verifySession } from "@/lib/auth";
 import { updateDocumentSchema } from "@/modules/appeal-draft/validations/extracted-details-schema";
 
-export const updateDocumentAction = protectedActionClient
-  .inputSchema(updateDocumentSchema)
-  .action(async ({ parsedInput, ctx: { session } }) => {
-    try {
-      const res = await fetch(`${env.API_URL}/document/${parsedInput.id}/`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.accessToken}`,
-        },
-        body: JSON.stringify(parsedInput),
-      });
+export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>;
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData.detail || "Error occurred while updating the document"
-        );
-      }
+export const updateDocumentFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateDocumentSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await verifySession();
 
-      await res.json();
+    const res = await fetch(`${env.API_URL}/document/${data.id}/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
 
-      // Immediately invalidate document cache for read-your-own-writes
-      updateTag(`document-${parsedInput.id}`);
-
-      // Revalidate the page to ensure fresh data on redirect
-      revalidatePath("/appeal-draft", "page");
-
-      // Redirect to view mode
-      redirect(`/appeal-draft?step=2&documentId=${parsedInput.id}`);
-    } catch (error) {
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected error occurred!");
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(
+        errorData.detail || "Error occurred while updating the document"
+      );
     }
+
+    return res.json();
   });

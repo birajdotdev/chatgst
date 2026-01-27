@@ -1,16 +1,17 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { redirect } from "@tanstack/react-router";
 
 import { ForgotPasswordOtpForm } from "@/modules/auth/components/forgot-password";
 import { ForgetPasswordLayout } from "@/modules/auth/layouts/forget-password-layout";
 
 interface VerifyOtpViewProps {
-  searchParams: Promise<{ email?: string }>;
+  email?: string;
 }
 
-export async function VerifyOtpView({ searchParams }: VerifyOtpViewProps) {
-  const email = (await searchParams).email;
+export function VerifyOtpView({ email }: VerifyOtpViewProps) {
   if (!email) {
-    redirect("/forgot-password");
+    throw redirect({ to: "/forgot-password" });
   }
 
   return (

@@ -1,12 +1,12 @@
 "use client";
 
-import type { Route } from "next";
-import { useRouter } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import {
   FormHeader,
@@ -26,7 +26,7 @@ import {
   MultiStepFormProvider,
   Stepfields,
 } from "@/hooks/use-multi-step-viewer";
-import { signupAction } from "@/modules/auth/actions/signup-action";
+import { signupFn } from "@/modules/auth/actions/signup-action";
 import { ContactStepFields } from "@/modules/auth/components/signup-form/contact-step-fields";
 import { GstStepFields } from "@/modules/auth/components/signup-form/gst-step-fields";
 import { PersonalStepFields } from "@/modules/auth/components/signup-form/personal-step-fields";
@@ -45,43 +45,45 @@ const steps: Array<{ step: number; title: string }> = [
   { step: 5, title: "Preview" },
 ];
 
+type SignupFormData = z.infer<typeof signupSchema>;
+
 export function SignupForm() {
   const router = useRouter();
 
-  const {
-    form,
-    handleSubmitWithAction,
-    action: { isExecuting },
-    resetFormAndAction,
-  } = useHookFormAction(signupAction, zodResolver(signupSchema), {
-    formProps: {
-      mode: "onChange",
-      defaultValues: {
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        confirm_password: "",
-        phone_number: "",
-        gstin: "",
-        business_name: "",
-        constitution_of_business: undefined,
-        state_or_jurisdiction: "",
-        user_type: undefined,
-        organization_name: "",
-      },
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    mode: "onChange",
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      phone_number: "",
+      gstin: "",
+      business_name: "",
+      constitution_of_business: undefined,
+      state_or_jurisdiction: "",
+      user_type: undefined,
+      organization_name: "",
     },
-    actionProps: {
-      onSuccess: ({ data }) => {
-        const searchParams = new URLSearchParams({ email: data.email });
-        router.push(`/register/verify?${searchParams.toString()}` as Route);
-        toast.success(data.message || "Verification code sent!");
-        resetFormAndAction();
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError);
-      },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: SignupFormData) => signupFn({ data: input }),
+    onSuccess: (data) => {
+      const searchParams = new URLSearchParams({ email: data.email });
+      router.navigate({ to: `/register/verify?${searchParams.toString()}` });
+      toast.success(data.message || "Verification code sent!");
+      form.reset();
     },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Signup failed");
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
   });
 
   const stepsFields: Stepfields<keyof SignupSchema>[] = [
@@ -126,7 +128,7 @@ export function SignupForm() {
   ];
 
   return (
-    <form onSubmit={handleSubmitWithAction}>
+    <form onSubmit={onSubmit}>
       <MultiStepFormProvider
         stepsFields={stepsFields}
         onStepValidation={async (step) => {
@@ -153,9 +155,9 @@ export function SignupForm() {
             <SubmitButton
               className="w-[120px]"
               type="submit"
-              disabled={isExecuting}
+              disabled={mutation.isPending}
             >
-              {isExecuting ? <Spinner /> : "Submit"}
+              {mutation.isPending ? <Spinner /> : "Submit"}
             </SubmitButton>
           </CardFooter>
         </Card>

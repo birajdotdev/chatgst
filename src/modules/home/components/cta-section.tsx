@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +14,7 @@ export function CtaSection() {
           in just seconds.
         </p>
         <Button size="lg" className="px-8" asChild>
-          <Link href="/login">Try Now</Link>
+          <Link to="/login">Try Now</Link>
         </Button>
       </div>
     </section>

@@ -1,18 +1,18 @@
-"use server";
-
-import { cookies } from "next/headers";
+import { createServerFn } from "@tanstack/react-start";
+import { setCookie } from "vinxi/http";
+import { z } from "zod";
 
 import { env } from "@/env";
-import { actionClient } from "@/lib/safe-action";
-import { sendOtpAction } from "@/modules/auth/actions/otp-action";
+import { sendOtpFn } from "@/modules/auth/actions/otp-action";
 import { signupSchema } from "@/modules/auth/validations/signup-schema";
 
-export const signupAction = actionClient
-  .inputSchema(signupSchema)
-  .action(async ({ parsedInput }) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type SignupInput = z.infer<typeof signupSchema>;
+
+export const signupFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => signupSchema.parse(data))
+  .handler(async ({ data }) => {
     const { first_name, middle_name, last_name, confirm_password, ...rest } =
-      parsedInput;
+      data;
 
     const full_name = [first_name, middle_name, last_name]
       .filter(Boolean)
@@ -23,17 +23,14 @@ export const signupAction = actionClient
       full_name,
     };
 
-    const otpResult = await sendOtpAction({ email: parsedInput.email });
+    // Send OTP to email
+    const otpResult = await sendOtpFn({ data: { email: data.email } });
 
-    if (!otpResult?.data?.success) {
-      throw new Error(
-        otpResult?.serverError ||
-          "Failed to send verification code. Please try again."
-      );
+    if (!otpResult?.success) {
+      throw new Error("Failed to send verification code. Please try again.");
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set("pendingRegistration", JSON.stringify(transformedData), {
+    setCookie("pendingRegistration", JSON.stringify(transformedData), {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
       sameSite: "lax",
@@ -44,6 +41,6 @@ export const signupAction = actionClient
     return {
       success: true,
       message: "Verification code sent! Please check your email.",
-      email: parsedInput.email,
+      email: data.email as string,
     };
   });

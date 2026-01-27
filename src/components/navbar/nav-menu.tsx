@@ -1,9 +1,8 @@
 "use client";
 
-import { Route } from "next";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
+
+import { Link, useLocation } from "@tanstack/react-router";
 
 import {
   NavigationMenu,
@@ -14,7 +13,7 @@ import {
 
 type NavMenuItem = {
   title: string;
-  href: Route;
+  href: string;
 };
 
 const navMenuItems: NavMenuItem[] = [
@@ -26,7 +25,7 @@ const navMenuItems: NavMenuItem[] = [
 const navMenuAuthenticatedItems: NavMenuItem[] = [
   { title: "Chat", href: "/chat" },
   { title: "Appeal Draft", href: "/appeal-draft" },
-  { title: "Language Assistance", href: "/language-assistance" as Route },
+  { title: "Language Assistance", href: "/language-assistance" },
 ];
 
 interface NavMenuProps extends ComponentProps<typeof NavigationMenu> {
@@ -34,7 +33,8 @@ interface NavMenuProps extends ComponentProps<typeof NavigationMenu> {
 }
 
 export function NavMenu({ isAuthenticated = false, ...props }: NavMenuProps) {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
 
   return (
     <NavigationMenu {...props}>
@@ -50,7 +50,7 @@ export function NavMenu({ isAuthenticated = false, ...props }: NavMenuProps) {
                 asChild
               >
                 <Link
-                  href={item.href}
+                  to={item.href}
                   className="flex flex-row items-center gap-2 whitespace-nowrap"
                 >
                   {item.title}

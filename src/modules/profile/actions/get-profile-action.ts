@@ -1,11 +1,15 @@
-"use server";
+import { createServerFn } from "@tanstack/react-start";
 
+import { verifySession } from "@/lib/auth";
 import { getUser } from "@/lib/dal";
-import { protectedActionClient } from "@/lib/safe-action";
 
-export const getProfileAction = protectedActionClient.action(async () => {
-  // Session is already verified by protectedActionClient
-  // getUser will use the valid session from DAL cache
-  const profile = await getUser();
-  return { data: profile };
-});
+export const getProfileFn = createServerFn({ method: "GET" }).handler(
+  async () => {
+    // Verify session first
+    await verifySession();
+
+    // Get user profile
+    const profile = await getUser();
+    return { data: profile };
+  }
+);

@@ -1,7 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+
+import { useParams, useRouter } from "@tanstack/react-router";
 
 import { useDefaultChat } from "./default-chat-context";
 
@@ -47,7 +48,7 @@ export function ChatRedirectHandler({
             if (data.chatId) {
               console.log("[ChatRedirectHandler] Found chat ID:", data.chatId);
               hasRedirectedRef.current = true;
-              router.replace(`/chat/${data.chatId}`);
+              router.navigate({ to: `/chat/${data.chatId}`, replace: true });
             }
           }
         } catch (err) {

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { use } from "react";
+
+import { Link, useLocation } from "@tanstack/react-router";
 
 import {
   SidebarGroup,
@@ -22,7 +22,7 @@ export function NavChats({
   chatsPromise: Promise<Awaited<ReturnType<typeof getChats>>>;
 }) {
   const chats = use(chatsPromise);
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { searchQuery } = useSearch();
 
   // Filter chats based on search query
@@ -93,10 +93,7 @@ export function NavChats({
                   return (
                     <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton asChild isActive={isActive}>
-                        <Link
-                          href={`/chat/${item.id}`}
-                          className="block w-full"
-                        >
+                        <Link to={`/chat/${item.id}`} className="block w-full">
                           <span className="block truncate">
                             <HighlightedText
                               text={item.title}

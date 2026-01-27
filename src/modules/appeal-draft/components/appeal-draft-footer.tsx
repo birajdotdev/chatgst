@@ -1,34 +1,35 @@
 "use client";
 
 import { CircleCheckIcon } from "lucide-react";
-import { inferParserType, useQueryStates } from "nuqs";
 
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
+import {
+  type AppealDraftSearchParams,
+  useSearchParamsContext,
+} from "@/modules/appeal-draft/components/search-params";
 import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 
 interface AppealDraftFooterProps {
-  searchParams: inferParserType<typeof appealDraftSearchParams>;
+  searchParams: AppealDraftSearchParams;
 }
 
 export function AppealDraftFooter({ searchParams }: AppealDraftFooterProps) {
   const { step, mode } = searchParams;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setSearchParams] = useQueryStates(appealDraftSearchParams);
+  const { setSearchParams } = useSearchParamsContext();
   const { isSubmitting, isDirty } = useFormContext();
 
   const handleBack = () => {
-    setSearchParams({ step: step - 1, mode: null }, { shallow: false });
+    setSearchParams({ step: step - 1, mode: undefined }, { shallow: false });
   };
 
   const handleNext = () => {
-    setSearchParams({ step: step + 1, mode: null }, { shallow: false });
+    setSearchParams({ step: step + 1, mode: undefined }, { shallow: false });
   };
 
   const handleCancel = () => {
-    setSearchParams({ mode: null });
+    setSearchParams({ mode: undefined });
   };
 
   return (

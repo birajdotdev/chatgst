@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
 import { NavMenu } from "@/components/navbar/nav-menu";
@@ -26,7 +26,7 @@ export function Navbar({ className, isAuthenticated, user }: NavbarProps) {
         {isAuthenticated ? (
           <Logo />
         ) : (
-          <Link href="/">
+          <Link to="/">
             <Logo />
           </Link>
         )}
@@ -47,7 +47,7 @@ export function Navbar({ className, isAuthenticated, user }: NavbarProps) {
               className="hidden min-w-[120px] md:inline-flex"
               asChild
             >
-              <Link href="/register">Get Started</Link>
+              <Link to="/register">Get Started</Link>
             </Button>
             <Button
               size="lg"
@@ -55,7 +55,7 @@ export function Navbar({ className, isAuthenticated, user }: NavbarProps) {
               className="hidden min-w-[120px] md:inline-flex"
               asChild
             >
-              <Link href="/login">Sign In</Link>
+              <Link to="/login">Sign In</Link>
             </Button>
 
             {/* Mobile Menu */}

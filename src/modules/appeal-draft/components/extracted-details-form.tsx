@@ -3,8 +3,9 @@
 import { use, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
-import { Controller, type FieldPath } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { Controller, type FieldPath, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { type z } from "zod";
 
@@ -17,7 +18,10 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { updateDocumentAction } from "@/modules/appeal-draft/actions/update-document-action";
+import {
+  type UpdateDocumentInput,
+  updateDocumentFn,
+} from "@/modules/appeal-draft/actions/update-document-action";
 import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 import type { DocumentData } from "@/modules/appeal-draft/types";
 import {
@@ -41,25 +45,35 @@ interface ExtractedDetailsFormProps {
 
 export function ExtractedDetailsForm({ document }: ExtractedDetailsFormProps) {
   const documentData = use(document);
+  const navigate = useNavigate();
 
   const { setIsSubmitting, setIsDirty } = useFormContext();
-  const { form, handleSubmitWithAction } = useHookFormAction(
-    updateDocumentAction,
-    zodResolver(updateDocumentSchema),
-    {
-      actionProps: {
-        onExecute: () => setIsSubmitting(true),
-        onSettled: () => setIsSubmitting(false),
-        onError: ({ error }) => {
-          toast.error(error.serverError || "Failed to update document");
-        },
-      },
-      formProps: {
-        defaultValues: documentData,
-        mode: "onBlur",
-      },
-    }
-  );
+
+  const form = useForm<z.infer<typeof updateDocumentSchema>>({
+    resolver: zodResolver(updateDocumentSchema),
+    defaultValues: documentData,
+    mode: "onBlur",
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: UpdateDocumentInput) =>
+      updateDocumentFn({ data: input }),
+    onMutate: () => setIsSubmitting(true),
+    onSettled: () => setIsSubmitting(false),
+    onError: (error) => {
+      toast.error(error.message || "Failed to update document");
+    },
+    onSuccess: (_, variables) => {
+      navigate({
+        to: "/appeal-draft",
+        search: { step: 2, documentId: variables.id },
+      });
+    },
+  });
+
+  const handleSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
+  });
 
   // Initialize isDirty to false when component mounts or document changes
   useEffect(() => {
@@ -144,7 +158,7 @@ export function ExtractedDetailsForm({ document }: ExtractedDetailsFormProps) {
     <form
       id="extracted-details-form"
       className="size-full space-y-6 rounded-xl bg-card px-6 pt-3 pb-5"
-      onSubmit={handleSubmitWithAction}
+      onSubmit={handleSubmit}
     >
       <h1 className="text-lg font-medium">Extracted Details</h1>
       <div className="grid grid-cols-1 gap-6">

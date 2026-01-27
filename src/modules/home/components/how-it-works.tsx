@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 
@@ -100,7 +100,7 @@ export function HowItWorks() {
 
         <div className="mt-14 flex justify-center">
           <Button size="lg" asChild>
-            <Link href="/login">Begin Appeal Draft</Link>
+            <Link to="/login">Begin Appeal Draft</Link>
           </Button>
         </div>
       </div>

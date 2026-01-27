@@ -1,18 +1,24 @@
-import { redirect } from "next/navigation";
+"use client";
+
 import { Suspense } from "react";
 
+import { useNavigate } from "@tanstack/react-router";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { DraftContent } from "@/modules/appeal-draft/components/draft-content";
 import { DraftStepSkeleton } from "@/modules/appeal-draft/components/draft-step-skeleton";
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
-import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { generateAppeal, getAppeal } from "@/modules/appeal-draft/queries";
 
 export function DraftView() {
-  const { appealId, documentId } = appealDraftSearchParamsCache.all();
+  const { all } = useSearchParamsContext();
+  const { appealId, documentId } = all();
+  const navigate = useNavigate();
+
   if (!appealId && !documentId) {
-    redirect("/appeal-draft?step=1");
+    navigate({ to: "/appeal-draft", search: { step: 1 } });
+    return null;
   }
 
   const appealPromise = appealId
@@ -22,7 +28,8 @@ export function DraftView() {
       : null;
 
   if (!appealPromise) {
-    redirect("/appeal-draft?step=1");
+    navigate({ to: "/appeal-draft", search: { step: 1 } });
+    return null;
   }
 
   return (

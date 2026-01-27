@@ -1,45 +1,33 @@
-"use server";
-
-import { refresh, revalidateTag } from "next/cache";
-
-import z from "zod";
+import { createServerFn } from "@tanstack/react-start";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
+import { verifySession } from "@/lib/auth";
 
-const deleteAppealSchema = z.object({
-  appealId: z.string(),
-  documentId: z.string(),
-});
+export interface DeleteAppealInput {
+  appealId: string;
+  documentId: string;
+}
 
-export const deleteAppealAction = protectedActionClient
-  .inputSchema(deleteAppealSchema)
-  .action(async ({ parsedInput, ctx }) => {
-    try {
-      const res = await fetch(
-        `${env.API_URL}/documents/appeals/${parsedInput.appealId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${ctx.session.accessToken}`,
-            Accept: "application/json",
-          },
-        }
-      );
+export const deleteAppealFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => data as DeleteAppealInput)
+  .handler(async ({ data }) => {
+    const session = await verifySession();
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.detail || "Failed to delete appeal");
+    const res = await fetch(
+      `${env.API_URL}/documents/appeals/${data.appealId}/`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          Accept: "application/json",
+        },
       }
+    );
 
-      revalidateTag(`document-appeals-${parsedInput.documentId}`, "max");
-      refresh();
-
-      return { success: true, message: "Appeal deleted successfully" };
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error("Unexpected error occurred!");
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.detail || "Failed to delete appeal");
     }
+
+    return { success: true, message: "Appeal deleted successfully" };
   });

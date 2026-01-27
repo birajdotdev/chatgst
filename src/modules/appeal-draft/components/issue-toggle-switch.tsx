@@ -1,11 +1,16 @@
 "use client";
 
-import { useOptimisticAction } from "next-safe-action/hooks";
+import { useState } from "react";
+
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
-import { toggleIssueSelectionAction } from "@/modules/appeal-draft/actions/toggle-issue-selection-action";
+import {
+  type ToggleIssueSelectionInput,
+  toggleIssueSelectionFn,
+} from "@/modules/appeal-draft/actions/toggle-issue-selection-action";
 
 interface IssueToggleSwitchProps {
   issueId?: string;
@@ -16,18 +21,28 @@ export function IssueToggleSwitch({
   issueId,
   selected,
 }: IssueToggleSwitchProps) {
-  const { execute, optimisticState } = useOptimisticAction(
-    toggleIssueSelectionAction,
-    {
-      currentState: { selected: selected ?? false },
-      updateFn: (state) => ({
-        selected: !state.selected,
-      }),
-      onError: ({ error }) => {
-        toast.error(error.serverError || "Failed to toggle issue selection");
-      },
-    }
+  const [optimisticSelected, setOptimisticSelected] = useState(
+    selected ?? false
   );
+
+  const mutation = useMutation({
+    mutationFn: (input: ToggleIssueSelectionInput) =>
+      toggleIssueSelectionFn({ data: input }),
+    onMutate: () => {
+      // Optimistically update the state
+      const previousValue = optimisticSelected;
+      setOptimisticSelected(!optimisticSelected);
+      return { previousValue };
+    },
+    onError: (error, _, context) => {
+      // Revert to previous value on error
+      if (context?.previousValue !== undefined) {
+        setOptimisticSelected(context.previousValue);
+      }
+      toast.error(error.message || "Failed to toggle issue selection");
+    },
+  });
+
   return (
     <Field
       orientation="horizontal"
@@ -35,11 +50,11 @@ export function IssueToggleSwitch({
     >
       <FieldLabel>Dispute</FieldLabel>
       <Switch
-        checked={optimisticState?.selected ?? false}
+        checked={optimisticSelected}
         disabled={!issueId}
         onCheckedChange={() => {
           if (!issueId) return;
-          execute({ issueId });
+          mutation.mutate({ issueId });
         }}
       />
       <FieldLabel>Accept</FieldLabel>

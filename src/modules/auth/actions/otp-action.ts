@@ -1,23 +1,23 @@
-"use server";
-
-import { cookies } from "next/headers";
-
-import { returnValidationErrors } from "next-safe-action";
+import { createServerFn } from "@tanstack/react-start";
+import { deleteCookie, getCookie } from "vinxi/http";
+import { z } from "zod";
 
 import { env } from "@/env";
-import { actionClient } from "@/lib/safe-action";
 import {
   sendOtpSchema,
   verifyOtpSchema,
 } from "@/modules/auth/validations/otp-schema";
 
+export type SendOtpInput = z.infer<typeof sendOtpSchema>;
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+
 /**
  * Sends an OTP to the user's email.
  */
-export const sendOtpAction = actionClient
-  .inputSchema(sendOtpSchema)
-  .action(async ({ parsedInput }) => {
-    const params = new URLSearchParams(parsedInput);
+export const sendOtpFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => sendOtpSchema.parse(data))
+  .handler(async ({ data }) => {
+    const params = new URLSearchParams(data);
     const res = await fetch(
       `${env.API_URL}/register/otp/?${params.toString()}`,
       {
@@ -30,7 +30,6 @@ export const sendOtpAction = actionClient
 
     if (!res.ok) {
       const errorData = await res.json();
-
       throw new Error(
         typeof errorData.detail === "string"
           ? errorData.detail
@@ -47,33 +46,27 @@ export const sendOtpAction = actionClient
 /**
  * Verifies the OTP entered by the user and creates the account.
  */
-export const verifyOtpAction = actionClient
-  .inputSchema(verifyOtpSchema)
-  .action(async ({ parsedInput }) => {
+export const verifyOtpFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => verifyOtpSchema.parse(data))
+  .handler(async ({ data }) => {
     const res = await fetch(`${env.API_URL}/register/otp/verify/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(parsedInput),
+      body: JSON.stringify(data),
     });
 
     if (!res.ok) {
       const errorData = await res.json();
-
-      return returnValidationErrors(verifyOtpSchema, {
-        otp: {
-          _errors: [
-            typeof errorData.detail === "string"
-              ? errorData.detail
-              : "OTP verification failed. Please try again.",
-          ],
-        },
-      });
+      throw new Error(
+        typeof errorData.detail === "string"
+          ? errorData.detail
+          : "OTP verification failed. Please try again."
+      );
     }
 
-    const cookieStore = await cookies();
-    const storedData = cookieStore.get("pendingRegistration")?.value;
+    const storedData = getCookie("pendingRegistration");
 
     if (!storedData) {
       throw new Error(
@@ -93,13 +86,12 @@ export const verifyOtpAction = actionClient
 
     if (!registerRes.ok) {
       const errorData = await registerRes.json();
-
       throw new Error(
         errorData.detail || "Account creation failed. Please try again."
       );
     }
 
-    cookieStore.delete("pendingRegistration");
+    deleteCookie("pendingRegistration");
 
     return {
       success: true,

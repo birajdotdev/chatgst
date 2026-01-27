@@ -1,6 +1,5 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import {
   type ReactNode,
   createContext,
@@ -12,6 +11,7 @@ import {
 } from "react";
 
 import { Chat } from "@ai-sdk/react";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { toast } from "sonner";
 

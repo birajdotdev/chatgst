@@ -1,7 +1,6 @@
 "use client";
 
-import { useAction } from "next-safe-action/hooks";
-import { useQueryState } from "nuqs";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -16,8 +15,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { deleteAppealAction } from "@/modules/appeal-draft/actions/delete-appeal";
-import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
+import {
+  DeleteAppealInput,
+  deleteAppealFn,
+} from "@/modules/appeal-draft/actions/delete-appeal";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { AppealHistory } from "@/modules/appeal-draft/types/appeal-history";
 
 interface DeleteAppealDialogProps {
@@ -31,17 +33,18 @@ export function DeleteAppealDialog({
   onOpenChange,
   appeal,
 }: DeleteAppealDialogProps) {
-  const [documentId] = useQueryState(
-    "documentId",
-    appealDraftSearchParams.documentId
-  );
+  const { get } = useSearchParamsContext();
+  const documentId = get("documentId");
 
-  const { execute, isExecuting } = useAction(deleteAppealAction, {
+  const mutation = useMutation({
+    mutationFn: (input: DeleteAppealInput) => deleteAppealFn({ data: input }),
     onSuccess: () => {
       onOpenChange(false);
     },
-    onError: ({ error }) => {
-      toast.error(error.serverError);
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete appeal"
+      );
     },
   });
 
@@ -50,7 +53,7 @@ export function DeleteAppealDialog({
       toast.error("Unable to delete: missing document context");
       return;
     }
-    execute({ appealId: appeal.id, documentId });
+    mutation.mutate({ appealId: appeal.id, documentId });
   };
 
   return (
@@ -70,9 +73,9 @@ export function DeleteAppealDialog({
           <AlertDialogAction
             onClick={handleDelete}
             className={buttonVariants({ variant: "destructive" })}
-            disabled={isExecuting}
+            disabled={mutation.isPending}
           >
-            {isExecuting ? <Spinner /> : "Delete"}
+            {mutation.isPending ? <Spinner /> : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

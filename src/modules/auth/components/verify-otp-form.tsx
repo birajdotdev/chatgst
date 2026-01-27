@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
-import { useAction } from "next-safe-action/hooks";
-import { Controller } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -26,69 +24,68 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  sendOtpAction,
-  verifyOtpAction,
-} from "@/modules/auth/actions/otp-action";
+import { sendOtpFn, verifyOtpFn } from "@/modules/auth/actions/otp-action";
 import { verifyOtpSchema } from "@/modules/auth/validations/otp-schema";
 
-export default function VerifyOtpForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
+type VerifyOtpFormData = z.infer<typeof verifyOtpSchema>;
 
-  const {
-    form,
-    handleSubmitWithAction,
-    action: { isExecuting: isOtpVerifying },
-    resetFormAndAction,
-  } = useHookFormAction(verifyOtpAction, zodResolver(verifyOtpSchema), {
-    formProps: {
-      defaultValues: {
-        email,
-        otp: "",
-      },
-    },
-    actionProps: {
-      onSuccess: () => {
-        toast.success("Email verified successfully!");
-        router.push("/login");
-        resetFormAndAction();
-      },
-      onError: ({ error }) => {
-        if (error.serverError) {
-          toast.error(error.serverError);
-        }
-      },
+export default function VerifyOtpForm() {
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false });
+  const email = (search as { email?: string }).email || "";
+
+  const form = useForm<VerifyOtpFormData>({
+    resolver: zodResolver(verifyOtpSchema),
+    defaultValues: {
+      email,
+      otp: "",
     },
   });
 
-  const { execute: resendOtp, isExecuting: isOtpSending } = useAction(
-    sendOtpAction,
-    {
-      onSuccess: ({ data }) => {
-        toast.success(data.message);
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError);
-      },
-    }
-  );
+  const verifyMutation = useMutation({
+    mutationFn: (input: VerifyOtpFormData) => verifyOtpFn({ data: input }),
+    onSuccess: () => {
+      toast.success("Email verified successfully!");
+      form.reset();
+      navigate({ to: "/login" });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Verification failed"
+      );
+    },
+  });
+
+  const resendMutation = useMutation({
+    mutationFn: (input: { email: string }) => sendOtpFn({ data: input }),
+    onSuccess: (data) => {
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to resend OTP"
+      );
+    },
+  });
 
   const handleResend = () => {
     if (!email) {
       toast.error("Email not found. Please try registering again.");
       return;
     }
-    resendOtp({ email });
+    resendMutation.mutate({ email });
   };
 
-  const isLoading = isOtpVerifying || isOtpSending;
+  const onSubmit = form.handleSubmit((data) => {
+    verifyMutation.mutate(data);
+  });
+
+  const isLoading = verifyMutation.isPending || resendMutation.isPending;
 
   return (
-    <form className="flex flex-col gap-6" onSubmit={handleSubmitWithAction}>
+    <form className="flex flex-col gap-6" onSubmit={onSubmit}>
       <div className="mx-auto h-auto">
-        <Link href="/">
+        <Link to="/">
           <Logo />
         </Link>
       </div>
@@ -125,7 +122,7 @@ export default function VerifyOtpForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isOtpVerifying ? <Spinner /> : "Verify"}
+            {verifyMutation.isPending ? <Spinner /> : "Verify"}
           </Button>
           <CardDescription>
             <span>Didn&apos;t receive the code?</span>

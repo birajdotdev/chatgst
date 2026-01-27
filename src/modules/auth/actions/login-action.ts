@@ -1,8 +1,8 @@
-"use server";
+import { createServerFn } from "@tanstack/react-start";
+import { setCookie } from "vinxi/http";
+import { z } from "zod";
 
 import { env } from "@/env";
-import { actionClient } from "@/lib/safe-action";
-import { createSession } from "@/lib/session";
 
 import { loginSchema } from "../validations/login-schema";
 
@@ -18,16 +18,23 @@ interface LoginErrorResponse {
   detail: string;
 }
 
-export const loginAction = actionClient
-  .inputSchema(loginSchema)
-  .action(async ({ parsedInput }) => {
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
+export const loginFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => loginSchema.parse(data))
+  .handler(async ({ data }) => {
     const res = await fetch(`${env.API_URL}/token/`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(parsedInput),
+      body: JSON.stringify(data),
     });
 
     if (!res.ok) {
@@ -35,16 +42,21 @@ export const loginAction = actionClient
       throw new Error(errorData.detail || "Login failed");
     }
 
-    const data: LoginResponse = await res.json();
+    const responseData: LoginResponse = await res.json();
 
-    // Use centralized session management
-    await createSession({
-      accessToken: data.data.access_token,
-      refreshToken: data.data.refresh_token,
+    // Set session cookies
+    setCookie("access_token", responseData.data.access_token, {
+      ...COOKIE_OPTIONS,
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+
+    setCookie("refresh_token", responseData.data.refresh_token, {
+      ...COOKIE_OPTIONS,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return {
       success: true,
-      message: data.message,
+      message: responseData.message,
     };
   });

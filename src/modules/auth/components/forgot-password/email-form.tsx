@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Mail } from "lucide-react";
-import { Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,45 +29,44 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { forgotPasswordAction } from "@/modules/auth/actions/forgot-password-action";
+import { forgotPasswordFn } from "@/modules/auth/actions/forgot-password-action";
 import { forgotPasswordSchema } from "@/modules/auth/validations/forgot-password-schema";
 
-export function ForgotPasswordEmailForm() {
-  const router = useRouter();
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-  const {
-    form,
-    action: { isExecuting },
-    handleSubmitWithAction,
-  } = useHookFormAction(
-    forgotPasswordAction,
-    zodResolver(forgotPasswordSchema),
-    {
-      formProps: {
-        defaultValues: {
-          email: "",
-        },
-      },
-      actionProps: {
-        onSuccess: ({ data, input }) => {
-          toast.success(data.message);
-          const queryParams = new URLSearchParams({
-            email: input.email,
-          });
-          router.push(`/forgot-password/verify?${queryParams}`);
-        },
-        onError: ({ error }) => {
-          // Fallback for unexpected server errors (network failures, etc.)
-          if (error.serverError) {
-            toast.error(error.serverError);
-          }
-        },
-      },
-    }
-  );
+export function ForgotPasswordEmailForm() {
+  const navigate = useNavigate();
+
+  const form = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: ForgotPasswordFormData) =>
+      forgotPasswordFn({ data: input }),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      navigate({
+        to: "/forgot-password/verify",
+        search: { email: form.getValues("email") },
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reset code"
+      );
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
+  });
 
   return (
-    <form onSubmit={handleSubmitWithAction}>
+    <form onSubmit={onSubmit}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Forgot Password</CardTitle>
@@ -107,11 +105,15 @@ export function ForgotPasswordEmailForm() {
           </FieldGroup>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isExecuting}>
-            {isExecuting ? <Spinner /> : "Send Reset Code"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <Spinner /> : "Send Reset Code"}
           </Button>
           <Button variant="ghost" className="w-full" asChild>
-            <Link href="/login">
+            <Link to="/login">
               <ArrowLeft className="mr-2 size-4" />
               Back to Login
             </Link>

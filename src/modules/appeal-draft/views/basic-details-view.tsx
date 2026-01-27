@@ -1,6 +1,8 @@
-import { redirect } from "next/navigation";
+"use client";
+
 import { Suspense } from "react";
 
+import { useNavigate } from "@tanstack/react-router";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { AiProcessingSummaryBanner } from "@/modules/appeal-draft/components/ai-processing-summary-banner";
@@ -9,12 +11,18 @@ import { EditModeButton } from "@/modules/appeal-draft/components/edit-mode-butt
 import { ErrorFallback } from "@/modules/appeal-draft/components/error-fallback";
 import { ExtractedDetails } from "@/modules/appeal-draft/components/extracted-details";
 import { ExtractedDetailsForm } from "@/modules/appeal-draft/components/extracted-details-form";
-import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { getDocument } from "@/modules/appeal-draft/queries";
 
 export function BasicDetailsView() {
-  const { mode, documentId } = appealDraftSearchParamsCache.all();
-  if (!documentId) redirect("/appeal-draft?step=1");
+  const { all } = useSearchParamsContext();
+  const { mode, documentId } = all();
+  const navigate = useNavigate();
+
+  if (!documentId) {
+    navigate({ to: "/appeal-draft", search: { step: 1 } });
+    return null;
+  }
 
   const isEditMode = mode === "edit";
 

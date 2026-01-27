@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import { Logo } from "@/components/logo";
 
@@ -11,7 +11,7 @@ export function ForgetPasswordLayout({
     <div className="w-full max-w-sm">
       <div className="flex flex-col gap-6">
         <div className="mx-auto h-auto">
-          <Link href="/">
+          <Link to="/">
             <Logo />
           </Link>
         </div>

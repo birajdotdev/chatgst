@@ -1,22 +1,25 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 import { env } from "@/env";
-import { protectedActionClient } from "@/lib/safe-action";
+import { verifySession } from "@/lib/auth";
 
 import { updateProfileSchema } from "../validations/profile-schema";
 
-export const updateProfileAction = protectedActionClient
-  .inputSchema(updateProfileSchema)
-  .action(async ({ parsedInput, ctx: { session } }) => {
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+export const updateProfileFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => updateProfileSchema.parse(data))
+  .handler(async ({ data }) => {
+    const session = await verifySession();
+
     // Exclude email and other non-API fields from the payload
     const {
       email,
       terms_and_privacy_policy,
       receive_updates_or_newsletter,
       ...payload
-    } = parsedInput;
+    } = data;
 
     const res = await fetch(`${env.API_URL}/profile/`, {
       method: "PUT",
@@ -34,13 +37,11 @@ export const updateProfileAction = protectedActionClient
       );
     }
 
-    const data = await res.json();
-
-    revalidatePath("/profile");
+    const responseData = await res.json();
 
     return {
       success: true,
-      data,
+      data: responseData,
       message: "Profile updated successfully",
     };
   });

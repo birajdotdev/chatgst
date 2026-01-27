@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense } from "react";
 
 import { ClockIcon } from "lucide-react";
@@ -15,11 +17,12 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { DraftHistoryClient } from "@/modules/appeal-draft/components/draft-history-client";
-import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { getAllAppeals } from "@/modules/appeal-draft/queries/get-all-appeals";
 
 export function DraftHistorySidebar() {
-  const documentId = appealDraftSearchParamsCache.get("documentId");
+  const { get } = useSearchParamsContext();
+  const documentId = get("documentId");
 
   return (
     <Sidebar collapsible="icon">
@@ -47,7 +50,9 @@ export function DraftHistorySidebar() {
               }
             >
               <Suspense fallback={<AppealHistorySkeleton />}>
-                <DraftHistoryClient appeals={getAllAppeals(documentId!)} />
+                {documentId && (
+                  <DraftHistoryClient appeals={getAllAppeals(documentId)} />
+                )}
               </Suspense>
             </ErrorBoundary>
           </SidebarGroupContent>

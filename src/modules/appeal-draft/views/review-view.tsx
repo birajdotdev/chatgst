@@ -1,17 +1,24 @@
-import { redirect } from "next/navigation";
+"use client";
 
+import { useNavigate } from "@tanstack/react-router";
 import { DownloadIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AttachSupportingDocument } from "@/modules/appeal-draft/components/attach-supporting-document";
 import { ExportPdfButton } from "@/modules/appeal-draft/components/export-pdf-button";
-import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { getAppeal } from "@/modules/appeal-draft/queries";
 import { generateAppealPdf } from "@/modules/appeal-draft/queries/generate-appeal-pdf";
 
-export async function ReviewView() {
-  const { appealId } = appealDraftSearchParamsCache.all();
-  if (!appealId) redirect("/appeal-draft?step=1");
+export function ReviewView() {
+  const { all } = useSearchParamsContext();
+  const { appealId } = all();
+  const navigate = useNavigate();
+
+  if (!appealId) {
+    navigate({ to: "/appeal-draft", search: { step: 1 } });
+    return null;
+  }
 
   return (
     <div className="flex size-full max-h-fit flex-col gap-4.5">
@@ -27,17 +34,7 @@ export async function ReviewView() {
             Export as PDF
           </Button>
         )}
-        {/* <Button type="button" variant="outline">
-          <BookmarkIcon />
-          Save Draft
-        </Button> */}
       </div>
-
-      {/* <AppealSummary
-        document={getDocument(effectiveDocumentId)}
-        issues={getPotentialIssues(effectiveDocumentId)}
-        references={getLegalReferences(effectiveDocumentId)}
-      /> */}
 
       <div className="flex flex-col gap-4">
         <h3 className="text-lg font-semibold text-foreground">

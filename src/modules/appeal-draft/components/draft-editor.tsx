@@ -2,16 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useAction } from "next-safe-action/hooks";
-import { useQueryStates } from "nuqs";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MinimalTiptap } from "@/components/ui/shadcn-io/minimal-tiptap";
 import { sanitizeHtmlForTiptap } from "@/lib/sanitize-html";
-import { updateAppealAction } from "@/modules/appeal-draft/actions/update-appeal-action";
-import { appealDraftSearchParams } from "@/modules/appeal-draft/components/search-params";
+import {
+  type UpdateAppealInput,
+  updateAppealFn,
+} from "@/modules/appeal-draft/actions/update-appeal-action";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 import { useFormContext } from "@/modules/appeal-draft/contexts/form-context";
 
 interface DraftEditorProps {
@@ -36,48 +38,47 @@ export function DraftEditor({
   const [name, setName] = useState(initialName);
   const [content, setContent] = useState(sanitizedInitialContent);
   const { setIsSubmitting, setIsDirty } = useFormContext();
-  const [searchParams, setSearchParams] = useQueryStates(
-    appealDraftSearchParams
-  );
+  const { setSearchParams } = useSearchParamsContext();
 
   // Track whether we should navigate to step 6 after successful submission
   const shouldNavigateRef = useRef(false);
 
-  const { execute, isPending, result } = useAction(updateAppealAction, {
+  const mutation = useMutation({
+    mutationFn: (input: UpdateAppealInput) => updateAppealFn({ data: input }),
     onSuccess: () => {
       toast.success("Appeal updated successfully");
       setIsDirty(false);
+
+      // Handle navigation after successful submission
+      if (shouldNavigateRef.current) {
+        shouldNavigateRef.current = false;
+        setSearchParams(
+          {
+            step: 6,
+            documentId: documentId,
+            appealId: appealId,
+          },
+          { shallow: false }
+        );
+      }
     },
-    onError: ({ error }) => {
-      shouldNavigateRef.current = false; // Reset on error too
-      toast.error(error.serverError || "Failed to update appeal");
+    onError: (error) => {
+      shouldNavigateRef.current = false;
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update appeal"
+      );
     },
   });
 
   useEffect(() => {
-    setIsSubmitting(isPending);
-  }, [isPending, setIsSubmitting]);
-
-  // Handle navigation after successful submission
-  useEffect(() => {
-    if (result.data && shouldNavigateRef.current) {
-      shouldNavigateRef.current = false; // Reset the flag
-      setSearchParams(
-        {
-          step: 6,
-          documentId: documentId,
-          appealId: appealId,
-        },
-        { shallow: false }
-      );
-    }
-  }, [result.data, documentId, appealId, setSearchParams]);
+    setIsSubmitting(mutation.isPending);
+  }, [mutation.isPending, setIsSubmitting]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Set flag to indicate we want to navigate after success
     shouldNavigateRef.current = true;
-    execute({
+    mutation.mutate({
       appealId,
       appeal_name: name,
       appeal_text: content,

@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+import { createServerFn } from "@tanstack/react-start";
+import { deleteCookie, getCookie, setCookie } from "vinxi/http";
 
 import { env } from "@/env";
 import {
@@ -7,37 +8,44 @@ import {
 } from "@/modules/auth/constants/reset-session";
 
 /**
- * Retrieves the reset session cookie.
+ * Server function to retrieve the reset session cookie.
  */
-export async function getResetSessionCookie() {
-  const cookieStore = await cookies();
-  return cookieStore.get(RESET_SESSION_COOKIE_NAME);
-}
+export const getResetSessionCookieFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const value = getCookie(RESET_SESSION_COOKIE_NAME);
+  return value ? { name: RESET_SESSION_COOKIE_NAME, value } : null;
+});
 
 /**
- * Sets the reset session cookie with secure attributes.
+ * Server function to set the reset session cookie with secure attributes.
  */
-export async function setResetSessionCookie(value: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(RESET_SESSION_COOKIE_NAME, value, {
-    httpOnly: true,
-    maxAge: RESET_SESSION_MAX_AGE,
-    path: "/",
-    sameSite: "lax",
-    secure: env.NODE_ENV === "production",
+export const setResetSessionCookieFn = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => data as { value: string })
+  .handler(async ({ data }) => {
+    setCookie(RESET_SESSION_COOKIE_NAME, data.value, {
+      httpOnly: true,
+      maxAge: RESET_SESSION_MAX_AGE,
+      path: "/",
+      sameSite: "lax",
+      secure: env.NODE_ENV === "production",
+    });
+    return { success: true };
   });
-}
 
 /**
- * Deletes the reset session cookie.
+ * Server function to delete the reset session cookie.
  */
-export async function deleteResetSessionCookie() {
-  const cookieStore = await cookies();
-  cookieStore.delete(RESET_SESSION_COOKIE_NAME);
-}
+export const deleteResetSessionCookieFn = createServerFn({
+  method: "POST",
+}).handler(async () => {
+  deleteCookie(RESET_SESSION_COOKIE_NAME);
+  return { success: true };
+});
 
 /**
  * Parses the reset_session_id value from a Set-Cookie header.
+ * This is a pure utility function - no cookie access needed.
  */
 export function parseSetCookieHeader(
   setCookieHeader: string | null
@@ -49,6 +57,7 @@ export function parseSetCookieHeader(
 
 /**
  * Creates a Cookie header string with the reset session ID.
+ * This is a pure utility function - no cookie access needed.
  */
 export function createCookieHeader(value: string): string {
   return `${RESET_SESSION_COOKIE_NAME}=${value}`;

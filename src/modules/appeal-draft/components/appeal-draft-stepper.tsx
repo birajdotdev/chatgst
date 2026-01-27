@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Stepper,
   StepperDescription,
@@ -8,7 +10,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { cn } from "@/lib/utils";
-import { appealDraftSearchParamsCache } from "@/modules/appeal-draft/components/search-params";
+import { useSearchParamsContext } from "@/modules/appeal-draft/components/search-params";
 
 const steps = [
   {
@@ -48,7 +50,8 @@ interface AppealDraftStepperProps {
 }
 
 export function AppealDraftStepper({ className }: AppealDraftStepperProps) {
-  const step = appealDraftSearchParamsCache.get("step");
+  const { get } = useSearchParamsContext();
+  const step = get("step");
 
   return (
     <div className={cn("space-y-8 text-center", className)}>

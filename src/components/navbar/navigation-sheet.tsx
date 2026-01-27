@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 
 import { Logo } from "@/components/logo";
@@ -25,10 +24,10 @@ export function NavigationSheet() {
         <NavMenu orientation="vertical" className="mt-6 [&>div]:h-full" />
         <SheetFooter>
           <Button variant="default" size="lg" className="inline-flex">
-            <Link href="/register">Get Started</Link>
+            <Link to="/register">Get Started</Link>
           </Button>
           <Button size="lg" variant="outline" className="inline-flex" asChild>
-            <Link href="/login">Sign In</Link>
+            <Link to="/login">Sign In</Link>
           </Button>
         </SheetFooter>
       </SheetContent>

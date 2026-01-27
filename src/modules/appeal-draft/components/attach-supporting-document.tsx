@@ -1,10 +1,10 @@
 "use client";
 
-import { useAction } from "next-safe-action/hooks";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { FileUploader } from "@/components/file-uploader";
-import { attachSupportingDocumentsAction } from "@/modules/appeal-draft/actions/attach-supporting-documents-action";
+import { attachSupportingDocumentsFn } from "@/modules/appeal-draft/actions/attach-supporting-documents-action";
 
 interface AttachSupportingDocumentProps {
   appealId: string;
@@ -13,32 +13,34 @@ interface AttachSupportingDocumentProps {
 export function AttachSupportingDocument({
   appealId,
 }: AttachSupportingDocumentProps) {
-  const { execute, isExecuting, result, reset } = useAction(
-    attachSupportingDocumentsAction,
-    {
-      onSuccess: () => {
-        toast.success("Supporting documents attached successfully");
-      },
-      onError: ({ error }) => {
-        toast.error(error.serverError || "Failed to attach documents");
-      },
-    }
-  );
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => {
+      const files = formData.getAll("files") as File[];
+      return attachSupportingDocumentsFn({ data: { appealId, files } });
+    },
+    onSuccess: () => {
+      toast.success("Supporting documents attached successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to attach documents"
+      );
+    },
+  });
 
   const handleFileUpload = (formData: FormData) => {
-    formData.append("appealId", appealId);
-    execute(formData);
+    mutation.mutate(formData);
   };
 
   return (
     <FileUploader
       label="Attach Supporting Document"
       onFileUpload={handleFileUpload}
-      isExecuting={isExecuting}
+      isExecuting={mutation.isPending}
       fileKey="files"
       maxFiles={5}
-      hideSubmitButton={!!result.data}
-      onOpenFileDialog={reset}
+      hideSubmitButton={!!mutation.data}
+      onOpenFileDialog={mutation.reset}
     />
   );
 }
