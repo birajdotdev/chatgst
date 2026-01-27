@@ -29,11 +29,7 @@ export function DraftView() {
     <div className="flex size-full max-h-fit flex-col gap-4.5">
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Suspense fallback={<DraftStepSkeleton />}>
-          <DraftContent
-            appealId={appealId}
-            documentId={documentId}
-            appealPromise={appealPromise}
-          />
+          <DraftContent appealId={appealId} appealPromise={appealPromise} />
         </Suspense>
       </ErrorBoundary>
     </div>
