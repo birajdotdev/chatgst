@@ -1,3 +1,4 @@
+import { AboutSection } from "@/modules/home/components/about-section";
 import { CtaSection } from "@/modules/home/components/cta-section";
 import { Features } from "@/modules/home/components/features";
 import { Footer } from "@/modules/home/components/footer";
@@ -12,6 +13,7 @@ export function LandingView() {
       <Features />
       <HowItWorks />
       <TranslationSection />
+      <AboutSection />
       <CtaSection />
       <Footer />
     </main>
