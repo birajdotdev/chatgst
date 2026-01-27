@@ -4,13 +4,11 @@ import { GenerateAppealApiResponse } from "@/modules/appeal-draft/types";
 
 interface DraftContentProps {
   appealId?: string | null;
-  documentId?: string | null;
   appealPromise: Promise<GenerateAppealApiResponse["data"]>;
 }
 
 export async function DraftContent({
   appealId,
-  documentId: _documentId,
   appealPromise,
 }: DraftContentProps) {
   const appealData = await appealPromise;
