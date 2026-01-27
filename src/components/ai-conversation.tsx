@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment } from "react";
 
 import { ChatStatus, UIDataTypes, UIMessage, UITools } from "ai";
 
@@ -29,32 +29,9 @@ export function AIConversation({
   loadingText = "Generating your response...",
   onSuggestionClick,
 }: AIConversationProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const lastMessageCountRef = useRef(messages.length);
-
-  // Auto-scroll to bottom when messages change or when streaming
-  useEffect(() => {
-    const shouldScroll =
-      messages.length > lastMessageCountRef.current ||
-      status === "streaming" ||
-      status === "submitted";
-
-    if (shouldScroll && contentRef.current) {
-      // Use requestAnimationFrame for smooth scrolling
-      requestAnimationFrame(() => {
-        contentRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-        });
-      });
-    }
-
-    lastMessageCountRef.current = messages.length;
-  }, [messages, status]);
-
   return (
     <Conversation className="h-full">
-      <ConversationContent className="h-full">
+      <ConversationContent className={messages.length === 0 ? "min-h-full" : ""}>
         {messages.length === 0 ? (
           <ConversationEmptyState className="flex size-full items-center justify-center p-0">
             <ChatSuggestions onClick={onSuggestionClick} />
@@ -90,8 +67,6 @@ export function AIConversation({
           ))
         )}
         {status === "submitted" && <Shimmer>{loadingText}</Shimmer>}
-        {/* Scroll anchor */}
-        <div ref={contentRef} />
       </ConversationContent>
       <ConversationScrollButton />
     </Conversation>
